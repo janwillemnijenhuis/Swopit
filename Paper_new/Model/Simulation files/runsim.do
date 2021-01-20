@@ -1,5 +1,5 @@
 version 14
-cd "/Users/jhuismans/Desktop/Paper"
+cd "C:\Users\janwi\OneDrive\Documents\PaperSwopit\Paper_new\Model" 
 mata: mata clear
 run DefModel.ado
 run helpfunctest.ado
@@ -9,18 +9,19 @@ mata:
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@       MANUAL INPUT      @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 
 /*                           generate artificial covariates                                 */
-n = 125	//0000
-dgp = "SWOPITC" //ZIOP, SWOPIT, SWOPITC
+n = 250	//0000
+dgp = "SWOPIT" //ZIOP, SWOPIT, SWOPITC
 overlap = "none" //"none", "partial", "complete" IMPORTANT: no caps
-boot = "ON" //ON, OFF note: boot for now only supported with getME and getprobs == TRUE (this is a small change just to not save me/pr in boot_matrix)
-stratified = "ON" //ON, OFF
+boot = "OFF" //ON, OFF note: boot for now only supported with getME and getprobs == TRUE (this is a small change just to not save me/pr in boot_matrix)
+stratified = "OFF" //ON, OFF
 covar = "TRUE" //ALL for all covariates, TRUE for calibration covariates
 getprobs = "TRUE" //FALSE to calculate without probs, TRUE for with
 getME = "TRUE" //FALSE without me, True for with
 
-n_converged = 1 //change to the amount of converged needed
+n_converged = 2 //change to the amount of converged needed
 sim_iter	= 10 * n_converged  //change to maximum number of attempts
 n_start_guesses = 3 // change to the number of starting guesses needed. If nothing specified starting guesses = 5
+param_limit=0 //invoke limit on parameter values. If set to 0 no limit is invoked.
 n_start_guesses_boot = 3 //starting guesses needed for bootstrap. If nothing specified starting guesses = 5
 s_change = 0.2 //If starting values are specified, next one willbe in [b0 - s*abs(b0),  b + s*abs(b0)], If nothing specified s_change = 0.5
 
@@ -50,7 +51,8 @@ for(it = start_iter; it <= sim_iter; it++){
 		"bad data generated, continue another y"
 		continue
 	}
-	estimate_and_get_params_v2(dgp,covar, p=., s=., me=., mese = ., pr = ., prse = ., conv = ., etime = ., eiter = ., y=y, x=x, z=z, infcat=infcat, getprobs, regeq, outeq1, outeq2,outeqtot,getME, xpop, n_start_guesses,s_change)
+	
+	estimate_and_get_params_v2(dgp,covar, p=., s=., me=., mese = ., pr = ., prse = ., conv = ., etime = ., eiter = ., y=y, x=x, z=z, infcat=infcat, getprobs, regeq, outeq1, outeq2,outeqtot,getME, xpop, n_start_guesses,s_change,param_limit)
 	
 	//Should do something with need_meprse=1, see function is needed for extra results
 	//We can maybe leave this out if we dont need those results.
@@ -133,7 +135,7 @@ for(it = start_iter; it <= sim_iter; it++){
 				}
 			
 			}
-			estimate_and_get_params_v2(dgp, covar, boot_p=., boot_s=., boot_me=., boot_mese = ., boot_pr = ., boot_prse = ., boot_conv = ., boot_etime = ., boot_eiter = ., y=y_iter, x=x_iter, z=z_iter, infcat=infcat, getprobs, regeq, outeq1, outeq2,outeqtot, getME, xpop, n_start_guesses_boot,s_change,p)
+			estimate_and_get_params_v2(dgp, covar, boot_p=., boot_s=., boot_me=., boot_mese = ., boot_pr = ., boot_prse = ., boot_conv = ., boot_etime = ., boot_eiter = ., y=y_iter, x=x_iter, z=z_iter, infcat=infcat, getprobs, regeq, outeq1, outeq2,outeqtot, getME, xpop, n_start_guesses_boot,s_change,param_limit,p)
 				if (boot_conv != 1) {	
 					"boot did not converge, resample once more"
 					continue
@@ -257,6 +259,7 @@ if (boot == "ON"){
 cv = invnormal(.975)
 
 meanparams = mean(allpa)
+
 rmse = (mean((allpa:-param_true):^2)):^0.5
 
 meanse = mean(allse)
@@ -537,4 +540,3 @@ excel.close_book()
 
 
 end						
-
