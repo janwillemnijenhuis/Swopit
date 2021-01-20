@@ -304,7 +304,7 @@ class ZIOPModel scalar ziop2test(string scalar xynames, string scalar znames, st
 
 }
 
-class ZIOPModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,startvalues){
+class ZIOPModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_limit,startvalues){
 	//Optional parameters
 	maxiter = 30
 	ptol = 1e-6
@@ -318,6 +318,16 @@ class ZIOPModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,startvalues
 	}
 	if (args() <= 5){
 		s_change = 0.5
+	}
+	if (args() <= 6){
+	    set_limit=0
+		// invoke limit on parameter estimates for MC experiments
+	} else if (param_limit == 0){
+	    set_limit=0
+		// if starting values are provided but one doesnt want a limit
+	} else {
+	    set_limit=1
+		// if one wants a limit and a limit is provided
 	}
 	
 	starttime = clock(c("current_time"),"hms")
@@ -357,7 +367,7 @@ class ZIOPModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,startvalues
 		y1 = select(y,r1)
 		y2 = select(y,r2)
 	
-		if(args() <= 6){
+		if(args() <= 7){
 			//"Finding outcome starting values"	
 			//paramsx = coeffOP(x, q, ncat, maxiter, ptol, vtol, nrtol) //For all obs
 			x1pars = coeffOP(x1obs, q1, ncat, maxiter, ptol, vtol, nrtol) //Random starting
@@ -388,6 +398,7 @@ class ZIOPModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,startvalues
 			coded_param = J(rows(coded_param), cols(coded_param), 0)
 
 		}
+	
 	
 		initial_coded_param = coded_param
 		
@@ -429,22 +440,46 @@ class ZIOPModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,startvalues
 			optimize_init_singularHmethod(S, singularHmethod)
 			optimize_init_conv_warning(S, "off") 
 			optimize_init_technique(S, opt_method)
+			optimize_init_constraints(S,)
 			errorcode 	= _optimize(S)
 			convg		= optimize_result_converged(S)
 			retCode		= optimize_result_errortext(S)
 			params 		= optimize_result_params(S)'
 			iterations 	= optimize_result_iterations(S)
-	
-			if(convg==1){
-				//"convergence"
-				break
+			
+			if (convg==1){
+			    if (set_limit==0){
+				    //"convergence"
+				    break
+				} else if (set_limit==1){
+				    param_lim = J(rows(params),cols(params),param_limit)
+					limit = (abs(params)<=param_lim)
+					if (limit == 1){
+						//"convergence"
+						break
+					} else if (limit == 0){
+						"convergence with absurd parameters, trying again with different method:"
+					}
+				}				
+				
 			}else{
 				"no convergence, trying again with different method:"
 			}
 		}
-		if(convg==1){
-			//"convergence"
-			break
+		if (convg==1){
+			if (set_limit==0){
+				//"convergence"
+				break
+			} else if (set_limit==1){
+				param_lim = J(rows(params),cols(params),param_limit)
+				limit = (abs(params)<=param_lim)
+				if (limit == 1){
+					//"convergence"
+					break
+				} else if (limit == 0){
+					"convergence with absurd parameters, trying again with different method:"
+				}
+			}
 		}else{
 			"no convergence, trying again with different starting values"
 		}
@@ -557,7 +592,7 @@ class ZIOPModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,startvalues
 	return(model)
 }
 
-class ZIOPModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,startvalues){
+class ZIOPModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_limit,startvalues){
 	//Optional parameters
 	maxiter = 30
 	ptol = 1e-6
@@ -571,6 +606,16 @@ class ZIOPModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,startvalue
 	}
 	if (args() <= 5){
 		s_change = 0.5
+	}
+	if (args() <= 6){
+	    set_limit=0
+		// invoke limit on parameter estimates for MC experiments
+	} else if (param_limit == 0){
+	    set_limit=0
+		// if starting values are provided but one doesnt want a limit
+	} else {
+	    set_limit=1
+		// if one wants a limit and a limit is provided
 	}
 	
 	starttime = clock(c("current_time"),"hms")
@@ -610,7 +655,7 @@ class ZIOPModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,startvalue
 		y1 = select(y,r1)
 		y2 = select(y,r2)
 	
-		if (args() <= 6){
+		if (args() <= 7){
 			if (j == 1){
 				//"Finding outcome starting values"	
 				//paramsx = coeffOP(x, q, ncat, maxiter, ptol, vtol, nrtol) //For all obs
@@ -758,19 +803,43 @@ class ZIOPModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,startvalue
 			params 		= optimize_result_params(S)'
 			iterations 	= optimize_result_iterations(S)
 
-			if(convg==1){
-				//"convergence"
-				break
+			if (convg==1){
+			    if (set_limit==0){
+				    //"convergence"
+				    break
+				} else if (set_limit==1){
+				    param_lim = J(rows(params),cols(params),param_limit)
+					limit = (abs(params)<=param_lim)
+					if (limit == 1){
+						//"convergence"
+						break
+					} else if (limit == 0){
+						"convergence with absurd parameters, trying again with different method:"
+					}
+				}				
+				
 			}else{
 				"no convergence, trying again with different method:"
 			}
 		}
-		if(convg==1){
-			//"convergence"
-			break
+		if (convg==1){
+			if (set_limit==0){
+				//"convergence"
+				break
+			} else if (set_limit==1){
+				param_lim = J(rows(params),cols(params),param_limit)
+				limit = (abs(params)<=param_lim)
+				if (limit == 1){
+					//"convergence"
+					break
+				} else if (limit == 0){
+					"convergence with absurd parameters, trying again with different method:"
+				}
+			}
 		}else{
 			"no convergence, trying again with different starting values"
 		}
+	
 	}
 	
 	_swopitc_params(params, kx1,kx2, kz, ncat, b1=., b2=., a1=., a2=., g=., mu=., rho1=., rho2=.)
@@ -1093,7 +1162,7 @@ class ZIOPModel scalar swopit2ctest(string scalar xynames, string scalar znames,
 }
 
 
-function estimate_and_get_params_v2(dgp,covar, p, s, me, mese, pr, prse, conv, etime, eiter, y, x, z, infcat, getprobs, regeq, outeq1,outeq2,outeqtot,getME,xpop,|guesses,s_change,startvalues) {
+function estimate_and_get_params_v2(dgp,covar, p, s, me, mese, pr, prse, conv, etime, eiter, y, x, z, infcat, getprobs, regeq, outeq1,outeq2,outeqtot,getME,xpop,|guesses,s_change,param_limit,startvalues) {
 	
 	class ZIOPModel scalar mod
 	if (dgp == "ZIOP") {
@@ -1109,10 +1178,10 @@ function estimate_and_get_params_v2(dgp,covar, p, s, me, mese, pr, prse, conv, e
 			xb1 = x
 			xb2 = x
 		}
-		if (args() == 24){
-			mod = estimateswopit(y, xb1, xb2, z, guesses,s_change)
+		if (args() == 25){
+			mod = estimateswopit(y, xb1, xb2, z, guesses,s_change,param_limit)
 		} else{
-			mod = estimateswopit(y, xb1, xb2, z, guesses,s_change, startvalues)
+			mod = estimateswopit(y, xb1, xb2, z, guesses,s_change,param_limit,startvalues)
 		}
 		kx1 = cols(xb1)
 		kx2 = cols(xb2)
@@ -1137,10 +1206,10 @@ function estimate_and_get_params_v2(dgp,covar, p, s, me, mese, pr, prse, conv, e
 			xb1 = x
 			xb2 = x
 		}
-		if (args() == 24){
-			mod = estimateswopitc(y, xb1, xb2, z,guesses,s_change)
+		if (args() == 25){
+			mod = estimateswopitc(y, xb1, xb2, z,guesses,s_change,param_limit)
 		} else{
-			mod = estimateswopitc(y, xb1, xb2, z,guesses,s_change,startvalues)
+			mod = estimateswopitc(y, xb1, xb2, z,guesses,s_change,param_limit,startvalues)
 		}
 		kx1 = cols(xb1)
 		kx2 = cols(xb2)
