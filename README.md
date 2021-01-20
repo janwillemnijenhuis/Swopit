@@ -6,3 +6,4 @@ To use:
 2. Run test_calibrswop.do with calibrated parameters.
 3. Run appswop2.do with the correct path and (post-)estimation commands specified.
 
+test2
