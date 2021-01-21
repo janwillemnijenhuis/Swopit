@@ -2,15 +2,19 @@ capture program drop swopit
 program swopit, eclass
 	version 14
 	syntax varlist(min=2) [if] [in] [, REGindepvars(varlist) OUTONEindepvars(varlist) OUTTWOindepvars(varlist)]
+
+	marksample touse
 	//display "`varlist'"
 	//display "`outindepvars'"
+	//display "`touse'"
+
 	mata: mata clear
 
 	run helpfunctest.ado
 	run DefModel.ado
 	run estimates.ado
 
-	mata: SWOPITMODEL = swopit2test("`varlist'","`regindepvars'","`outoneindepvars'","`outtwoindepvars'")
+	mata: SWOPITMODEL = swopit2test("`varlist'","`regindepvars'","`outoneindepvars'","`outtwoindepvars'", "`touse'")
 	ereturn post b V, esample(`touse')  depname(`depvar') obs(`N')
 	ereturn local predict "zioppredict"
 	ereturn local cmd "ziop2"

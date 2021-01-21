@@ -403,7 +403,7 @@ class ZIOPModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_limit
 		initial_coded_param = coded_param
 		
 		// different optim methods
-		for (i = 1; i <= 2; i++){	
+		for (i = 1; i <= 4; i++){	
 			if (i == 1) {
 			initial_coded_param = coded_param
 			opt_method = "nr"
@@ -413,6 +413,16 @@ class ZIOPModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_limit
 				initial_coded_param = coded_param
 				opt_method = "bhhh"
 				"bhhh"
+			}
+			if (i == 3) {
+				initial_coded_param = coded_param
+				opt_method = "dfp"
+				"dfp"
+			}
+			if (i == 4) {
+				initial_coded_param = coded_param
+				opt_method = "bfgs"
+				"bfgs"
 			}
 
 
@@ -758,7 +768,7 @@ class ZIOPModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_limi
 	
 		initial_coded_param = coded_param
 		// different optim methods
-		for (i = 1; i <= 2; i++){	
+		for (i = 1; i <= 4; i++){	
 			if (i == 1) {
 				initial_coded_param = coded_param
 				opt_method = "nr"
@@ -768,6 +778,16 @@ class ZIOPModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_limi
 				initial_coded_param = coded_param
 				opt_method = "bhhh"
 				"bhhh"
+			}
+			if (i == 3) {
+				initial_coded_param = coded_param
+				opt_method = "dfp"
+				"dfp"
+			}
+			if (i == 4) {
+				initial_coded_param = coded_param
+				opt_method = "bfgs"
+				"bfgs"
 			}
 	
 
@@ -948,7 +968,7 @@ class ZIOPModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_limi
 	return(model)
 }
 
-class ZIOPModel scalar swopit2test(string scalar xynames, string scalar znames, string scalar x1names, string scalar x2names){
+class ZIOPModel scalar swopit2test(string scalar xynames, string scalar znames, string scalar x1names, string scalar x2names, touse){
 	//testx1 = (1,0,1,0,1)
 	//testx2 = (0,1,0,1,0)
 	col_names = xynames
@@ -985,15 +1005,12 @@ class ZIOPModel scalar swopit2test(string scalar xynames, string scalar znames, 
 	if (strlen(x2names)==0){
 		x2names=xnames
 	}
-	
 
-	M = y = x1 = x2 = z = .
-	st_view(M,.,(yname, xnames),0)
-	st_subview(y, M, ., 1)
-	st_subview(x, M, ., (2\.))
-	z = st_data(.,(znames),0)
-	x1 = st_data(.,(x1names),0)
-	x2 = st_data(.,(x2names),0)
+	st_view(z  = ., ., znames, touse)
+	st_view(y  = ., ., yname, touse)
+	st_view(x  = ., ., xnames, touse)
+	st_view(x1 = ., ., x1names, touse)
+	st_view(x2 = ., ., x2names, touse)
 	
 	class ZIOPModel scalar model
 	model = estimateswopit(y, x1, x2, z)
@@ -1054,7 +1071,7 @@ class ZIOPModel scalar swopit2test(string scalar xynames, string scalar znames, 
 
 }
 
-class ZIOPModel scalar swopit2ctest(string scalar xynames, string scalar znames, string scalar x1names, string scalar x2names){
+class ZIOPModel scalar swopit2ctest(string scalar xynames, string scalar znames, string scalar x1names, string scalar x2names, touse){
 	//testx1 = (1,0,1,0,1)
 	//testx2 = (0,1,0,1,0)
 	col_names = xynames
@@ -1093,14 +1110,11 @@ class ZIOPModel scalar swopit2ctest(string scalar xynames, string scalar znames,
 		x2names=xnames
 	}
 	
-
-	M = y = x1 = x2 = z = .
-	st_view(M,.,(yname, xnames),0)
-	st_subview(y, M, ., 1)
-	st_subview(x, M, ., (2\.))
-	z = st_data(.,(znames),0)
-	x1 = st_data(.,(x1names),0)
-	x2 = st_data(.,(x2names),0)
+	st_view(z  = ., ., znames, touse)
+	st_view(y  = ., ., yname, touse)
+	st_view(x  = ., ., xnames, touse)
+	st_view(x1 = ., ., x1names, touse)
+	st_view(x2 = ., ., x2names, touse)
 	
 	class ZIOPModel scalar model
 	model = estimateswopitc(y, x1, x2, z)

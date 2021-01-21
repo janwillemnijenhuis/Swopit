@@ -2,6 +2,8 @@ capture program drop swopitc
 program swopitc, eclass
 	version 14
 	syntax varlist(min=2) [if] [in] [, REGindepvars(varlist) OUTONEindepvars(varlist) OUTTWOindepvars(varlist) ENDOswitch]
+
+	marksample touse
 	//display "`varlist'"
 	//display "`outindepvars'"
 	mata: mata clear
@@ -10,7 +12,7 @@ program swopitc, eclass
 	run DefModel.ado
 	run estimates.ado
 
-	mata: SWOPITMODEL = swopit2ctest("`varlist'","`regindepvars'","`outoneindepvars'","`outtwoindepvars'")
+	mata: SWOPITMODEL = swopit2ctest("`varlist'","`regindepvars'","`outoneindepvars'","`outtwoindepvars'","`touse'")
 
 
 
