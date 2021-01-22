@@ -314,7 +314,7 @@ class ZIOPModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_limit
 	infcat  = 0 //
 
 	if (args() == 4){
-		guesses = 5
+		guesses = 7
 	}
 	if (args() <= 5){
 		s_change = 0.5
@@ -348,6 +348,7 @@ class ZIOPModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_limit
 			q[.,i] = (y :== allcat[i])
 	}
 	
+	tot_converged = 0
 	for (j = 1; j <= guesses; j++){
 		//random starting regimes
 		r = runiform(n,1)
@@ -458,11 +459,12 @@ class ZIOPModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_limit
 			iterations 	= optimize_result_iterations(S)
 			
 			if (convg==1){
-			    if (set_limit==0){
-				    //"convergence"
-				    break
+				if (set_limit==0){
+				    	//"convergence"
+				    	break
+				
 				} else if (set_limit==1){
-				    param_lim = J(rows(params),cols(params),param_limit)
+				    	param_lim = J(rows(params),cols(params),param_limit)
 					limit = (abs(params)<=param_lim)
 					if (limit == 1){
 						//"convergence"
@@ -478,21 +480,68 @@ class ZIOPModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_limit
 		}
 		if (convg==1){
 			if (set_limit==0){
-				//"convergence"
-				break
+				"convergence"
+				if (tot_converged==0){
+					best_lik = optimize_result_value(S)
+					tot_converged = 1
+					j = 1
+					"trying more times for better likelihood"
+					best_retCode		= optimize_result_errortext(S)
+					best_params 		= optimize_result_params(S)'
+					best_iterations 	= optimize_result_iterations(S)
+				} else if (optimize_result_value(S) > best_lik){
+					best_lik = optimize_result_value(S)
+					j = 1
+					tot_converged = 1
+					"better likelihood found"
+					"trying more times for better likelihood"
+					best_retCode		= optimize_result_errortext(S)
+					best_params 		= optimize_result_params(S)'
+					best_iterations 	= optimize_result_iterations(S)
+				}
 			} else if (set_limit==1){
 				param_lim = J(rows(params),cols(params),param_limit)
 				limit = (abs(params)<=param_lim)
 				if (limit == 1){
-					//"convergence"
-					break
+					if (tot_converged==0){
+						best_lik = optimize_result_value(S)
+						tot_converged = 1
+						j = 1
+						"trying more times for better likelihood"
+						best_retCode		= optimize_result_errortext(S)
+						best_params 		= optimize_result_params(S)'
+						best_iterations 	= optimize_result_iterations(S)
+					} else if (optimize_result_value(S) > best_lik){
+						best_lik = optimize_result_value(S)
+						j = 1
+						tot_converged = 1
+						"better likelihood found"
+						"trying more times for better likelihood"
+						best_retCode		= optimize_result_errortext(S)
+						best_params 		= optimize_result_params(S)'
+						best_iterations 	= optimize_result_iterations(S)
+					}
+					
 				} else if (limit == 0){
+					"trying more times for better results"
 					"convergence with absurd parameters, trying again with different method:"
+					j = 1
 				}
 			}
 		}else{
 			"no convergence, trying again with different starting values"
 		}
+	
+	}
+	if (tot_converged == 1){
+		retCode		= best_retCode
+		params 		= best_params
+		iterations 	= best_iterations
+	}else{
+		"Sorry, but despite all attempts, estimation of SWOPIT parameters did not converge."
+		"Perhaps, there are too few data for such a complex model."
+		"Error code is " + strofreal(errorcode) + ": " + retCode
+		"Convergence status is " + strofreal(convg)
 	
 	}
 	
@@ -527,7 +576,7 @@ class ZIOPModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_limit
 	
 	optimize_init_params(S2, params')
 	errorcode2 = _optimize_evaluate(S2)
-	if (convg == 0) {
+	if (tot_converged == 0) {
 		// not successful, robust covatiance matrix cannot be calculated
 		maxLik	= optimize_result_value(S2)
 		grad 	= optimize_result_gradient(S2)
@@ -563,7 +612,7 @@ class ZIOPModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_limit
 	model.retCode = retCode
 	model.error_code = errorcode
 	model.etime = clock(c("current_time"),"hms") - starttime
-	model.converged = convg
+	model.converged = tot_converged
 	model.iterations = iterations
 
 	model.params = params
@@ -646,6 +695,7 @@ class ZIOPModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_limi
 			q[.,i] = (y :== allcat[i])
 	}
 	
+	tot_converged = 0
 	for (j = 1; j <= guesses; j++){
 		//random starting regimes
 		r = runiform(n,1)
@@ -842,23 +892,72 @@ class ZIOPModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_limi
 				"no convergence, trying again with different method:"
 			}
 		}
+
 		if (convg==1){
 			if (set_limit==0){
-				//"convergence"
-				break
+				"convergence"
+				if (tot_converged==0){
+					best_lik = optimize_result_value(S)
+					tot_converged = 1
+					j = 1
+					"trying more times for better likelihood"
+					best_retCode		= optimize_result_errortext(S)
+					best_params 		= optimize_result_params(S)'
+					best_iterations 	= optimize_result_iterations(S)
+				} else if (optimize_result_value(S) > best_lik){
+					best_lik = optimize_result_value(S)
+					j = 1
+					tot_converged = 1
+					"better likelihood found"
+					"trying more times for better likelihood"
+					best_retCode		= optimize_result_errortext(S)
+					best_params 		= optimize_result_params(S)'
+					best_iterations 	= optimize_result_iterations(S)
+				}
 			} else if (set_limit==1){
 				param_lim = J(rows(params),cols(params),param_limit)
 				limit = (abs(params)<=param_lim)
 				if (limit == 1){
-					//"convergence"
-					break
+					if (tot_converged==0){
+						best_lik = optimize_result_value(S)
+						tot_converged = 1
+						j = 1
+						"trying more times for better likelihood"
+						best_retCode		= optimize_result_errortext(S)
+						best_params 		= optimize_result_params(S)'
+						best_iterations 	= optimize_result_iterations(S)
+					} else if (optimize_result_value(S) > best_lik){
+						best_lik = optimize_result_value(S)
+						j = 1
+						tot_converged = 1
+						"better likelihood found"
+						"trying more times for better likelihood"
+						best_retCode		= optimize_result_errortext(S)
+						best_params 		= optimize_result_params(S)'
+						best_iterations 	= optimize_result_iterations(S)
+					}
+					
 				} else if (limit == 0){
+					"trying more times for better results"
 					"convergence with absurd parameters, trying again with different method:"
+					j = 1
 				}
 			}
 		}else{
 			"no convergence, trying again with different starting values"
 		}
+	
+	}
+	if (tot_converged == 1){
+		retCode		= best_retCode
+		params 		= best_params
+		iterations 	= best_iterations
+		
+	}else{
+		"Sorry, but despite all attempts, estimation of SWOPITC parameters did not converge."
+		"Perhaps, there are too few data for such a complex model."
+		"Error code is " + strofreal(errorcode) + ": " + retCode
+		"Convergence status is " + strofreal(convg)
 	
 	}
 	
@@ -929,7 +1028,7 @@ class ZIOPModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_limi
 	model.retCode = retCode
 	model.error_code = errorcode
 	model.etime = clock(c("current_time"),"hms") - starttime
-	model.converged = convg
+	model.converged = tot_converged
 	model.iterations = iterations
 
 	model.params = params
