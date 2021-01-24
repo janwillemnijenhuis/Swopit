@@ -313,16 +313,7 @@ class ZIOPModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_limit
 	lambda = 1e-50 
 	infcat  = 0 //
 
-	if (args() == 4){
-		guesses = 7
-	}
-	if (args() <= 5){
-		s_change = 0.5
-	}
-	if (args() <= 6){
-	    set_limit=0
-		// invoke limit on parameter estimates for MC experiments
-	} else if (param_limit == 0){
+	if (param_limit == 0){
 	    set_limit=0
 		// if starting values are provided but one doesnt want a limit
 	} else {
@@ -340,15 +331,23 @@ class ZIOPModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_limit
 	ncat = rows(allcat)
 	
 	infcat_index = selectindex(allcat :== infcat)
-	parlen = (kx1 + kx2 + kz + ncat) // seems redundant
+	parlen = (kx1 + ncat - 1 + kx2 + ncat - 1 + kz + 1) // seems redundant
 
 	// compute categories
 	q = J(n, ncat, 0)
 	for(i=1; i<=ncat; i++) {
 			q[.,i] = (y :== allcat[i])
 	}
-	
+
+	startoriginal = startvalues
+
+	if (cols(startoriginal) != parlen && startoriginal != .) {
+		"Vector of initial values must have length "+ strofreal(parlen)
+		startoriginal = .
+	}
+
 	tot_converged = 0
+	
 	for (j = 1; j <= guesses; j++){
 		//random starting regimes
 		r = runiform(n,1)
@@ -368,7 +367,7 @@ class ZIOPModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_limit
 		y1 = select(y,r1)
 		y2 = select(y,r2)
 	
-		if(args() <= 7){
+		if(startoriginal == .){
 			//"Finding outcome starting values"	
 			//paramsx = coeffOP(x, q, ncat, maxiter, ptol, vtol, nrtol) //For all obs
 			x1pars = coeffOP(x1obs, q1, ncat, maxiter, ptol, vtol, nrtol) //Random starting
@@ -377,6 +376,7 @@ class ZIOPModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_limit
 			//x1pars = paramsx // equal outcome in first determination of outcome pars
 			//x2pars = paramsx // comments these 2 lines for random starting
 			startparam = paramsz\x1pars\x2pars
+			startvalues = startparam
 		} else{
 			if (j == 1){
 				startparam = startvalues'
@@ -392,6 +392,7 @@ class ZIOPModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_limit
 
 		_swopit_params(startparam, kx1,kx2, kz, ncat, b1=., b2=., a1=., a2=., g=., mu=.)
 		//coded_param = g\mu\b1\a1\b2\a2
+
 		coded_param = g\codeIncreasingSequence(mu)\b1\codeIncreasingSequence(a1)\b2\codeIncreasingSequence(a2) //with a1,a2,b1,b2	
 
 		//replace by zeros if one of the variables is empty
@@ -544,7 +545,6 @@ class ZIOPModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_limit
 		"Convergence status is " + strofreal(convg)
 	
 	}
-	
 	_swopit_params(params, kx1,kx2, kz, ncat, b1=., b2=., a1=., a2=., g=., mu=.)
 	params = g\decodeIncreasingSequence(mu)\b1\decodeIncreasingSequence(a1)\b2\decodeIncreasingSequence(a2)
 	
@@ -660,16 +660,7 @@ class ZIOPModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_limi
 	lambda = 1e-50 
 	infcat  = 0 //
 
-	if (args() == 4){
-		guesses = 5
-	}
-	if (args() <= 5){
-		s_change = 0.5
-	}
-	if (args() <= 6){
-	    set_limit=0
-		// invoke limit on parameter estimates for MC experiments
-	} else if (param_limit == 0){
+	if (param_limit == 0){
 	    set_limit=0
 		// if starting values are provided but one doesnt want a limit
 	} else {
@@ -687,12 +678,19 @@ class ZIOPModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_limi
 	ncat = rows(allcat)
 	
 	infcat_index = selectindex(allcat :== infcat)
-	parlen = (kx1 + kx2 + kz + ncat) // seems redundant
+	parlen = (kx1+ ncat -1 + kx2 + ncat - 1 + kz + 1 + 2)
 
 	// compute categories
 	q = J(n, ncat, 0)
 	for(i=1; i<=ncat; i++) {
 			q[.,i] = (y :== allcat[i])
+	}
+
+	startoriginal = startvalues
+
+	if (cols(startoriginal) != parlen && startoriginal != .) {
+		"Vector of initial values must have length "+ strofreal(parlen)
+		startoriginal = .
 	}
 	
 	tot_converged = 0
@@ -715,7 +713,7 @@ class ZIOPModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_limi
 		y1 = select(y,r1)
 		y2 = select(y,r2)
 	
-		if (args() <= 7){
+		if (startoriginal == .){
 			if (j == 1){
 				//"Finding outcome starting values"	
 				//paramsx = coeffOP(x, q, ncat, maxiter, ptol, vtol, nrtol) //For all obs
@@ -1067,7 +1065,7 @@ class ZIOPModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_limi
 	return(model)
 }
 
-class ZIOPModel scalar swopit2test(string scalar xynames, string scalar znames, string scalar x1names, string scalar x2names, touse){
+class ZIOPModel scalar swopit2test(string scalar xynames, string scalar znames, string scalar x1names, string scalar x2names, touse, initial, guesses, change, limit){
 	//testx1 = (1,0,1,0,1)
 	//testx2 = (0,1,0,1,0)
 	col_names = xynames
@@ -1110,9 +1108,25 @@ class ZIOPModel scalar swopit2test(string scalar xynames, string scalar znames, 
 	st_view(x  = ., ., xnames, touse)
 	st_view(x1 = ., ., x1names, touse)
 	st_view(x2 = ., ., x2names, touse)
+
+	if (initial != "") {
+		initial = strtoreal(tokens(initial))'
+		if (sum(initial :== .) > 0) {
+			"Incorrect initial values! Expected a numeric sequence delimited with whitespace."
+			"Default initial values will be used."
+			initial = .
+		}
+	} else {
+		initial = .
+	}
+	
+	guesses = strtoreal(guesses)
+	change = strtoreal(change)
+	limit = strtoreal(limit)
+	initial = initial'
 	
 	class ZIOPModel scalar model
-	model = estimateswopit(y, x1, x2, z)
+	model = estimateswopit(y, x1, x2, z, guesses, change, limit, initial)
 	model.XZmedians = colmedian(x)
 	model.XZnames = xnames
 	model.outeq1 = outeq1
@@ -1170,7 +1184,7 @@ class ZIOPModel scalar swopit2test(string scalar xynames, string scalar znames, 
 
 }
 
-class ZIOPModel scalar swopit2ctest(string scalar xynames, string scalar znames, string scalar x1names, string scalar x2names, touse){
+class ZIOPModel scalar swopit2ctest(string scalar xynames, string scalar znames, string scalar x1names, string scalar x2names, touse, initial, guesses, change, limit){
 	//testx1 = (1,0,1,0,1)
 	//testx2 = (0,1,0,1,0)
 	col_names = xynames
@@ -1214,9 +1228,25 @@ class ZIOPModel scalar swopit2ctest(string scalar xynames, string scalar znames,
 	st_view(x  = ., ., xnames, touse)
 	st_view(x1 = ., ., x1names, touse)
 	st_view(x2 = ., ., x2names, touse)
+
+	if (initial != "") {
+		initial = strtoreal(tokens(initial))'
+		if (sum(initial :== .) > 0) {
+			"Incorrect initial values! Expected a numeric sequence delimited with whitespace."
+			"Default initial values will be used."
+			initial = .
+		}
+	} else {
+		initial = .
+	}
+
+	guesses = strtoreal(guesses)
+	change = strtoreal(change)
+	limit = strtoreal(limit)
+	initial = initial'
 	
 	class ZIOPModel scalar model
-	model = estimateswopitc(y, x1, x2, z)
+	model = estimateswopitc(y, x1, x2, z, guesses, change, limit, initial)
 	model.XZmedians = colmedian(x)
 	model.XZnames = xnames
 	model.outeq1 = outeq1
