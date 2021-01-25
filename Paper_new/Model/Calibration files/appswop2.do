@@ -1,5 +1,5 @@
 // SPECIFY TO THE LOCATION OF YOUR FILES // 
-cd "C:\Users\janwi\OneDrive\Documents\PaperSwopit\Paper_new\Model" 
+cd "C:\Users\janwi\OneDrive\Documents\PaperSwopit\Swopit\Paper_new\Model" 
 mata: mata clear
 // RUN FILES NEEDED FOR ESTIMATION // 
 run DefModel.ado
@@ -12,7 +12,7 @@ run estimates.ado
 //use EUKnowledge.dta
 
 // RUN SWOPIT ESTIMATION //
-//swopit y x1 x2 x3 x4 x5, reg(x1) outone(x2 x3) outtwo(x4 x5)
+swopit y x1 x2 x3 x4 x5, reg(x1) outone(x2 x3) outtwo(x4 x5)
 
 // RUN SWOPIT CORRELATED ESTIMATION //
 //swopitc y x1 x2 x3 x4 x5, reg(x1 x2 x3 x4 x5) outone(x1 x2 x3 x4 x5) outtwo(x1 x2 x3 x4 x5)

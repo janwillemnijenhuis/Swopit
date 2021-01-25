@@ -1,5 +1,5 @@
 version 14
-cd "C:\Users\janwi\OneDrive\Documents\PaperSwopit\Paper_new\Model" 
+cd "C:\Users\janwi\OneDrive\Documents\PaperSwopit\Swopit\Paper_new\Model" 
 mata: mata clear
 run DefModel.ado
 run helpfunctest.ado
@@ -9,25 +9,28 @@ mata:
 /*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@       MANUAL INPUT      @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
 
 /*                           generate artificial covariates                                 */
+
+// SPECIFY THE DGP //
 n = 250	//0000
 dgp = "SWOPIT" //ZIOP, SWOPIT, SWOPITC
 overlap = "none" //"none", "partial", "complete" IMPORTANT: no caps
 boot = "OFF" //ON, OFF note: boot for now only supported with getME and getprobs == TRUE (this is a small change just to not save me/pr in boot_matrix)
-stratified = "OFF" //ON, OFF
+stratified = "OFF" //ON, OFF, stratified bootstrap
 covar = "TRUE" //ALL for all covariates, TRUE for calibration covariates
 getprobs = "TRUE" //FALSE to calculate without probs, TRUE for with
 getME = "TRUE" //FALSE without me, True for with
 
+// SPECIFY THE SIMULATION CHARACTERISTICS //
 n_converged = 2 //change to the amount of converged needed
 sim_iter	= 10 * n_converged  //change to maximum number of attempts
 n_start_guesses = 3 // change to the number of starting guesses needed. If nothing specified starting guesses = 5
 param_limit=0 //invoke limit on parameter values. If set to 0 no limit is invoked.
 n_start_guesses_boot = 3 //starting guesses needed for bootstrap. If nothing specified starting guesses = 5
 s_change = 0.2 //If starting values are specified, next one willbe in [b0 - s*abs(b0),  b + s*abs(b0)], If nothing specified s_change = 0.5
-
 n_boot = 300 //number of bootstraps
 max_boot = 10 * n_boot //change to maximum number of attempts 
 
+// SET PARAMETERS FOR SIMULATION //
 starttime = clock(c("current_time"),"hms")
 start_iter = 1
 ready = 0
@@ -37,6 +40,14 @@ min_y_pct = 0.06 //to make sure enough variables per cat
 min_boot_y_pct = 0.06 //to make sure enough variables per cat
 infcat = 1 //change if needed
 not_converged = 0
+
+// SPECIFY STRUCTURAL PARAMETERS //
+maxiter=. // if nothing specified set to 30
+ptol=. // if nothing specified set to 1e-6
+vtol=. // if nothing specified set to 1e-7
+nrtol=. // if nothing specified set to 1e-5
+lambda=. // if nothing specified set to 1e-50
+startvalues=. // if nothing specified left empty
 
 //it limit depends on n_converged, 1 in 10 needs to converge
 for(it = start_iter; it <= sim_iter; it++){
@@ -51,8 +62,7 @@ for(it = start_iter; it <= sim_iter; it++){
 		"bad data generated, continue another y"
 		continue
 	}
-	
-	estimate_and_get_params_v2(dgp,covar, p=., s=., me=., mese = ., pr = ., prse = ., conv = ., etime = ., eiter = ., y=y, x=x, z=z, infcat=infcat, getprobs, regeq, outeq1, outeq2,outeqtot,getME, xpop, n_start_guesses,s_change,param_limit)
+	estimate_and_get_params_v2(dgp,covar, p=., s=., me=., mese = ., pr = ., prse = ., conv = ., etime = ., eiter = ., y=y, x=x, z=z, infcat=infcat, getprobs, regeq, outeq1, outeq2,outeqtot,getME, xpop, n_start_guesses,s_change,param_limit,startvalues,maxiter,ptol,vtol,nrtol,lambda)
 	
 	//Should do something with need_meprse=1, see function is needed for extra results
 	//We can maybe leave this out if we dont need those results.
@@ -135,7 +145,7 @@ for(it = start_iter; it <= sim_iter; it++){
 				}
 			
 			}
-			estimate_and_get_params_v2(dgp, covar, boot_p=., boot_s=., boot_me=., boot_mese = ., boot_pr = ., boot_prse = ., boot_conv = ., boot_etime = ., boot_eiter = ., y=y_iter, x=x_iter, z=z_iter, infcat=infcat, getprobs, regeq, outeq1, outeq2,outeqtot, getME, xpop, n_start_guesses_boot,s_change,param_limit,p)
+			estimate_and_get_params_v2(dgp, covar, boot_p=., boot_s=., boot_me=., boot_mese = ., boot_pr = ., boot_prse = ., boot_conv = ., boot_etime = ., boot_eiter = ., y=y_iter, x=x_iter, z=z_iter, infcat=infcat, getprobs, regeq, outeq1, outeq2,outeqtot, getME, xpop, n_start_guesses_boot,s_change,param_limit,p,maxiter,ptol,vtol,nrtol,lambda)
 				if (boot_conv != 1) {	
 					"boot did not converge, resample once more"
 					continue
@@ -314,7 +324,6 @@ if (getprobs == "TRUE"){
 }
 
 if (getME == "TRUE"){
-	"test1"
 	me_true = rowshape(me_true,1)
 	m_meanparams = mean(allme)
 	m_rmse = (mean((allme:-me_true):^2)):^0.5

@@ -1300,7 +1300,19 @@ class ZIOPModel scalar swopit2ctest(string scalar xynames, string scalar znames,
 }
 
 
-function estimate_and_get_params_v2(dgp,covar, p, s, me, mese, pr, prse, conv, etime, eiter, y, x, z, infcat, getprobs, regeq, outeq1,outeq2,outeqtot,getME,xpop,|guesses,s_change,param_limit,startvalues) {
+function estimate_and_get_params_v2(dgp,covar, p, s, me, mese, pr, prse, conv, etime, eiter, y, x, z, infcat, getprobs, regeq, outeq1,outeq2,outeqtot,getME,xpop,|guesses,s_change,param_limit,startvalues,maxiter,ptol,vtol,nrtol,lambda) {
+	
+	if (maxiter==.){
+		maxiter = 30
+	} if (ptol==.){
+		ptol = 1e-6
+	} if (vtol==.){
+		vtol = 1e-7
+	} if (nrtol==.){
+		nrtol = 1e-5
+	} if (lambda==.){
+		lambda = 1e-50 
+	}
 	
 	class ZIOPModel scalar mod
 	if (dgp == "ZIOP") {
@@ -1316,10 +1328,10 @@ function estimate_and_get_params_v2(dgp,covar, p, s, me, mese, pr, prse, conv, e
 			xb1 = x
 			xb2 = x
 		}
-		if (args() == 25){
-			mod = estimateswopit(y, xb1, xb2, z, guesses,s_change,param_limit)
+		if (startvalues==.){
+			mod = estimateswopit(y, xb1, xb2, z, guesses,s_change,param_limit, ., maxiter, ptol, vtol, nrtol, lambda)
 		} else{
-			mod = estimateswopit(y, xb1, xb2, z, guesses,s_change,param_limit,startvalues)
+			mod = estimateswopit(y, xb1, xb2, z, guesses,s_change,param_limit,startvalues, maxiter, ptol, vtol, nrtol, lambda)
 		}
 		kx1 = cols(xb1)
 		kx2 = cols(xb2)
@@ -1345,9 +1357,9 @@ function estimate_and_get_params_v2(dgp,covar, p, s, me, mese, pr, prse, conv, e
 			xb2 = x
 		}
 		if (args() == 25){
-			mod = estimateswopitc(y, xb1, xb2, z,guesses,s_change,param_limit)
+			mod = estimateswopitc(y, xb1, xb2, z,guesses,s_change,param_limit, ., maxiter, ptol, vtol, nrtol, lambda)
 		} else{
-			mod = estimateswopitc(y, xb1, xb2, z,guesses,s_change,param_limit,startvalues)
+			mod = estimateswopitc(y, xb1, xb2, z,guesses,s_change,param_limit,startvalues, maxiter, ptol, vtol, nrtol, lambda)
 		}
 		kx1 = cols(xb1)
 		kx2 = cols(xb2)
