@@ -186,7 +186,6 @@ class ZIOPModel scalar estimateziop(y,x,z){
 	model.n	= n
 	model.k	= kx + kz
 	model.ncat	= ncat
-	model.infcat = infcat_index
 	model.allcat = allcat
 	model.classes = q
 	model.retCode = retCode
@@ -304,14 +303,7 @@ class ZIOPModel scalar ziop2test(string scalar xynames, string scalar znames, st
 
 }
 
-class ZIOPModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_limit,startvalues){
-	//Optional parameters
-	maxiter = 30
-	ptol = 1e-6
-	vtol = 1e-7
-	nrtol = 1e-5
-	lambda = 1e-50 
-	infcat  = 0 //
+class ZIOPModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_limit,startvalues, maxiter, ptol, vtol, nrtol, lambda){
 
 	if (param_limit == 0){
 	    set_limit=0
@@ -330,7 +322,6 @@ class ZIOPModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_limit
 	allcat = uniqrows(y)
 	ncat = rows(allcat)
 	
-	infcat_index = selectindex(allcat :== infcat)
 	parlen = (kx1 + ncat - 1 + kx2 + ncat - 1 + kz + 1) // seems redundant
 
 	// compute categories
@@ -341,7 +332,7 @@ class ZIOPModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_limit
 
 	startoriginal = startvalues
 
-	if (cols(startoriginal) != parlen && startoriginal != .) {
+	if (cols(startoriginal) != parlen && startoriginal != . && cols(startoriginal) > 0) {
 		"Vector of initial values must have length "+ strofreal(parlen)
 		startoriginal = .
 	}
@@ -606,7 +597,6 @@ class ZIOPModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_limit
 	model.n	= n
 	model.k	= kx1 + kx2 + kz
 	model.ncat	= ncat
-	model.infcat = infcat_index
 	model.allcat = allcat
 	model.classes = q
 	model.retCode = retCode
@@ -651,14 +641,7 @@ class ZIOPModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_limit
 	return(model)
 }
 
-class ZIOPModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_limit,startvalues){
-	//Optional parameters
-	maxiter = 30
-	ptol = 1e-6
-	vtol = 1e-7
-	nrtol = 1e-5
-	lambda = 1e-50 
-	infcat  = 0 //
+class ZIOPModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_limit,startvalues, maxiter, ptol, vtol, nrtol, lambda){
 
 	if (param_limit == 0){
 	    set_limit=0
@@ -677,7 +660,6 @@ class ZIOPModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_limi
 	allcat = uniqrows(y)
 	ncat = rows(allcat)
 	
-	infcat_index = selectindex(allcat :== infcat)
 	parlen = (kx1+ ncat -1 + kx2 + ncat - 1 + kz + 1 + 2)
 
 	// compute categories
@@ -688,7 +670,7 @@ class ZIOPModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_limi
 
 	startoriginal = startvalues
 
-	if (cols(startoriginal) != parlen && startoriginal != .) {
+	if (cols(startoriginal) != parlen && startoriginal != . && cols(startoriginal) > 0) {
 		"Vector of initial values must have length "+ strofreal(parlen)
 		startoriginal = .
 	}
@@ -712,7 +694,7 @@ class ZIOPModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_limi
 		q2 = select(q,r2)
 		y1 = select(y,r1)
 		y2 = select(y,r2)
-	
+		startoriginalc
 		if (startoriginal == .){
 			if (j == 1){
 				//"Finding outcome starting values"	
@@ -726,7 +708,8 @@ class ZIOPModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_limi
 
 				//Maybe not needed??
 				class ZIOPModel scalar initial_model 
-				initial_model = estimateswopit(y,x1,x2,z,guesses)
+				initial_model = estimateswopit(y,x1,x2,z,guesses, s_change, param_limit, ., maxiter, ptol, vtol, nrtol, lambda)
+
 				startparams = initial_model.params
 			
 				X = -9::9
@@ -750,11 +733,13 @@ class ZIOPModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_limi
 				startvalues = startparam
 			}
 			else{
+	
 				startparam = startvalues
+
 				for (k = 1; k <= rows(startvalues)-2; k++){
 					startparam[k] = startparam[k] + s_change*runiform(1,1, -abs(startparam[k]), abs(startparam[k]))
 				}
-				
+			
 				initialtest = startparam
 				startparams = startparam[1::(rows(startvalues)-2)]
 				best_likelihood = mlswoptwoc(initialtest,x1,x2,z,1,ncat)
@@ -801,7 +786,6 @@ class ZIOPModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_limi
 				startparam = startparams\bestrho
 			}
 		}
-
 
 		_swopitc_params(startparam, kx1,kx2, kz, ncat, b1=., b2=., a1=., a2=., g=., mu=., rho1=., rho2=.)
 		//coded_param = g\mu\b1\a1\b2\a2
@@ -1020,7 +1004,6 @@ class ZIOPModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_limi
 	model.n	= n
 	model.k	= kx1 + kx2 + kz
 	model.ncat	= ncat
-	model.infcat = infcat_index
 	model.allcat = allcat
 	model.classes = q
 	model.retCode = retCode
@@ -1065,7 +1048,7 @@ class ZIOPModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_limi
 	return(model)
 }
 
-class ZIOPModel scalar swopit2test(string scalar xynames, string scalar znames, string scalar x1names, string scalar x2names, touse, initial, guesses, change, limit){
+class ZIOPModel scalar swopit2test(string scalar xynames, string scalar znames, string scalar x1names, string scalar x2names, touse, initial, guesses, change, limit, maxiter, ptol, vtol, nrtol, lambda){
 	//testx1 = (1,0,1,0,1)
 	//testx2 = (0,1,0,1,0)
 	col_names = xynames
@@ -1123,10 +1106,16 @@ class ZIOPModel scalar swopit2test(string scalar xynames, string scalar znames, 
 	guesses = strtoreal(guesses)
 	change = strtoreal(change)
 	limit = strtoreal(limit)
+	maxiter = strtoreal(maxiter)
+	nrtol = strtoreal(nrtol)
+	ptol = strtoreal(ptol)
+	vtol = strtoreal(vtol)
+	lambda = strtoreal(lambda)
+
 	initial = initial'
 	
 	class ZIOPModel scalar model
-	model = estimateswopit(y, x1, x2, z, guesses, change, limit, initial)
+	model = estimateswopit(y, x1, x2, z, guesses, change, limit, initial, maxiter, ptol, vtol, nrtol, lambda)
 	model.XZmedians = colmedian(x)
 	model.XZnames = xnames
 	model.outeq1 = outeq1
@@ -1184,7 +1173,7 @@ class ZIOPModel scalar swopit2test(string scalar xynames, string scalar znames, 
 
 }
 
-class ZIOPModel scalar swopit2ctest(string scalar xynames, string scalar znames, string scalar x1names, string scalar x2names, touse, initial, guesses, change, limit){
+class ZIOPModel scalar swopit2ctest(string scalar xynames, string scalar znames, string scalar x1names, string scalar x2names, touse, initial, guesses, change, limit, maxiter, ptol, vtol, nrtol, lambda){
 	//testx1 = (1,0,1,0,1)
 	//testx2 = (0,1,0,1,0)
 	col_names = xynames
@@ -1243,10 +1232,16 @@ class ZIOPModel scalar swopit2ctest(string scalar xynames, string scalar znames,
 	guesses = strtoreal(guesses)
 	change = strtoreal(change)
 	limit = strtoreal(limit)
+	maxiter = strtoreal(maxiter)
+	nrtol = strtoreal(nrtol)
+	ptol = strtoreal(ptol)
+	vtol = strtoreal(vtol)
+	lambda = strtoreal(lambda)
+
 	initial = initial'
 	
 	class ZIOPModel scalar model
-	model = estimateswopitc(y, x1, x2, z, guesses, change, limit, initial)
+	model = estimateswopitc(y, x1, x2, z, guesses, change, limit, initial, maxiter, ptol, vtol, nrtol, lambda)
 	model.XZmedians = colmedian(x)
 	model.XZnames = xnames
 	model.outeq1 = outeq1

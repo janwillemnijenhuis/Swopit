@@ -1,12 +1,9 @@
 capture program drop swopit
 program swopit, eclass
 	version 14
-	syntax varlist(min=2) [if] [in] [, REGindepvars(varlist) OUTONEindepvars(varlist) OUTTWOindepvars(varlist) INITIAL(string asis) GUESSES(real 7) CHANGE(real 0.5) LIMit(real 0)]
+	syntax varlist(min=2) [if] [in] [, REGindepvars(varlist) OUTONEindepvars(varlist) OUTTWOindepvars(varlist) INITIAL(string asis) GUESSES(real 7) CHANGE(real 0.5) LIMit(real 0) MAXITER(real 30) PTOL(real 1e-6) VTOL(real 1e-7) NRTOL(real 1e-5) LAMBDA(real 1e-50)]
 
 	marksample touse
-	//display "`varlist'"
-	//display "`outindepvars'"
-	//display "`touse'"
 
 	mata: mata clear
 
@@ -14,7 +11,7 @@ program swopit, eclass
 	run DefModel.ado
 	run estimates.ado
 
-	mata: SWOPITMODEL = swopit2test("`varlist'","`regindepvars'","`outoneindepvars'","`outtwoindepvars'", "`touse'", "`initial'", "`guesses'", "`change'", "`limit'")
+	mata: SWOPITMODEL = swopit2test("`varlist'","`regindepvars'","`outoneindepvars'","`outtwoindepvars'", "`touse'", "`initial'", "`guesses'", "`change'", "`limit'", "`maxiter'", "`ptol'", "`vtol'", "`nrtol'", "`lambda'")
 	ereturn post b V, esample(`touse')  depname(`depvar') obs(`N')
 	ereturn local predict "zioppredict"
 	ereturn local cmd "ziop2"
