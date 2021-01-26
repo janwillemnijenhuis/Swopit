@@ -9,3 +9,4 @@ program swopitprobabilities, rclass
 	return matrix t t
 	return matrix pval pval
 end
+

@@ -495,6 +495,7 @@ class ZIOPModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_limit
 				param_lim = J(rows(params),cols(params),param_limit)
 				limit = (abs(params)<=param_lim)
 				if (limit == 1){
+					"convergence"
 					if (tot_converged==0){
 						best_lik = optimize_result_value(S)
 						tot_converged = 1
@@ -529,6 +530,9 @@ class ZIOPModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_limit
 		retCode		= best_retCode
 		params 		= best_params
 		iterations 	= best_iterations
+
+		"No more converged estimations found with higher likelihood"
+	
 	}else{
 		"Sorry, but despite all attempts, estimation of SWOPIT parameters did not converge."
 		"Perhaps, there are too few data for such a complex model."
@@ -694,7 +698,7 @@ class ZIOPModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_limi
 		q2 = select(q,r2)
 		y1 = select(y,r1)
 		y2 = select(y,r2)
-		startoriginalc
+
 		if (startoriginal == .){
 			if (j == 1){
 				//"Finding outcome starting values"	
@@ -711,6 +715,7 @@ class ZIOPModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_limi
 				initial_model = estimateswopit(y,x1,x2,z,guesses, s_change, param_limit, ., maxiter, ptol, vtol, nrtol, lambda)
 
 				startparams = initial_model.params
+				swopit_likelihood = initial_model.logLik
 			
 				X = -9::9
 				Y = -9::9
@@ -879,13 +884,30 @@ class ZIOPModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_limi
 			if (set_limit==0){
 				"convergence"
 				if (tot_converged==0){
-					best_lik = optimize_result_value(S)
-					tot_converged = 1
-					j = 1
-					"trying more times for better likelihood"
-					best_retCode		= optimize_result_errortext(S)
-					best_params 		= optimize_result_params(S)'
-					best_iterations 	= optimize_result_iterations(S)
+					if (startoriginal == .){
+						if (optimize_result_value(S) > swopit_likelihood){
+							best_lik = optimize_result_value(S)
+							tot_converged = 1
+							j = 1
+							"trying more times for better likelihood"
+							best_retCode		= optimize_result_errortext(S)
+							best_params 		= optimize_result_params(S)'
+							best_iterations 	= optimize_result_iterations(S)
+						} else{
+							"likelihood is worse than original Swopit: local maxima"
+							"trying again for better likelihood"
+							j = 1
+						}
+					}else{
+						best_lik = optimize_result_value(S)
+						tot_converged = 1
+						j = 1
+						"trying more times for better likelihood"
+						best_retCode		= optimize_result_errortext(S)
+						best_params 		= optimize_result_params(S)'
+						best_iterations 	= optimize_result_iterations(S)
+					}
+
 				} else if (optimize_result_value(S) > best_lik){
 					best_lik = optimize_result_value(S)
 					j = 1
@@ -900,14 +922,32 @@ class ZIOPModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_limi
 				param_lim = J(rows(params),cols(params),param_limit)
 				limit = (abs(params)<=param_lim)
 				if (limit == 1){
+					"convergence"
 					if (tot_converged==0){
-						best_lik = optimize_result_value(S)
-						tot_converged = 1
-						j = 1
-						"trying more times for better likelihood"
-						best_retCode		= optimize_result_errortext(S)
-						best_params 		= optimize_result_params(S)'
-						best_iterations 	= optimize_result_iterations(S)
+						if (startoriginal == .){
+							if (optimize_result_value(S) > swopit_likelihood){
+								best_lik = optimize_result_value(S)
+								tot_converged = 1
+								j = 1
+								"trying more times for better likelihood"
+								best_retCode		= optimize_result_errortext(S)
+								best_params 		= optimize_result_params(S)'
+								best_iterations 	= optimize_result_iterations(S)
+							} else{
+								"likelihood is worse than original Swopit: local maxima"
+								"trying again for better likelihood"
+								j = 1
+							}
+						}
+						else{
+							best_lik = optimize_result_value(S)
+							tot_converged = 1
+							j = 1
+							"trying more times for better likelihood"
+							best_retCode		= optimize_result_errortext(S)
+							best_params 		= optimize_result_params(S)'
+							best_iterations 	= optimize_result_iterations(S)
+						}
 					} else if (optimize_result_value(S) > best_lik){
 						best_lik = optimize_result_value(S)
 						j = 1
@@ -934,6 +974,8 @@ class ZIOPModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_limi
 		retCode		= best_retCode
 		params 		= best_params
 		iterations 	= best_iterations
+
+		"No more converged estimations found with higher likelihood"
 		
 	}else{
 		"Sorry, but despite all attempts, estimation of SWOPITC parameters did not converge."
@@ -1122,10 +1164,13 @@ class ZIOPModel scalar swopit2test(string scalar xynames, string scalar znames, 
 	model.outeq2 = outeq2
 	model.regeq = regeq
 
+	if(model.converged == 1){
+		"Printing converged estimation with highest likelihood:"
+	}
 
 	switching_type = "Exogenous"
-	model_suptype = "Two regime switching regression"
-	model_type = "Two Regime Switching Regression"
+	model_suptype = "Two-regime switching ordered probit regression"
+	model_type = "Two-regime switching ordered probit regression"
 
 	printf("%s\n", model_suptype)
 	printf("Regime switching:        %s  \n", switching_type)
@@ -1248,11 +1293,13 @@ class ZIOPModel scalar swopit2ctest(string scalar xynames, string scalar znames,
 	model.outeq2 = outeq2
 	model.regeq = regeq
 
-
+	if(model.converged == 1){
+		"Printing converged estimation with highest likelihood:"
+	}
 
 	switching_type = "Endogenous"
-	model_suptype = "Two regime switching regression"
-	model_type = "Two Regime Switching Regression"
+	model_suptype = "Two-regime switching ordered probit regression"
+	model_type = "Two-regime switching ordered probit regression"
 
 	printf("%s\n", model_suptype)
 	printf("Regime switching:        %s  \n", switching_type)
