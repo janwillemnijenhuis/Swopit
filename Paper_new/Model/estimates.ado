@@ -456,7 +456,7 @@ class ZIOPModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_limit
 				    	break
 				
 				} else if (set_limit==1){
-				    	param_lim = J(rows(params),cols(params),param_limit)
+				    param_lim = J(rows(params),cols(params),param_limit)
 					limit = (abs(params)<=param_lim)
 					if (limit == 1){
 						//"convergence"
@@ -1573,9 +1573,10 @@ function SWOPITclassification(class ZIOPModel scalar model){
 	classes = model.classes
 	ncat = model.ncat
 	prob_obs = model.probabilities
+	temp_cat = 0::(ncat-1)
 	predictions = (prob_obs:==rowmax(prob_obs))
-	prediction = rowsum(predictions:*allcat')
-	classes = rowsum(classes:*allcat')
+	prediction = rowsum(predictions:*temp_cat')
+	classes = rowsum(classes:*temp_cat')
 	conf_mat = J(ncat,ncat,0)
 	for (i=1;i<=rows(classes);i++){
 		j = prediction[i]+1
