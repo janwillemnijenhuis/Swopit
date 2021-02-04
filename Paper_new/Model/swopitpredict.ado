@@ -4,3 +4,4 @@ program swopitpredict
 	syntax name [if] [in] [, zeros regimes]
 	mata: SWOPITpredict(SWOPITMODEL, "`zeros'" == "zeros", "`regimes'"=="regimes")
 end
+

@@ -9,3 +9,5 @@ program swopitmargins, rclass
 	return matrix t t
 	return matrix pval pval
 end
+
+
