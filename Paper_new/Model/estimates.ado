@@ -1416,6 +1416,8 @@ function estimate_and_get_params_v2(dgp,covar, p, s, me, mese, pr, prse, conv, e
 		if (g[1] <= 0){
 			g = -g
 			mu = -mu
+			rho1 = -rho1
+			rho2 = -rho2
 			mod.params = g\mu\b2\a2\b1\a1\rho2\rho1
 			_swopitc_params(mod.se, kx1, kx2, kz, ncat, b1=., b2=., a1=., a2=., g=., mu=., rho1=., rho2=.)
 			mod.se = g\mu\b2\a2\b1\a1\rho2\rho1	
