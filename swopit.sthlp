@@ -1,9 +1,9 @@
 {smcl}
-{* *! version 0.0.1  04february2021}{...}
+{* *! version 0.0.1  04feb2021}{...}
 {title:Title}
 
-{pstd}{helpb ziop##swopit:swopit} {c -} Two-regime switching ordered probit regression{p_end}
-{pstd}{helpb ziop##swopitc:swopitc} {c -} Correlated two-regime switching ordered probit regression{p_end}
+{pstd}{helpb swopit##swopit:swopit} {c -} Two-regime switching ordered probit regression{p_end}
+{pstd}{helpb swopit##swopitc:swopitc} {c -} Correlated two-regime switching ordered probit regression{p_end}
 
 
 {title:Syntax}
@@ -25,80 +25,57 @@
 {syntab :Model}
 {synopt :{opth reg:indepvars(varlist)}} independent variables in the regime equation;if nothing specified, it is identical to {it:indepvars}.{p_end}
 
-{synopt :{opth outone:indepvars(varlist)}} independent variables in the outcome equation of the 1st regression equation; if nothing specified, it is identical to {it:indepvars}.{p_end}
+{synopt :{opth outone:indepvars(varlist)}} independent variables in the outcome equation of the 1st regime; if nothing specified, it is identical to {it:indepvars}.{p_end}
 
-{synopt :{opth outtwo:indepvars(varlist)}} independent variables in the outcome equation of the 2nd regression equation; if nothing specified, it is identical to {it:indepvars}.{p_end}
-
-{synopt :{opt initial:(string asis)}} idk wat dit is.{p_end}
+{synopt :{opth outtwo:indepvars(varlist)}} independent variables in the outcome equation of the 2nd regime; if nothing specified, it is identical to {it:indepvars}.{p_end}
 
 {synopt :{opt guesses:(scalar)}} define the number of guesses of starting values; if nothing specified it is set to 7.{p_end}
 
-{synopt :{opt change:(scalar)}} idk wat dit is; if nothing specified it is set to 0.5.{p_end}
+{synopt :{opt change:(scalar)}} interval for starting values. If starting values are given by user, this will create slightly adjusted starting values to ensure global optimization according to the formula: {it:startingvalues = startingvalues + change * UNIF(-abs(startingvalues), abs(startingvalues))}; if nothing specified it is set to 0.5.{p_end}
 
 {synopt :{opt lim:it(scalar)}} limit on parameter values; if nothing specified it is set to 0 and no limit is set.{p_end}
 
 {synopt :{opt maxiter:(scalar)}} maximum number of optimization iterations before quitting; if nothing specified it is set to 30.{p_end}
 
-{synopt :{opt ptol:(scalar)}} probability tolerance;if nothing specified it is set to 1e-6.{p_end}
+{synopt :{opt ptol:(scalar)}} relative difference in coefficients; if nothing specified it is set to 1e-6.{p_end}
 
-{synopt :{opt vtol:(scalar)}} variance tolerance;if nothing specified it is set to 1e-7.{p_end}
+{synopt :{opt vtol:(scalar)}} relative difference in objective function; if nothing specified it is set to 1e-7.{p_end}
 
-{synopt :{opt nrtol:(scalar)}} newton-rhapson tolerance;if nothing specified it is set to 1e-5.{p_end}
+{synopt :{opt nrtol:(scalar)}} scaled hessian; if nothing specified it is set to 1e-5.{p_end}
 
-{synopt :{opt lambda:(scalar)}} lambda?;if nothing specified it is set to 50.{p_end}
+{synopt :{opt lambda:(scalar)}} coefficient for ridge estimation (yet to be implemented); if nothing specified it is set to 50.{p_end}
 
-{syntab :SE/Robust}
-{synopt :{opt robust}} use robust sandwich estimator of variance; the default estimator is based on the observed information matrix.{p_end}
-{synopt :{opth cluster(varname)}} clustering variable for the clustered robust sandwich estimator of variance{p_end}
-
-{syntab :Reporting}
-{synopt :{opt vuong}} perform the Vuong test (Vuong 1989) against the conventional ordered probit (OP) model (not available for {cmd:ziop2}).{p_end}
- 
 {syntab :Maximization}
 {synopt :{opt initial(string)}} whitespace-delimited list of the starting values of the parameters in the following order: gamma, mu, beta+, alpha+, beta-, alpha-, rho-, rho+ for the {cmd:nop} and {cmd:ziop3} regressions, and gamma, mu, beta, alpha, rho for the {cmd:ziop2} regression.{p_end}
-{synopt :{opt nolog}} suppress the iteration log and intermediate results.{p_end}
 {synoptline}
 
-{pstd}See {help ziop_postestimation:ziop postestimation} for features available after estimation.{p_end}
+{pstd}See {help swopitpostestimation:swopit postestimation} for features available after estimation.{p_end}
 
 {title:}
 
 
 {marker nop}{...}
-{p 4 7}{cmd:nop} estimates a three-part nested ordered probit regresion (Sirchenko 2020) of an ordinal dependent variable {depvar} on three sets of independent variables: {it:indepvars} in the regime equation, {opt posindepvars(varlist)} in the outcome equation conditional on the regime s=1, and {opt negindepvars(varlist)} in the outcome equation conditional on the regime s=-1.{p_end}
+{p 4 7}{cmd:swopit} estimates a two-regime switching ordered probit regression (Sirchenko 2020) of an ordinal dependent variable {depvar} on independent variables {it:indepvar}. If nothing else specified, all independent variables are used in the regime and outcome equations. Different sets of variables can be specified by using the following optional commands: {opt reg:indepvars(varlist)} in the regime equation, {opt outone:indepvars(varlist)} in the outcome equation conditional on the first regime, and {opt outtwoindepvars(varlist)} in the outcome equation conditional on the second regime.{p_end}
 
-{marker ziop2}{...}
-{p 4 7}{cmd:ziop2} estimates a two-part zero-inflated ordered probit regression (Harris and Zhao 2007; Brooks, Harris and Spencer 2012; Bagozzi and Mukherjee 2012) of an ordinal dependent variable {depvar} on two sets of independent variables: {it:indepvars} in the regime equation and {opt outindepvars(varlist)} in the outcome equation.{p_end}
+{p 4 7}{cmd:swopitc} estimates a two-regime switching ordered probit regression with endogenous switching (Sirchenko 2020) of an ordinal dependent variable {depvar} on independent variables {it:indepvar}. If nothing else specified, all independent variables are used in the regime and outcome equations. Different sets of variables can be specified by using the following optional commands: {opt reg:indepvars(varlist)} in the regime equation, {opt outone:indepvars(varlist)} in the outcome equation conditional on the first regime, and {opt outtwoindepvars(varlist)} in the outcome equation conditional on the second regime.{p_end}
 
-{marker ziop3}{...}
-{p 4 7}{cmd:ziop3} estimates a three-part zero-inflated ordered probit regression (Sirchenko 2020) of an ordinal dependent variable {depvar} on three sets of independent variables: {it:indepvars} in the regime equation, {opt posindepvars(varlist)} in the outcome equation conditional on the regime s=1, and {opt negindepvars(varlist)} in the outcome equation conditional on the regime s=-1.{p_end}
-
-{p 4 7}The actual values taken on by the dependent variable are irrelevant, except that larger values are assumed to correspond to "higher" outcomes.{p_end}
+{p 4 7}The actual values taken on by the dependent variable are irrelevant, except that larger values are assumed to correspond to "higher" outcomes. Hence, only the ordered categories matter, not what their actual value is.{p_end}
 
 {title:Examples}
 
 {pstd}Setup{p_end}
        . webuse rate_change
 
-{pstd}Fit three-part nested ordered probit model with exogenous switching{p_end}
-       . nop rate_change spread pb houst gdp, neg(spread gdp) pos(spread pb) inf(0)
+{pstd}Fit two-regime switching ordered probit model with exogenous switching{p_end}
+       . swopit rate_change spread pb houst gdp, reg(spread gdp) outone(spread pb) outtwo(houst gdp)
 
-{pstd}Fit three-part nested ordered probit model with endogenous switching and report Vuong test of NOP versus ordered probit{p_end}
-       . nop rate_change spread pb houst gdp, neg(spread gdp) pos(spread pb) inf(0) endo vuong
-
-{pstd}Fit two-part zero-inflated ordered probit model with exogenous switching{p_end}
-       . ziop2 rate_change spread pb houst gdp, out(spread pb houst gdp) inf(0)
-
-{pstd}Fit three-part zero-inflated ordered probit model with exogenous switching{p_end}
-       . ziop3 rate_change spread pb houst gdp, neg(spread gdp) pos(spread pb) inf(0)
-
-{pstd}Fit three-part zero-inflated ordered probit model with endogenous switching and report Vuong test of ZIOP-3 versus ordered probit{p_end}
-       . ziop3 rate_change spread pb houst gdp, neg(spread gdp) pos(spread pb) inf(0) endo vuong
+{pstd}Fit two-regime switching ordered probit model with endogenous switching{p_end}
+       . swopitc rate_change spread pb houst gdp, reg(spread gdp) outone(spread pb) outtwo(houst gdp)
 
 {title:Stored results}
 
 {pstd}
-{cmd:nop}, {cmd:ziop2} and {cmd:ziop3} store the following in {cmd:e()}:
+{cmd:swopit} and {cmd:swopitc} store the following in {cmd:e()}:
 
 {synoptset 20 tabbed}{...}
 {p2col 5 15 19 2: Scalars}{p_end}
@@ -132,8 +109,4 @@
 
 {title:References}
 
-{p 4 7}Bagozzi, B. E., and B. Mukherjee. 2012. A mixture model for middle category inflation in ordered survey responses. {it:Political Analysis} 20: 369-386.{p_end}
-{p 4 7}Brooks, R., M. N. Harris, and C. Spencer. 2012. Inflated ordered outcomes. {it:Economics Letters} 117: 683-686.{p_end}
-{p 4 7}Harris, M. N., and X. Zhao. 2007. A zero-inflated ordered probit model, with an application to modelling tobacco consumption. {it:Journal of Econometrics} 141: 1073-1099.{p_end}
 {p 4 7}Sirchenko, A. 2020. A model for ordinal responses with heterogeneous status quo outcomes. {it:Studies in Nonlinear Dynamics & Econometrics} 24 (1).{p_end}
-{p 4 7}Vuong, Q. H. 1989. Likelihood ratio tests for model selection and non-nested hypotheses. {it:Econometrica} 57: 307-333.{p_end}
