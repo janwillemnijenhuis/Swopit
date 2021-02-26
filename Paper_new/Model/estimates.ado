@@ -1636,6 +1636,32 @@ function SWOPITclassification(class ZIOPModel scalar model){
 	rowstripes = "y=" :+ strofreal(model.allcat) 
 	rowtitle = "True"
 	coltitle = "Predicted"
+
+	tot = sum(conf_mat)
+	all_pos = colsum(conf_mat)'
+	all_neg = tot :- all_pos
+	pre_pos = rowsum(conf_mat)
+	pre_neg = tot :- pre_pos
+	
+	true_pos = diagonal(conf_mat)
+	fals_pos = pre_pos - true_pos
+	fals_neg = all_pos - true_pos
+	true_neg = pre_neg - fals_neg
+	
+	noise = fals_pos :/ all_neg
+	recall = true_pos :/ all_pos
+	precision = true_pos :/ pre_pos
+	n2s = noise :/ recall
+	
+	result = precision, recall, n2s
+	colname = "Precision" \  "Recall" \  "Adj. N2S"
+	rowname = "y=" :+ strofreal(model.allcat) 
+	print_matrix(result, rowname, colname,., ., ., 4, ., .)
+	printf("\n")
+	printf("Accuracy                 = %9.4f \n", model.accuracy)
+	printf("Brier score              = %9.4f \n", model.brier_score)
+	printf("Ranked probability score = %9.4f \n", model.ranked_probability_score)
+	printf("\n")
 	"Confusion matrix"
 	print_matrix(conf_mat, rowstripes, colstripes,., ., ., 0, rowtitle, coltitle)
 }
