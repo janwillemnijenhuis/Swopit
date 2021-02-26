@@ -1037,7 +1037,7 @@ class ZIOPModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_limi
 		//covMat_rob
 	}
 	//calculate probabilities per observation
-	prob_obs = mlswoptwoc(params, x1 , x2, z, q, ncat, 1)
+	prob_obs =  (params, x1 , x2, z, q, ncat, 1)
 
 	//This will all be used to get all the information
 
@@ -1640,4 +1640,94 @@ function SWOPITclassification(class ZIOPModel scalar model){
 	print_matrix(conf_mat, rowstripes, colstripes,., ., ., 0, rowtitle, coltitle)
 }
 
+function SWOPITpredict(class ZIOPModel scalar model, string scalar newVarName, real scalar regime, scalar output){
+	sp = strpos(newVarName, ",")
+	if (sp != 0){
+		newVarName = substr(newVarName, 1, sp - 1)
+	}
+	loop = 1 // code of prediction type
+	if (regime) {
+		loop = 3
+	}
+	label_indices = strofreal(1..model.ncat)
+	labels = strofreal(model.allcat')
+	values = model.allcat'
+
+	st_view(x1  = ., ., model.x1names)
+	st_view(x2  = ., ., model.x2names)
+	st_view(z  = ., ., model.znames)
+	
+	if (model.model_class == "SWOPIT") {
+		p 	= mlswoptwo(model.params, x1 , x2, z, q=., model.ncat, loop)
+	} else if (model.model_class == "SWOPITC") {
+		p 	= mlswoptwoc(model.params, x1 , x2, z, q=., model.ncat, loop)
+	}
+	if (loop == 2) {
+		"Not applicable for this type of estimation."
+	}
+	if (loop == 3) {
+		label_indices = ("0", "1")
+		labels = ("first", "second") :+ " regime"
+		values = (0, 1)
+	}
+	
+	
+	label_indices = newVarName + "_" :+ label_indices
+	if (output == "mode" | output == "choice") {
+		if (_st_varindex(newVarName) :== .) {
+			tmp = st_addvar("double", newVarName)
+		}
+		st_view(v = ., ., newVarName)
+		prediction = rowsum((p:==rowmax(p)) :* values)
+		v[,] = prediction
+		st_vlmodify(newVarName, values', labels')
+	} else if (output == "mean") {
+		if (_st_varindex(newVarName) :== .) {
+			tmp = st_addvar("double", newVarName)
+		}
+		st_view(v = ., ., newVarName)
+		prediction = rowsum(p :* values)
+		v[,] = prediction
+		st_vlmodify(newVarName, values', labels')
+	} else if (output == "cum"){
+		tmp = st_addvar("double", label_indices[selectindex(_st_varindex(label_indices) :== .)])
+		st_view(v = ., ., label_indices)
+		for (i = 1; i <= length(labels); ++i) {
+			st_varlabel(label_indices[i], labels[i])
+		}
+		v[,1] = p[,1]
+		for (i = 2; i <= cols(p); ++i) {
+			v[,i] = v[,i-1] + p[,i]
+		}
+	} else {
+		tmp = st_addvar("double", label_indices[selectindex(_st_varindex(label_indices) :== .)])
+		st_view(v = ., ., label_indices)
+		for (i = 1; i <= length(labels); ++i) {
+			st_varlabel(label_indices[i], labels[i])
+		}
+		v[,] = p
+	}
+
+}
+
 end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
