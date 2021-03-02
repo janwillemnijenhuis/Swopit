@@ -1037,7 +1037,7 @@ class ZIOPModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_limi
 		//covMat_rob
 	}
 	//calculate probabilities per observation
-	prob_obs =  (params, x1 , x2, z, q, ncat, 1)
+	prob_obs =  mlswoptwoc(params, x1 , x2, z, q, ncat, 1)
 
 	//This will all be used to get all the information
 
