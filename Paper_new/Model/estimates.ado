@@ -303,7 +303,7 @@ class ZIOPModel scalar ziop2test(string scalar xynames, string scalar znames, st
 
 }
 
-class ZIOPModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_limit,startvalues, maxiter, ptol, vtol, nrtol, lambda){
+class ZIOPModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_limit,startvalues, maxiter, ptol, vtol, nrtol){
 
 	if (param_limit == 0){
 	    set_limit=0
@@ -645,7 +645,7 @@ class ZIOPModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_limit
 	return(model)
 }
 
-class ZIOPModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_limit,startvalues, maxiter, ptol, vtol, nrtol, lambda){
+class ZIOPModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_limit,startvalues, maxiter, ptol, vtol, nrtol){
 
 	if (param_limit == 0){
 	    set_limit=0
@@ -712,7 +712,7 @@ class ZIOPModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_limi
 
 				//Maybe not needed??
 				class ZIOPModel scalar initial_model 
-				initial_model = estimateswopit(y,x1,x2,z,guesses, s_change, param_limit, ., maxiter, ptol, vtol, nrtol, lambda)
+				initial_model = estimateswopit(y,x1,x2,z,guesses, s_change, param_limit, ., maxiter, ptol, vtol, nrtol)
 
 				startparams = initial_model.params
 				swopit_likelihood = initial_model.logLik
@@ -1090,7 +1090,7 @@ class ZIOPModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_limi
 	return(model)
 }
 
-class ZIOPModel scalar swopit2test(string scalar xynames, string scalar znames, string scalar x1names, string scalar x2names, touse, initial, guesses, change, limit, maxiter, ptol, vtol, nrtol, lambda){
+class ZIOPModel scalar swopit2test(string scalar xynames, string scalar znames, string scalar x1names, string scalar x2names, touse, initial, guesses, change, limit, maxiter, ptol, vtol, nrtol){
 	//testx1 = (1,0,1,0,1)
 	//testx2 = (0,1,0,1,0)
 	col_names = xynames
@@ -1152,12 +1152,11 @@ class ZIOPModel scalar swopit2test(string scalar xynames, string scalar znames, 
 	nrtol = strtoreal(nrtol)
 	ptol = strtoreal(ptol)
 	vtol = strtoreal(vtol)
-	lambda = strtoreal(lambda)
 
 	initial = initial'
 	
 	class ZIOPModel scalar model
-	model = estimateswopit(y, x1, x2, z, guesses, change, limit, initial, maxiter, ptol, vtol, nrtol, lambda)
+	model = estimateswopit(y, x1, x2, z, guesses, change, limit, initial, maxiter, ptol, vtol, nrtol)
 	model.XZmedians = colmedian(x)
 	model.XZnames = xnames
 	model.outeq1 = outeq1
@@ -1218,7 +1217,7 @@ class ZIOPModel scalar swopit2test(string scalar xynames, string scalar znames, 
 
 }
 
-class ZIOPModel scalar swopit2ctest(string scalar xynames, string scalar znames, string scalar x1names, string scalar x2names, touse, initial, guesses, change, limit, maxiter, ptol, vtol, nrtol, lambda){
+class ZIOPModel scalar swopit2ctest(string scalar xynames, string scalar znames, string scalar x1names, string scalar x2names, touse, initial, guesses, change, limit, maxiter, ptol, vtol, nrtol){
 	//testx1 = (1,0,1,0,1)
 	//testx2 = (0,1,0,1,0)
 	col_names = xynames
@@ -1281,12 +1280,11 @@ class ZIOPModel scalar swopit2ctest(string scalar xynames, string scalar znames,
 	nrtol = strtoreal(nrtol)
 	ptol = strtoreal(ptol)
 	vtol = strtoreal(vtol)
-	lambda = strtoreal(lambda)
 
 	initial = initial'
 	
 	class ZIOPModel scalar model
-	model = estimateswopitc(y, x1, x2, z, guesses, change, limit, initial, maxiter, ptol, vtol, nrtol, lambda)
+	model = estimateswopitc(y, x1, x2, z, guesses, change, limit, initial, maxiter, ptol, vtol, nrtol)
 	model.XZmedians = colmedian(x)
 	model.XZnames = xnames
 	model.outeq1 = outeq1
@@ -1376,9 +1374,9 @@ function estimate_and_get_params_v2(dgp,covar, p, s, me, mese, pr, prse, conv, e
 			xb2 = x
 		}
 		if (startvalues==.){
-			mod = estimateswopit(y, xb1, xb2, z, guesses,s_change,param_limit, ., maxiter, ptol, vtol, nrtol, lambda)
+			mod = estimateswopit(y, xb1, xb2, z, guesses,s_change,param_limit, ., maxiter, ptol, vtol, nrtol)
 		} else{
-			mod = estimateswopit(y, xb1, xb2, z, guesses,s_change,param_limit,startvalues, maxiter, ptol, vtol, nrtol, lambda)
+			mod = estimateswopit(y, xb1, xb2, z, guesses,s_change,param_limit,startvalues, maxiter, ptol, vtol, nrtol)
 		}
 		kx1 = cols(xb1)
 		kx2 = cols(xb2)
@@ -1404,9 +1402,9 @@ function estimate_and_get_params_v2(dgp,covar, p, s, me, mese, pr, prse, conv, e
 			xb2 = x
 		}
 		if (args() == 25){
-			mod = estimateswopitc(y, xb1, xb2, z,guesses,s_change,param_limit, ., maxiter, ptol, vtol, nrtol, lambda)
+			mod = estimateswopitc(y, xb1, xb2, z,guesses,s_change,param_limit, ., maxiter, ptol, vtol, nrtol)
 		} else{
-			mod = estimateswopitc(y, xb1, xb2, z,guesses,s_change,param_limit,startvalues, maxiter, ptol, vtol, nrtol, lambda)
+			mod = estimateswopitc(y, xb1, xb2, z,guesses,s_change,param_limit,startvalues, maxiter, ptol, vtol, nrtol)
 		}
 		kx1 = cols(xb1)
 		kx2 = cols(xb2)
