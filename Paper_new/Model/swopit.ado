@@ -1,7 +1,7 @@
 capture program drop swopit
 program swopit, eclass
 	version 14
-	syntax varlist(min=2) [if] [in] [, REGindepvars(varlist) OUTONEindepvars(varlist) OUTTWOindepvars(varlist) INITIAL(string asis) GUESSES(real 7) CHANGE(real 0.5) LIMit(real 0) MAXITER(real 30) PTOL(real 1e-6) VTOL(real 1e-7) NRTOL(real 1e-5) LAMBDA(real 1e-50)]
+	syntax varlist(min=2) [if] [in] [, REGindepvars(varlist) OUTONEindepvars(varlist) OUTTWOindepvars(varlist) INITIAL(string asis) GUESSES(real 7) CHANGE(real 0.5) LIMit(real 0) MAXITER(real 500) PTOL(real 1e-6) VTOL(real 1e-7) NRTOL(real 1e-5) LAMBDA(real 1e-50)]
 
 	marksample touse
 
