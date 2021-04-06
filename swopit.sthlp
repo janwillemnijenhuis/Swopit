@@ -31,8 +31,6 @@
 
 {synopt :{opt guesses:(scalar)}} define the number of guesses of starting values; if nothing specified it is set to 7.{p_end}
 
-{synopt :{opt initial:(string asis)}} specifies a space-delimited list string of the starting values of the parameters in the following order: gamma, mu, beta1, alpha1, beta2 and alpha2 for the Swopit model, and gamma, mu, beta1, alpha1, beta2, alpha2, rho1 and rho2 for the Swopitc model.{p_end}
-
 {synopt :{opt change:(scalar)}} interval for starting values. If starting values are given by user, this will create slightly adjusted starting values to ensure global optimization according to the formula: {it:startingvalues = startingvalues + change * UNIF(-abs(startingvalues), abs(startingvalues))}; if nothing specified it is set to 0.5. In the case of the Swopitc model the initial correlations will then be determined by maximizing the likelihood functions over a grid search from -0.95 to 0.95 in increments of 0.05 holding the other parameters fixed.{p_end}
 
 {synopt :{opt lim:it(scalar)}} limit on parameter values; if nothing specified it is set to 0 and no limit is set.{p_end}
@@ -46,7 +44,7 @@
 {synopt :{opt nrtol:(scalar)}} specifies the tolerance for the scaled gradient; if nothing specified it is set to 1e-5.{p_end}
 
 {syntab :Maximization}
-{synopt :{opt initial(string)}} whitespace-delimited list of the starting values of the parameters in the following order: gamma, mu, beta+, alpha+, beta-, alpha-, rho-, rho+ for the {cmd:nop} and {cmd:ziop3} regressions, and gamma, mu, beta, alpha, rho for the {cmd:ziop2} regression.{p_end}
+{synopt :{opt initial:(string asis)}} specifies a whitespace-delimited list string of the starting values of the parameters in the following order: gamma, mu, beta1, alpha1, beta2 and alpha2 for the {cmd:swopit} model, and gamma, mu, beta1, alpha1, beta2, alpha2, rho1 and rho2 for the {cmd:swopitc} model.{p_end}
 {synoptline}
 
 {pstd}See {help swopitpostestimation:swopit postestimation} for features available after estimation.{p_end}
