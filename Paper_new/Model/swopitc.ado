@@ -16,8 +16,8 @@ program swopitc, eclass
 
 
 	ereturn post b V, esample(`touse')  depname(`depvar') obs(`N')
-	ereturn local predict "zioppredict"
-	ereturn local cmd "ziop2"
+	ereturn local predict "swopitpredict"
+	ereturn local cmd "swopitc"
 	ereturn scalar ll = ll
 	ereturn scalar k = k
 	ereturn matrix ll_obs ll_obs
