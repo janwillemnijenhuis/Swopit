@@ -13,8 +13,8 @@ program swopit, eclass
 
 	mata: SWOPITMODEL = swopit2test("`varlist'","`regindepvars'","`outoneindepvars'","`outtwoindepvars'", "`touse'", "`initial'", "`guesses'", "`change'", "`limit'", "`maxiter'", "`ptol'", "`vtol'", "`nrtol'")
 	ereturn post b V, esample(`touse')  depname(`depvar') obs(`N')
-	ereturn local predict "zioppredict"
-	ereturn local cmd "ziop2"
+	ereturn local predict "swopitpredict"
+	ereturn local cmd "swopit"
 	ereturn scalar ll = ll
 	ereturn scalar k = k
 	ereturn matrix ll_obs ll_obs
