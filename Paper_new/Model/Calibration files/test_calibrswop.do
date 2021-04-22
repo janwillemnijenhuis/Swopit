@@ -7,7 +7,7 @@ mata:
 
 
 // number of observations
-n = 6000	//0000
+n = 500	//0000
 
 //generating explanatory variables
 x1 = rnormal(n,1,0,1):*4	

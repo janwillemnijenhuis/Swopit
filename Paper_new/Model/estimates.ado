@@ -1,309 +1,6 @@
 version 14
 mata
-class ZIOPModel scalar estimateziop(y,x,z){
-
-	//Optional parameters
-	maxiter = 30
-	ptol = 1e-6
-	vtol = 1e-7
-	nrtol = 1e-5
-	lambda = 1e-50 
-	infcat = 2
-	
-	starttime = clock(c("current_time"),"hms")
-	n	= rows(x)
-	kx	= cols(x)
-	kz	= cols(z)
-	allcat = uniqrows(y)
-	ncat = rows(allcat)
-	infcat_index = selectindex(allcat :== infcat)
-	parlen = (kx+kz + ncat) // seems redundant
-
-	// compute categories
-	q = J(n, ncat, 0)
-	for(i=1; i<=ncat; i++) {
-			q[.,i] = (y :== allcat[i])
-	}
-	q0 = (y :== infcat) // regime matrix 
-
-	//"Finding regime starting values"
-	paramsz = coeffOP(z, (q0, 1 :- q0), 2, maxiter, ptol,vtol,nrtol)
-	
-	//"Finding outcome starting values"	
-	paramsx = coeffOP(x, q, ncat, maxiter, ptol, vtol, nrtol) //For all obs
-
-	startparam = paramsz\paramsx
-
-	_ziop_params(startparam, kx, kz, ncat, b1=., a1=., g=., mu=.)
-	//coded_param = g\mu\b1\a1
-	coded_param = g\codeIncreasingSequence(mu)\b1\codeIncreasingSequence(a1)
-
-	//replace by zeros if one of the variables is empty
-	if (max(coded_param :==.)  > 0){
-		coded_param = J(rows(coded_param), cols(coded_param), 0)
-
-	}
-
-	initial_coded_param = coded_param
-	
-	// different optim methods
-	for (i = 1; i <= 8; i++){	
-		if (i == 1) {
-			initial_coded_param = coded_param
-			opt_method = "nr"
-			//"First attempt with nr"
-		}
-		if (i == 2) {
-			initial_coded_param = coded_param
-			opt_method = "bhhh"
-			"bhhh"
-		}
-		if (i == 3) {
-			initial_coded_param = coded_param
-			opt_method = "dfp"
-			"dfp"
-		}
-		if (i == 4) {
-			initial_coded_param = coded_param
-			opt_method = "bfgs"
-			"bfgs"
-		}
-		if (i == 5) {
-			initial_coded_param = coded_param * 0
-			opt_method = "nr"
-			"nr and start values 0"
-		}
-		if (i == 6) {
-			initial_coded_param = coded_param * 0
-			opt_method = "bhhh"
-			"bhhh and start values 0"
-		}
-		if (i == 7) {
-			initial_coded_param = coded_param * 0
-			opt_method = "dfp"
-			"dfp and start values 0"
-		}
-		if (i == 8) {
-			initial_coded_param = coded_param * 0
-			opt_method = "bfgs"
-			"bfgs and start values 0"
-		}
-
-
-		singularHmethod= "hybrid"
-		
-		S = optimize_init()
-
-		optimize_init_tracelevel(S , "none")
-		optimize_init_verbose(S, 0)
-
-		optimize_init_argument(S, 1, x) // outcome matrix
-		optimize_init_argument(S, 2, z) // regime matrix
-		optimize_init_argument(S, 3, q) // y dummies
-		optimize_init_argument(S, 4, ncat)
-		optimize_init_argument(S, 5, infcat_index)
-		optimize_init_argument(S, 6, 1) // coded
-		optimize_init_evaluator(S, &_ziop_optim())
-		optimize_init_evaluatortype(S, "gf0") //gf1: making own derivative
-		optimize_init_conv_maxiter(S, maxiter)
-		optimize_init_params(S, initial_coded_param')
-		optimize_init_conv_ptol(S, ptol)
-		optimize_init_conv_vtol(S, vtol)
-		optimize_init_conv_nrtol(S, nrtol)
-		optimize_init_singularHmethod(S, singularHmethod)
-		optimize_init_conv_warning(S, "off") 
-		optimize_init_technique(S, opt_method)
-		errorcode 	= _optimize(S)
-		convg		= optimize_result_converged(S)
-		retCode		= optimize_result_errortext(S)
-		iterations 	= optimize_result_iterations(S)
-		params 		= optimize_result_params(S)'
-		if(convg==1){
-			//"convergence"
-			break
-		}else{
-			"no convergence, trying again with different method:"
-		}
-	}
-	_ziop_params(params, kx, kz, ncat, b1=., a1=., g=., mu=.)
-	params = g\decodeIncreasingSequence(mu)\b1\decodeIncreasingSequence(a1)
-	
-	S2 = optimize_init()
-
-	optimize_init_tracelevel(S2 , "none")
-	optimize_init_verbose(S2, 0)
-	
-	optimize_init_argument(S2, 1, x)
-	optimize_init_argument(S2, 2, z)
-	optimize_init_argument(S2, 3, q)
-	optimize_init_argument(S2, 4, ncat)
-	optimize_init_argument(S2, 5, infcat_index)
-	optimize_init_argument(S2, 6, 0)
-	optimize_init_evaluator(S2, &_ziop_optim())
-	optimize_init_evaluatortype(S2, "gf0")
-	optimize_init_conv_maxiter(S2, maxiter)
-	//if (cols(who) > 0 && who != .) {
-	//	optimize_init_cluster(S2, who) 
-	//}
-	
-	optimize_init_conv_ptol(S2, ptol)
-	optimize_init_conv_vtol(S2, vtol)
-	optimize_init_conv_nrtol(S2, nrtol)
-	optimize_init_singularHmethod(S2, "hybrid")
-	optimize_init_conv_warning(S2, "off") // show that convergence not achieved
-	optimize_init_technique(S2, "nr") 
-	
-	optimize_init_params(S2, params')
-	errorcode2 = _optimize_evaluate(S2)
-	if (convg == 0) {
-		// not successful, robust covatiance matrix cannot be calculated
-		maxLik	= optimize_result_value(S2)
-		grad 	= optimize_result_gradient(S2)
-		covMat	= optimize_result_V(S2)
-		covMat_rob = covMat
-	} else {
-		//"TEST: MAXLIK IS"
-		maxLik	= optimize_result_value(S2)
-		//maxLik
-		//"TEST: GRAD IS"
-		grad 	= optimize_result_gradient(S2)
-		//grad
-		//"TEST: COVMAT IS"
-		covMat	= optimize_result_V(S2)
-		//covMat
-		//"TEST: ROB IS"
-		covMat_rob = optimize_result_V_robust(S2)
-		//covMat_rob
-	}
-	//calculate probabilities per observation
-	prob_obs = MLziop(params, x, z, q, ncat, infcat_index, 1)
-
-	//This will all be used to get all the information
-
-	class ZIOPModel scalar model 
-	model.model_class = "ZIOP"
-
-	model.n	= n
-	model.k	= kx + kz
-	model.ncat	= ncat
-	model.allcat = allcat
-	model.classes = q
-	model.retCode = retCode
-	model.error_code = errorcode
-	model.etime = clock(c("current_time"),"hms") - starttime
-	model.converged = convg
-	model.iterations = iterations
-
-	model.params = params
-	model.se		= sqrt(diagonal(covMat))
-	model.t			= abs(params :/ model.se)
-	model.se_rob	= sqrt(diagonal(covMat_rob))
-	model.t_rob		= abs(params :/ model.se_rob)
-	
-	model.AIC	= -2 * maxLik + 2 * rows(params) 
-	model.BIC	= -2 * maxLik + ln(n) * rows(params)
-	model.CAIC	= -2 * maxLik + (1 + ln(n)) * rows(params)
-	model.AICc	= model.AIC + 2 * rows(params) * (rows(params) + 1) / (n - rows(params) - 1)
-	model.HQIC	= -2 * maxLik + 2*rows(params)*ln(ln(n))
-	model.logLik0 	= sum(log(q :* mean(q)))
-	model.R2 	= 1 - maxLik /  model.logLik0
-	
-	model.df = rows(params)
-	model.df_null = cols(q) - 1
-	model.chi2 = 2 * (maxLik - model.logLik0)
-	model.chi2_pvalue = 1 - chi2(model.df - model.df_null, model.chi2)
-	
-	model.brier_score = matrix_mse(prob_obs - q)
-	model.ranked_probability_score = matrix_mse(running_rowsum(prob_obs) - running_rowsum(q))
-	
-	values = runningsum(J(1, cols(q), 1))
-	prediction = rowsum((prob_obs:==rowmax(prob_obs)) :* values)
-	actual = rowsum((q:==rowmax(q)) :* values)
-	model.accuracy = mean(prediction :== actual)
-	
-	model.V	= covMat
-	model.V_rob	= covMat_rob
-	model.logLik	= maxLik
-	model.probabilities = prob_obs
-	model.ll_obs = log(rowsum(prob_obs :* q))
-	
-	return(model)
-}
-
-class ZIOPModel scalar ziop2test(string scalar xynames, string scalar znames, string scalar xnames){
-	col_names = xynames
-	xytokens = tokens(col_names)
-	yname = xytokens[1]
-	xnames = xnames
-	if (strlen(xnames)==0){
-		xnames = invtokens(xytokens[,2::cols(xytokens)])
-	}
-	znames = znames
-	if (strlen(znames)==0){
-		znames=xnames
-	}
-	
-
-	M = y = x = z = .
-	st_view(M,.,(yname, xnames),0)
-	st_subview(y, M, ., 1)
-	//st_subview(x, M, ., (2\.))
-	z = st_data(.,(znames),0)
-	x = st_data(.,(xnames),0)
-
-	class ZIOPModel scalar model 
-	model = estimateziop(y,x,z)
-
-	switching_type = "Exogenous"
-	model_suptype = "Zero-inflated ordered probit regression"
-	model_type = "Two-part zero-inflated ordered probit model"
-	inflation_line = "Zero inflation:          two regimes"
-
-	printf("%s\n", model_suptype)
-	printf("Regime switching:        %s  \n", switching_type)
-	printf("Number of observations = %9.0f \n", model.n)
-	printf("Log likelihood         = %9.4f \n", model.logLik)
-	printf("McFadden pseudo R2     = %9.4f \n", model.R2)
-	printf("LR chi2(%2.0f)            = %9.4f \n", model.df - model.df_null, 	model.chi2)
-	printf("Prob > chi2            = %9.4f \n", model.chi2_pvalue)
-	printf("AIC                    = %9.4f \n" , model.AIC)
-	printf("BIC                    = %9.4f \n" , model.BIC)
-	
-	model.yname = yname
-	model.xnames = xnames
-	model.znames = znames
-
-	model.eqnames = J(1, cols(tokens(znames)) + 1, "Regime equation"), J(1, cols(tokens(xnames)) + rows(model.allcat)-1, "Outcome equation")
-	model.parnames = tokens(znames), "/cut1", tokens(xnames), "/cut" :+ strofreal(1..(rows(model.allcat)-1))
-
-	//pass everything to stata
-	st_matrix("b", model.params')
-	st_matrix("V", model.V)
-
-	stripes = model.eqnames' , model.parnames'
-
-	st_matrixcolstripe("b", stripes)
-	st_matrixcolstripe("V", stripes)
-	st_matrixrowstripe("V", stripes)
-	st_local("depvar", model.yname)
-	st_local("N", strofreal(model.n))
-	st_numscalar("ll", model.logLik)
-	st_numscalar("k", rows(model.params))
-	st_matrix("ll_obs", model.ll_obs)
-	st_numscalar("r2_p", model.R2)
-	st_numscalar("k_cat", model.ncat)
-	st_numscalar("df_m", model.df)
-	st_numscalar("ll_0", model.logLik0)
-	st_numscalar("chi2", model.chi2)
-	st_numscalar("p", model.chi2_pvalue)
-	st_numscalar("aic", model.AIC)
-	st_numscalar("bic", model.BIC)
-
-	return(model)
-
-}
-
-class ZIOPModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_limit,startvalues, maxiter, ptol, vtol, nrtol){
+class SWOPITModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_limit,startvalues, maxiter, ptol, vtol, nrtol){
 
 	if (param_limit == 0){
 	    set_limit=0
@@ -596,7 +293,7 @@ class ZIOPModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_limit
 
 	//This will all be used to get all the information
 
-	class ZIOPModel scalar model 
+	class SWOPITModel scalar model 
 	model.model_class = "SWOPIT"
 	model.n	= n
 	model.k	= kx1 + kx2 + kz
@@ -645,7 +342,7 @@ class ZIOPModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_limit
 	return(model)
 }
 
-class ZIOPModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_limit,startvalues, maxiter, ptol, vtol, nrtol){
+class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_limit,startvalues, maxiter, ptol, vtol, nrtol){
 
 	if (param_limit == 0){
 	    set_limit=0
@@ -711,8 +408,11 @@ class ZIOPModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_limi
 
 
 				//Maybe not needed??
-				class ZIOPModel scalar initial_model 
+				class SWOPITModel scalar initial_model 
+
+				"EXOGENOUS switching to find starting values"
 				initial_model = estimateswopit(y,x1,x2,z,guesses, s_change, param_limit, ., maxiter, ptol, vtol, nrtol)
+				"Starting ENDOGENOUS switching estimations"
 
 				startparams = initial_model.params
 				swopit_likelihood = initial_model.logLik
@@ -1041,7 +741,7 @@ class ZIOPModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_limi
 
 	//This will all be used to get all the information
 
-	class ZIOPModel scalar model 
+	class SWOPITModel scalar model 
 	model.model_class = "SWOPITC"
 	model.n	= n
 	model.k	= kx1 + kx2 + kz
@@ -1090,16 +790,13 @@ class ZIOPModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_limi
 	return(model)
 }
 
-class ZIOPModel scalar swopit2test(string scalar xynames, string scalar znames, string scalar x1names, string scalar x2names, touse, initial, guesses, change, limit, maxiter, ptol, vtol, nrtol){
-	//testx1 = (1,0,1,0,1)
-	//testx2 = (0,1,0,1,0)
+class SWOPITModel scalar swopitmain(string scalar xynames, string scalar znames, string scalar x1names, string scalar x2names, touse, initial, guesses, change, limit, maxiter, ptol, vtol, nrtol, endogenous, boot, bootguesses){
+
 	col_names = xynames
 	xytokens = tokens(col_names)
 
 	yname = xytokens[1]
 	xnames = invtokens(xytokens[,2::cols(xytokens)])
-	//x1names = invtokens(select(xnames, testx1))
-	//x2names = invtokens(select(xnames, testx2))
 	
 	znames = znames
 	x1names = x1names
@@ -1134,6 +831,8 @@ class ZIOPModel scalar swopit2test(string scalar xynames, string scalar znames, 
 	st_view(x1 = ., ., x1names, touse)
 	st_view(x2 = ., ., x2names, touse)
 
+	n = length(y)
+
 	if (initial != "") {
 		initial = strtoreal(tokens(initial))'
 		if (sum(initial :== .) > 0) {
@@ -1152,22 +851,77 @@ class ZIOPModel scalar swopit2test(string scalar xynames, string scalar znames, 
 	nrtol = strtoreal(nrtol)
 	ptol = strtoreal(ptol)
 	vtol = strtoreal(vtol)
+	boot = strtoreal(boot)
+	bootguesses = strtoreal(bootguesses)
 
 	initial = initial'
 	
-	class ZIOPModel scalar model
-	model = estimateswopit(y, x1, x2, z, guesses, change, limit, initial, maxiter, ptol, vtol, nrtol)
+	class SWOPITModel scalar model
+	if (endogenous){
+		model = estimateswopitc(y, x1, x2, z, guesses, change, limit, initial, maxiter, ptol, vtol, nrtol)
+		model.eqnames = J(1, cols(tokens(znames)) + 1, "Regime equation"), J(1, cols(tokens(x1names)) + rows(model.allcat) -1, "Outcome equation 1"), J(1, cols(tokens(x2names)) + rows(model.allcat) -1, "Outcome equation 2"), J(1,2,"Correlations")
+		model.parnames = tokens(znames), "/cut1", tokens(x1names), "/cut" :+ strofreal(1..(rows(model.allcat)-1)), tokens(x2names), "/cut" :+ strofreal(1..(rows(model.allcat)-1)), "rho1", "rho2"
+		switching_type = "Endogenous"
+
+	}else{
+		model = estimateswopit(y, x1, x2, z, guesses, change, limit, initial, maxiter, ptol, vtol, nrtol)
+		model.eqnames = J(1, cols(tokens(znames)) + 1, "Regime equation"), J(1, cols(tokens(x1names)) + rows(model.allcat)-1, "Outcome equation 1"), J(1, cols(tokens(x2names)) + rows(model.allcat)-1, "Outcome equation 2")
+		model.parnames = tokens(znames), "/cut1", tokens(x1names), "/cut" :+ strofreal(1..(rows(model.allcat)-1)), tokens(x2names), "/cut" :+ strofreal(1..(rows(model.allcat)-1))
+		switching_type = "Exogenous"
+	}
 	model.XZmedians = colmedian(x)
 	model.XZnames = xnames
 	model.outeq1 = outeq1
 	model.outeq2 = outeq2
 	model.regeq = regeq
 
+
+	if (boot != 0){
+		"Starting BOOTSTRAP estimations"
+		ready = 0
+		boot_initial = model.params'
+		for (booti = 1; booti <= 10 * boot; booti++){
+			rseed(booti);
+			boot_indices = runiformint(n, 1, 1, n);
+			
+			y_iter =  y[boot_indices,]
+			x_iter =  x[boot_indices,]
+			x1_iter = x1[boot_indices,]
+			x2_iter = x2[boot_indices,]
+			z_iter =  z[boot_indices,]
+
+			class SWOPITModel scalar bootmodel
+			if (endogenous){
+				bootmodel = estimateswopitc(y_iter, x1_iter, x2_iter, z_iter, bootguesses, change, limit, boot_initial, maxiter, ptol, vtol, nrtol)
+
+			}else{
+				bootmodel = estimateswopit(y_iter, x1_iter, x2_iter, z_iter, bootguesses, change, limit, boot_initial, maxiter, ptol, vtol, nrtol)			
+			}
+
+			if (bootmodel.converged == 0){
+				"Bad bootstrap data generated, resample once more"
+				continue
+			}
+			
+			if (ready == 0){
+				allpa = bootmodel.params'
+			} else{
+				allpa = allpa \ bootmodel.params'
+			}
+			
+			ready = ready + 1
+			if (ready == boot){
+				break
+			}
+		}
+		bootstds = colsum((allpa:- colsum(allpa):/boot):^2)/(boot-1)
+		model.V = diag(bootstds)
+	}
+
 	if(model.converged == 1){
 		"Printing converged estimation with highest likelihood:"
 	}
 
-	switching_type = "Exogenous"
 	model_suptype = "Two-regime switching ordered probit regression"
 	model_type = "Two-regime switching ordered probit regression"
 
@@ -1185,9 +939,6 @@ class ZIOPModel scalar swopit2test(string scalar xynames, string scalar znames, 
 	model.x1names = x1names
 	model.x2names = x2names
 	model.znames = znames
-
-	model.eqnames = J(1, cols(tokens(znames)) + 1, "Regime equation"), J(1, cols(tokens(x1names)) + rows(model.allcat)-1, "Outcome equation 1"), J(1, cols(tokens(x2names)) + rows(model.allcat)-1, "Outcome equation 2")
-	model.parnames = tokens(znames), "/cut1", tokens(x1names), "/cut" :+ strofreal(1..(rows(model.allcat)-1)), tokens(x2names), "/cut" :+ strofreal(1..(rows(model.allcat)-1))
 
 	//pass everything to stata, maybe only these 2 needed?
 	st_matrix("b", model.params')
@@ -1213,134 +964,6 @@ class ZIOPModel scalar swopit2test(string scalar xynames, string scalar znames, 
 	st_numscalar("bic", model.BIC)
 
 	return(model)
-
-
-}
-
-class ZIOPModel scalar swopit2ctest(string scalar xynames, string scalar znames, string scalar x1names, string scalar x2names, touse, initial, guesses, change, limit, maxiter, ptol, vtol, nrtol){
-	//testx1 = (1,0,1,0,1)
-	//testx2 = (0,1,0,1,0)
-	col_names = xynames
-	xytokens = tokens(col_names)
-
-	yname = xytokens[1]
-	xnames = invtokens(xytokens[,2::cols(xytokens)])
-	//x1names = invtokens(select(xnames, testx1))
-	//x2names = invtokens(select(xnames, testx2))
-	
-	znames = znames
-	x1names = x1names
-	x2names = x2names
-
-	outeq1 = outeq2 = regeq = J(1,cols(tokens(xnames)),0)
-	for (i=1;i<=length(tokens(xnames));i++){
-		if (anyof(tokens(x1names),tokens(xnames)[i])==1){
-			outeq1[i]=1
-		}
-		if (anyof(tokens(x2names),tokens(xnames)[i])==1){
-			outeq2[i]=1
-		}
-		if (anyof(tokens(znames),tokens(xnames)[i])==1){
-			regeq[i]=1
-		}
-	}
-	
-
-	if (strlen(znames)==0){
-		znames=xnames
-	}
-	if (strlen(x1names)==0){
-		x1names=xnames
-	}
-	if (strlen(x2names)==0){
-		x2names=xnames
-	}
-	
-	st_view(z  = ., ., znames, touse)
-	st_view(y  = ., ., yname, touse)
-	st_view(x  = ., ., xnames, touse)
-	st_view(x1 = ., ., x1names, touse)
-	st_view(x2 = ., ., x2names, touse)
-
-	if (initial != "") {
-		initial = strtoreal(tokens(initial))'
-		if (sum(initial :== .) > 0) {
-			"Incorrect initial values! Expected a numeric sequence delimited with whitespace."
-			"Default initial values will be used."
-			initial = .
-		}
-	} else {
-		initial = .
-	}
-
-	guesses = strtoreal(guesses)
-	change = strtoreal(change)
-	limit = strtoreal(limit)
-	maxiter = strtoreal(maxiter)
-	nrtol = strtoreal(nrtol)
-	ptol = strtoreal(ptol)
-	vtol = strtoreal(vtol)
-
-	initial = initial'
-	
-	class ZIOPModel scalar model
-	model = estimateswopitc(y, x1, x2, z, guesses, change, limit, initial, maxiter, ptol, vtol, nrtol)
-	model.XZmedians = colmedian(x)
-	model.XZnames = xnames
-	model.outeq1 = outeq1
-	model.outeq2 = outeq2
-	model.regeq = regeq
-
-	if(model.converged == 1){
-		"Printing converged estimation with highest likelihood:"
-	}
-
-	switching_type = "Endogenous"
-	model_suptype = "Two-regime switching ordered probit regression"
-	model_type = "Two-regime switching ordered probit regression"
-
-	printf("%s\n", model_suptype)
-	printf("Regime switching:        %s  \n", switching_type)
-	printf("Number of observations = %9.0f \n", model.n)
-	printf("Log likelihood         = %9.4f \n", model.logLik)
-	printf("McFadden pseudo R2     = %9.4f \n", model.R2)
-	printf("LR chi2(%2.0f)            = %9.4f \n", model.df - model.df_null, 	model.chi2)
-	printf("Prob > chi2            = %9.4f \n", model.chi2_pvalue)
-	printf("AIC                    = %9.4f \n" , model.AIC)
-	printf("BIC                    = %9.4f \n" , model.BIC)
-	
-	model.yname = yname
-	model.x1names = x1names
-	model.x2names = x2names
-	model.znames = znames
-
-	model.eqnames = J(1, cols(tokens(znames)) + 1, "Regime equation"), J(1, cols(tokens(x1names)) + rows(model.allcat) -1, "Outcome equation 1"), J(1, cols(tokens(x2names)) + rows(model.allcat) -1, "Outcome equation 2"), J(1,2,"Correlations")
-	model.parnames = tokens(znames), "/cut1", tokens(x1names), "/cut" :+ strofreal(1..(rows(model.allcat)-1)), tokens(x2names), "/cut" :+ strofreal(1..(rows(model.allcat)-1)), "rho1", "rho2"
-
-	//pass everything to stata, maybe only these 2 needed?
-	st_matrix("b", model.params')
-	st_matrix("V", model.V)
-	stripes = model.eqnames' , model.parnames'
-
-	st_matrixcolstripe("b", stripes)
-	st_matrixcolstripe("V", stripes)
-	st_matrixrowstripe("V", stripes)
-	st_local("depvar", model.yname)
-	st_local("N", strofreal(model.n))
-	st_numscalar("ll", model.logLik)
-	st_numscalar("k", rows(model.params))
-	st_matrix("ll_obs", model.ll_obs)
-	st_numscalar("r2_p", model.R2)
-	st_numscalar("k_cat", model.ncat)
-	st_numscalar("df_m", model.df)
-	st_numscalar("ll_0", model.logLik0)
-	st_numscalar("chi2", model.chi2)
-	st_numscalar("p", model.chi2_pvalue)
-	st_numscalar("aic", model.AIC)
-	st_numscalar("bic", model.BIC)
-
-	return(model)
-
 
 }
 
@@ -1359,11 +982,8 @@ function estimate_and_get_params_v2(dgp,covar, p, s, me, mese, pr, prse, conv, e
 		lambda = 1e-50 
 	}
 	
-	class ZIOPModel scalar mod
-	if (dgp == "ZIOP") {
-		mod = estimateziop(y, x, z)
-	} 
-	else if (dgp == "SWOPIT") {
+	class SWOPITModel scalar mod
+	if (dgp == "SWOPIT") {
 		if (covar == "TRUE"){
 			xb1 = select(x, outeq1)
 			xb2 = select(x, outeq2)
@@ -1448,11 +1068,6 @@ function estimate_and_get_params_v2(dgp,covar, p, s, me, mese, pr, prse, conv, e
 			pr_reg_se = generalPredictWithSE(dgp, p, xzbar,ncat,outeq1,outeq2,regeq, V,3)
 			pr_se = pr_se,pr_reg_se	
 		}
-		if (dgp == "ZIOP"){
-			pr_se = generalPredictWithSE(dgp, p, xzbar,ncat,outeq1,outeq2,regeq, V,1)
-			pr_reg_se = generalPredictWithSE(dgp, p, xzbar,ncat,outeq1,outeq2,regeq, V,3)
-			pr_se = pr_se,pr_reg_se	
-		}
 	}
 	else{
 		pr_se = J(2,5,.)
@@ -1492,7 +1107,7 @@ function estimate_and_get_params_v2(dgp,covar, p, s, me, mese, pr, prse, conv, e
 	
 }
 
-function SWOPITmargins(class ZIOPModel scalar model, string atVarlist, zeroes, regime) {
+function SWOPITmargins(class SWOPITModel scalar model, string atVarlist, zeroes, regime) {
 	xzbar = model.XZmedians
 	atTokens = tokens(atVarlist, " =")
 	if (length(atTokens) >= 3) {
@@ -1550,7 +1165,7 @@ function SWOPITmargins(class ZIOPModel scalar model, string atVarlist, zeroes, r
 	print_matrix(se, rowstripes, colstripes)
 }
 
-function SWOPITprobabilities(class ZIOPModel scalar model, string atVarlist, zeroes, regime) {
+function SWOPITprobabilities(class SWOPITModel scalar model, string atVarlist, zeroes, regime) {
 	xz_from = model.XZmedians
 	atTokens = tokens(atVarlist, " =")
 	
@@ -1614,7 +1229,7 @@ function SWOPITprobabilities(class ZIOPModel scalar model, string atVarlist, zer
 	print_matrix(se, ., colstripes)
 }
 
-function SWOPITclassification(class ZIOPModel scalar model){
+function SWOPITclassification(class SWOPITModel scalar model){
     
 	allcat = model.allcat
 	classes = model.classes
@@ -1664,7 +1279,7 @@ function SWOPITclassification(class ZIOPModel scalar model){
 	print_matrix(conf_mat, rowstripes, colstripes,., ., ., 0, rowtitle, coltitle)
 }
 
-function SWOPITpredict(class ZIOPModel scalar model, string scalar newVarName, real scalar regime, scalar output){
+function SWOPITpredict(class SWOPITModel scalar model, string scalar newVarName, real scalar regime, scalar output){
 	sp = strpos(newVarName, ",")
 	if (sp != 0){
 		newVarName = substr(newVarName, 1, sp - 1)

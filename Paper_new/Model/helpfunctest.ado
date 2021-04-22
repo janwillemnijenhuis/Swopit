@@ -82,7 +82,7 @@ function coeffOP(x, ycateg, ncat, maxiter, ptol, vtol, nrtol) {
 		} else if(ntry==3) {
 			optimize_init_technique("bfgs")
 		} else {
-			"ZIOP ordered probit estimation: no way to converge"
+			"no way to converge"
 			break;
 		}
 		ntry = ntry+1
@@ -120,14 +120,6 @@ void _swopitc_params(params, kx1, kx2, kz, ncat, b1, b2, a1, a2, g, mu, rho1, rh
 	//a2	= punishSort(a2)
 }
 
-void _ziop_params(params, kx, kz, ncat, b1, a1, g, mu) {	
-	g 	= params[1::kz]
-	mu	= params[kz+1]
-	b1	= params[(kz+2)::(kx+kz+1)]
-	a1	= params[(kx+kz+2)::length(params)]
-	//mu	= punishSort(mu)
-	//a1	= punishSort(a1)
-}
 void _swoptwo_optim(todo, params, x1 , x2, z, q, ncat, coded, v, g, H) {
 	kx1 	= cols(x1)
 	kx2 	= cols(x2)
@@ -166,25 +158,6 @@ void _swoptwoc_optim(todo, params, x1,x2, z, q, ncat, coded, v, g, H) {
 	//wellicht moeten we zelf een gradient functie maken zoals hieronder (zie cnop)
 }
 
-void _ziop_optim(todo, params, x, z, q, ncat, infcat, coded, v, g, H){
-	kx	= cols(x)
-	kz	= cols(z)
-	_ziop_params(params', kx, kz, ncat, b1=., a1=., g=., mu=.)
-	if (coded == 1) {
-		a1  = decodeIncreasingSequence(a1);
-		mu = decodeIncreasingSequence(mu);
-	}
-	decoded_params = g \ mu \ b1 \ a1
-	v = MLziop(decoded_params, x, z, q, ncat, infcat, 0)
-	
-	/*
-	if(todo==1){
-		// alas! gradient is not available so far
-		grad = nop_deriv(decoded_params, x, zp, zn, q, ncat, infcat, 1)
-		g = grad;
-	}
-	*/
-}
 function codeIncreasingSequence(decoded_sequence) {
 	/* incomplete: check if increasing! */
 	coded_sequence = decoded_sequence
@@ -315,35 +288,6 @@ function mlswoptwoc(params, x1, x2, z, q, ncat, | loop) {
 		col_logl	= rowsum(log(prob) :* q) //q is indicator function
 		logl 	= colsum(col_logl)
 		return(logl) // return(col_logl)
-	}
-}
-
-function MLziop(params, x, z, q, ncat, infcat, | loop) {
-	kx 	= cols(x)
-	kz 	= cols(z)
-	n	= rows(x)
-	
-	_ziop_params(params, kx, kz, ncat, b1 = ., a1 = ., g = ., mu = .)
-	xb	= x * b1
-	zg	= z * g
-	p0	= normal(mu :- zg)
-	p1	= 1 :- p0
-	
-	prob = normal(a1'[J(n,1,1),] :- xb) , J(n,1,1)
-	prob[ , 2::ncat] = prob[ , 2::ncat] - prob[ , 1::(ncat-1)]
-	prob	= prob :* p1
-	prob[ , infcat]	= prob[ , infcat] :+ p0
-	// INCOMPLETE: check sum of probabilities
-	
-	if(loop == 1) {
-		return(prob)
-	}else if(loop == 5){
-		probreq = p0,p1
-		return(probreq)
-	}
-	else{
-		col_logl 	= rowsum(log(prob) :* q)
-		return(col_logl)
 	}
 }
 
@@ -959,77 +903,6 @@ function generatedata(dgp,overlap, covar, n, x, y,z, param_true, pr_true, regeq,
 			param_true = gamma_true , mu , beta1_true , a1 , beta2_true , a2 , rho1 , rho2					
 		}
 	}
-
-	if (dgp == "ZIOP"){
-		mu      = (-2.5);	
-		if (overlap == "none"){
-			//no overlap
-			regeq		= (1,0,0,1,0); 
-			outeq1		= (0,1,1,0,1);
-			outeqtot	= (0,1,1,0,1)
-			a1     = (-7.13, 6.56);										
-		} else if (overlap == "partial"){
-			//partial overlap
-			regeq		= (1,0,1,1,0); 
-			outeq1		= (0,1,1,0,1);
-			outeqtot	= (0,1,1,0,1)
-			a1     = (-3.85, 9.72);								
-		} else {
-			//complete overlap, also if not correct specified
-			regeq		= (1,1,1,1,1); 
-			outeq1		= (1,1,1,1,1);	
-			outeqtot	= (1,1,1,1,1)
-			a1     = (5.03, 16.21);							
-		}
-
-		// building model
-
-		gamma 	= gamma :* regeq			// select coefficients in the model
-		beta1 	= beta1 :* outeq1
-		
-		x 	= (x1, x2, x3, x4, x5); 
-		//xpop = colmedian(x)
-		
-		if (covar == "TRUE"){
-			z = select(x, regeq)
-			gamma = select(gamma, regeq)
-			x = select(x, outeqtot)
-			beta1 = select(beta1, outeqtot)
-			zpop = select(xpop,regeq)
-			xpop = select(xpop,outeqtot)
-		}
-		else if (covar == "ALL"){
-			z = x
-		}
-		
-		ncat = cols(a1) + 1
-		
-		param_true = gamma , mu , beta1 , a1
-		pr_true = MLziop(param_true', xpop, zpop, q=. , ncat , 1, 1)
-
-		rs 		= z * gamma' + epsreg;				// regime equation
-		r 		= J(n, 2, 0);
-
-		r[.,1]  = rs :< mu; 					//regime 1 decision
-		r[.,2]  = rs :>= mu;					//regime 2 decision
-					
-		//rvec	= rowsum(r*(-1,1)');				// -1 indicates reg1, 1 reg2
-
-		ys2     = x * beta1' + epseq1;				// second layer of y
-
-		y2                	= J(n, cols(a1)+1,0);
-		y2[., 1]           	= ys2 :< a1[1]; 		    //dummy if outc 1
-		y2[., 2]		= (ys2 :>= a1[1]) :* (ys2:< a1[2]); //dummy if outc 2	
-		y2[., cols(a1)+1]	= ys2 :>= a1[2];		    //dummy if outc 3
-
-		y2      = y2*range(0,2,1); // specify outcomes
-		y1                	= J(n, 1,0);
-
-		yr      = (y1,y2);
-		y       = rowsum(r :* yr);	// observed y, depends on regime
-
-		//ycat	= uniqrows(y);		// column 1 2 3
-	}
 }
 
 function update_named_vector(values, names, tokens) {
@@ -1052,7 +925,7 @@ function update_named_vector(values, names, tokens) {
 			}
 			values[index] = newValue
 		} else {
-			atTable[i,1] + " was not applied in the last ZIOP/NOP model"
+			atTable[i,1] + " was not applied in the last model"
 		}
 	}
 	return(values)

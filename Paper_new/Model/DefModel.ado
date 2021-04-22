@@ -1,6 +1,6 @@
 version 14
 mata
-class ZIOPModel {
+class SWOPITModel {
 	string scalar model_class
 	
 	// utility parameters
