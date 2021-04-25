@@ -1,5 +1,5 @@
 // SPECIFY TO THE LOCATION OF YOUR FILES // 
-cd "/Users/jhuismans/Desktop/Swopit-main/Paper_new/Model" 
+cd "/Users/jhuismans/Desktop/Paper Swopit/Swopit/Paper_new/Model" 
 mata: mata clear
 // RUN FILES NEEDED FOR ESTIMATION // 
 run DefModel.ado
@@ -12,7 +12,7 @@ run estimates.ado
 //use EUKnowledge.dta
 
 // RUN SWOPIT ESTIMATION //
-swopit y x1 x2 x3 x4 x5, reg(x1) outone(x2 x3) outtwo(x4 x5) maxiter(10) boot(10) bootguesses(2)
+swopit y x1 x2 x3 x4 x5, reg(x1) outone(x2 x3) outtwo(x4 x5) maxiter(20) initial(0.5 -0.3 2 1 -4 2 0.1 0.01 -0.3 0.7)
 
 // RUN SWOPIT CORRELATED ESTIMATION //
 //swopitc y x1 x2 x3 x4 x5, reg(x1 x2 x3 x4 x5) outone(x1 x2 x3 x4 x5) outtwo(x1 x2 x3 x4 x5)

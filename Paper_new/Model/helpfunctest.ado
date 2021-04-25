@@ -159,7 +159,6 @@ void _swoptwoc_optim(todo, params, x1,x2, z, q, ncat, coded, v, g, H) {
 }
 
 function codeIncreasingSequence(decoded_sequence) {
-	/* incomplete: check if increasing! */
 	coded_sequence = decoded_sequence
 	n = length(coded_sequence)
 	for (i = 2; i <= n; i++) {

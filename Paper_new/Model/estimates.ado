@@ -31,43 +31,59 @@ class SWOPITModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_lim
 
 	if (cols(startoriginal) != parlen && startoriginal != . && cols(startoriginal) > 0) {
 		"Vector of initial values must have length "+ strofreal(parlen)
-		startoriginal = .
+		"Please make corrections and re-enter correct initial values or leave them empty"
+		exit(1)
 	}
+	
 
 	tot_converged = 0
 	
 	for (j = 1; j <= guesses; j++){
-		//random starting regimes
-		r = runiform(n,1)
-		r = (r:>=0.5)
-		r1 = r
-		r2 = 1 :- r
-		q0 = (r, 1:-r) // regime matrix 
 
-		//"Finding regime starting values"
-		paramsz = coeffOP(z, q0, 2, maxiter, ptol,vtol,nrtol)
-
-		// Outcome pars distributed for regime 1 and 2
-		x1obs = select(x1,r1)
-		x2obs = select(x2,r2)
-		q1 = select(q,r1)
-		q2 = select(q,r2)
-		y1 = select(y,r1)
-		y2 = select(y,r2)
-	
+		//Proceed depending on initial values given	
 		if(startoriginal == .){
+
+			//random starting regimes
+			r = runiform(n,1)
+			r = (r:>=0.5)
+			r1 = r
+			r2 = 1 :- r
+			q0 = (r, 1:-r) // regime matrix 
+
+			//"Finding regime starting values"
+			paramsz = coeffOP(z, q0, 2, maxiter, ptol,vtol,nrtol)
+
+			// Outcome pars distributed for regime 1 and 2
+			x1obs = select(x1,r1)
+			x2obs = select(x2,r2)
+			q1 = select(q,r1)
+			q2 = select(q,r2)
+
 			//"Finding outcome starting values"	
-			//paramsx = coeffOP(x, q, ncat, maxiter, ptol, vtol, nrtol) //For all obs
 			x1pars = coeffOP(x1obs, q1, ncat, maxiter, ptol, vtol, nrtol) //Random starting
 			x2pars = coeffOP(x2obs, q2, ncat, maxiter, ptol, vtol, nrtol) //Random starting
 	
-			//x1pars = paramsx // equal outcome in first determination of outcome pars
-			//x2pars = paramsx // comments these 2 lines for random starting
 			startparam = paramsz\x1pars\x2pars
 			startvalues = startparam
 		} else{
+			if (tot_converged == 1){
+				break
+			}
 			if (j == 1){
 				startparam = startvalues'
+				_swopit_params(startparam, kx1,kx2, kz, ncat, b1=., b2=., a1=., a2=., g=., mu=.)
+
+				if (sort(a1,1) != a1){
+					"Initial thresholds of regime 1 are not in order"
+					"Please make corrections and re-enter the thresholds in the correct ordering, from the smallest to the largest"
+					exit(1)
+				}
+				if (sort(a2,1) != a2){
+					"Initial thresholds of regime 2 are not in order"
+					"Please make corrections and re-enter the thresholds in the correct ordering, from the smallest to the largest"
+					exit(1)
+				}
+
 			}
 			else{
 				startparam = startvalues'
@@ -79,7 +95,9 @@ class SWOPITModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_lim
 		}
 
 		_swopit_params(startparam, kx1,kx2, kz, ncat, b1=., b2=., a1=., a2=., g=., mu=.)
-		//coded_param = g\mu\b1\a1\b2\a2
+
+		a1 = sort(a1,1)
+		a2 = sort(a2,1)
 
 		coded_param = g\codeIncreasingSequence(mu)\b1\codeIncreasingSequence(a1)\b2\codeIncreasingSequence(a2) //with a1,a2,b1,b2	
 
@@ -97,22 +115,22 @@ class SWOPITModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_lim
 			if (i == 1) {
 			initial_coded_param = coded_param
 			opt_method = "nr"
-			//"First attempt with nr"
+			"Attempt number " + strofreal(j) + " with method: nr"
 			}
 			if (i == 2) {
 				initial_coded_param = coded_param
 				opt_method = "bhhh"
-				"bhhh"
+				"Trying again with different method: bhhh"
 			}
 			if (i == 3) {
 				initial_coded_param = coded_param
 				opt_method = "dfp"
-				"dfp"
+				"Trying again with different method: dfp"
 			}
 			if (i == 4) {
 				initial_coded_param = coded_param
 				opt_method = "bfgs"
-				"bfgs"
+				"Trying again with different method: bfgs"
 			}
 
 
@@ -159,63 +177,58 @@ class SWOPITModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_lim
 						//"convergence"
 						break
 					} else if (limit == 0){
-						"convergence with absurd parameters, trying again with different method:"
+						"convergence with absurd parameters"
 					}
 				}				
 				
 			}else{
-				"no convergence, trying again with different method:"
+				"no convergence"
 			}
 		}
 		if (convg==1){
 			if (set_limit==0){
-				"convergence"
 				if (tot_converged==0){
+					"convergence"
 					best_lik = optimize_result_value(S)
 					tot_converged = 1
-					j = 1
-					"trying more times for better likelihood"
 					best_retCode		= optimize_result_errortext(S)
 					best_params 		= optimize_result_params(S)'
 					best_iterations 	= optimize_result_iterations(S)
 				} else if (optimize_result_value(S) > best_lik){
 					best_lik = optimize_result_value(S)
-					j = 1
 					tot_converged = 1
-					"better likelihood found"
-					"trying more times for better likelihood"
+					"convergence with likelihood improvement"
 					best_retCode		= optimize_result_errortext(S)
 					best_params 		= optimize_result_params(S)'
 					best_iterations 	= optimize_result_iterations(S)
+				} else{
+					"convergence without likelihood improvement"
+
 				}
 			} else if (set_limit==1){
 				param_lim = J(rows(params),cols(params),param_limit)
 				limit = (abs(params)<=param_lim)
 				if (limit == 1){
-					"convergence"
 					if (tot_converged==0){
+						"convergence"
 						best_lik = optimize_result_value(S)
 						tot_converged = 1
-						j = 1
-						"trying more times for better likelihood"
 						best_retCode		= optimize_result_errortext(S)
 						best_params 		= optimize_result_params(S)'
 						best_iterations 	= optimize_result_iterations(S)
 					} else if (optimize_result_value(S) > best_lik){
 						best_lik = optimize_result_value(S)
-						j = 1
 						tot_converged = 1
-						"better likelihood found"
-						"trying more times for better likelihood"
+						"convergence with likelihood improvement"
 						best_retCode		= optimize_result_errortext(S)
 						best_params 		= optimize_result_params(S)'
 						best_iterations 	= optimize_result_iterations(S)
+					} else{
+						"convergence without likelihood improvement"
 					}
 					
 				} else if (limit == 0){
-					"trying more times for better results"
-					"convergence with absurd parameters, trying again with different method:"
-					j = 1
+					"convergence with absurd parameters: disregarding estimation"
 				}
 			}
 		}else{
@@ -227,14 +240,14 @@ class SWOPITModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_lim
 		retCode		= best_retCode
 		params 		= best_params
 		iterations 	= best_iterations
-
-		"No more converged estimations found with higher likelihood"
 	
 	}else{
-		"Sorry, but despite all attempts, estimation of SWOPIT parameters did not converge."
+		"The command performed " + strofreal(guesses) + " random initializations and the estimation algorithm failed to converge."
 		"Perhaps, there are too few data for such a complex model."
+		"Try again, increase the number of random initializations in guesses() or provide your starting values."
 		"Error code is " + strofreal(errorcode) + ": " + retCode
 		"Convergence status is " + strofreal(convg)
+		exit(1)
 	
 	}
 	_swopit_params(params, kx1,kx2, kz, ncat, b1=., b2=., a1=., a2=., g=., mu=.)
@@ -373,45 +386,41 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 
 	if (cols(startoriginal) != parlen && startoriginal != . && cols(startoriginal) > 0) {
 		"Vector of initial values must have length "+ strofreal(parlen)
-		startoriginal = .
+		"Please make corrections and re-enter correct initial values or leave them empty"
+		exit(1)
 	}
 	
 	tot_converged = 0
 	for (j = 1; j <= guesses; j++){
-		//random starting regimes
-		r = runiform(n,1)
-		r = (r:>=0.5)
-		r1 = r
-		r2 = 1 :- r
-		q0 = (r, 1:-r) // regime matrix 
-
-		//"Finding regime starting values"
-		paramsz = coeffOP(z, q0, 2, maxiter, ptol,vtol,nrtol)
-
-		// Outcome pars distributed for regime 1 and 2
-		x1obs = select(x1,r1)
-		x2obs = select(x2,r2)
-		q1 = select(q,r1)
-		q2 = select(q,r2)
-		y1 = select(y,r1)
-		y2 = select(y,r2)
 
 		if (startoriginal == .){
 			if (j == 1){
+				//random starting regimes
+				r = runiform(n,1)
+				r = (r:>=0.5)
+				r1 = r
+				r2 = 1 :- r
+				q0 = (r, 1:-r) // regime matrix 
+
+				//"Finding regime starting values"
+				paramsz = coeffOP(z, q0, 2, maxiter, ptol,vtol,nrtol)
+
+				// Outcome pars distributed for regime 1 and 2
+				x1obs = select(x1,r1)
+				x2obs = select(x2,r2)
+				q1 = select(q,r1)
+				q2 = select(q,r2)
+
 				//"Finding outcome starting values"	
-				//paramsx = coeffOP(x, q, ncat, maxiter, ptol, vtol, nrtol) //For all obs
 				x1pars = coeffOP(x1obs, q1, ncat, maxiter, ptol, vtol, nrtol) //Random starting
 				x2pars = coeffOP(x2obs, q2, ncat, maxiter, ptol, vtol, nrtol) //Random starting
 	
-				//x1pars = paramsx // equal outcome in first determination of outcome pars
-				//x2pars = paramsx // comments these 2 lines for random starting
+				initialswopitvalues = paramsz\x1pars\x2pars
 
-
-				//Maybe not needed??
 				class SWOPITModel scalar initial_model 
 
 				"EXOGENOUS switching to find starting values"
-				initial_model = estimateswopit(y,x1,x2,z,guesses, s_change, param_limit, ., maxiter, ptol, vtol, nrtol)
+				initial_model = estimateswopit(y,x1,x2,z,guesses, s_change, param_limit, initialswopitvalues', maxiter, ptol, vtol, nrtol)
 				"Starting ENDOGENOUS switching estimations"
 
 				startparams = initial_model.params
@@ -438,17 +447,33 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 				startvalues = startparam
 			}
 			else{
-	
-				startparam = startvalues
+				//random starting regimes
+				r = runiform(n,1)
+				r = (r:>=0.5)
+				r1 = r
+				r2 = 1 :- r
+				q0 = (r, 1:-r) // regime matrix 
 
-				for (k = 1; k <= rows(startvalues)-2; k++){
-					startparam[k] = startparam[k] + s_change*runiform(1,1, -abs(startparam[k]), abs(startparam[k]))
-				}
+				//"Finding regime starting values"
+				paramsz = coeffOP(z, q0, 2, maxiter, ptol,vtol,nrtol)
+
+				// Outcome pars distributed for regime 1 and 2
+				x1obs = select(x1,r1)
+				x2obs = select(x2,r2)
+				q1 = select(q,r1)
+				q2 = select(q,r2)
+
+				//"Finding outcome starting values"	
+				x1pars = coeffOP(x1obs, q1, ncat, maxiter, ptol, vtol, nrtol) //Random starting
+				x2pars = coeffOP(x2obs, q2, ncat, maxiter, ptol, vtol, nrtol) //Random starting
+
+				bestrho = 0\0
 			
-				initialtest = startparam
-				startparams = startparam[1::(rows(startvalues)-2)]
+				startparams = paramsz\x1pars\x2pars
+				initialtest = startparams\bestrho
+
 				best_likelihood = mlswoptwoc(initialtest,x1,x2,z,1,ncat)
-		
+				
 				for (l = 1; l <= cols(corrvalues); l++){
 					paramstemp = startparams\corrvalues[,l]
 					liketemp = mlswoptwoc(paramstemp,x1,x2,z,1,ncat)
@@ -458,11 +483,28 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 					}
 				}
 				startparam = startparams\bestrho
+				startvalues = startparam
 			}
 
 		} else{
+			if (tot_converged == 1){
+				break
+			}
 			if (j == 1){
 				startparam = startvalues'
+
+				_swopitc_params(startparam, kx1,kx2, kz, ncat, b1=., b2=., a1=., a2=., g=., mu=., rho1=., rho2=.)
+
+				if (sort(a1,1) != a1){
+					"Initial thresholds of regime 1 are not in order"
+					"Please make corrections and re-enter the thresholds in the correct ordering, from the smallest to the largest"
+					exit(1)
+				}
+				if (sort(a2,1) != a2){
+					"Initial thresholds of regime 2 are not in order"
+					"Please make corrections and re-enter the thresholds in the correct ordering, from the smallest to the largest"
+					exit(1)
+				}
 			}
 			else{
 				startparam = startvalues'
@@ -493,7 +535,9 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 		}
 
 		_swopitc_params(startparam, kx1,kx2, kz, ncat, b1=., b2=., a1=., a2=., g=., mu=., rho1=., rho2=.)
-		//coded_param = g\mu\b1\a1\b2\a2
+		
+		a1 = sort(a1,1)
+		a2 = sort(a2,1)
 
 		coded_param = g\codeIncreasingSequence(mu)\b1\codeIncreasingSequence(a1)\b2\codeIncreasingSequence(a2)\logit((rho1+1)/2)\logit((rho2+1)/2) //with a1,a2,b1,b2	
 
@@ -509,22 +553,22 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 			if (i == 1) {
 				initial_coded_param = coded_param
 				opt_method = "nr"
-				//"First attempt with nr"
+				"Attempt number " + strofreal(j) + " with method: nr"
 			}
 			if (i == 2) {
 				initial_coded_param = coded_param
 				opt_method = "bhhh"
-				"bhhh"
+				"Trying again with different method: bhhh"
 			}
 			if (i == 3) {
 				initial_coded_param = coded_param
 				opt_method = "dfp"
-				"dfp"
+				"Trying again with different method: dfp"
 			}
 			if (i == 4) {
 				initial_coded_param = coded_param
 				opt_method = "bfgs"
-				"bfgs"
+				"Trying again with different method: bfgs"
 			}
 	
 
@@ -571,38 +615,33 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 						//"convergence"
 						break
 					} else if (limit == 0){
-						"convergence with absurd parameters, trying again with different method:"
+						"convergence with absurd parameters"
 					}
 				}				
 				
 			}else{
-				"no convergence, trying again with different method:"
+				"no convergence"
 			}
 		}
 
 		if (convg==1){
 			if (set_limit==0){
-				"convergence"
 				if (tot_converged==0){
 					if (startoriginal == .){
 						if (optimize_result_value(S) > swopit_likelihood){
+							"convergence"
 							best_lik = optimize_result_value(S)
 							tot_converged = 1
-							j = 1
-							"trying more times for better likelihood"
 							best_retCode		= optimize_result_errortext(S)
 							best_params 		= optimize_result_params(S)'
 							best_iterations 	= optimize_result_iterations(S)
 						} else{
-							"likelihood is worse than original Swopit: local maxima"
-							"trying again for better likelihood"
-							j = 1
+							"convergence but likelihood is worse than original Swopit: local maxima"
 						}
 					}else{
+						"convergence"
 						best_lik = optimize_result_value(S)
 						tot_converged = 1
-						j = 1
-						"trying more times for better likelihood"
 						best_retCode		= optimize_result_errortext(S)
 						best_params 		= optimize_result_params(S)'
 						best_iterations 	= optimize_result_iterations(S)
@@ -610,59 +649,52 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 
 				} else if (optimize_result_value(S) > best_lik){
 					best_lik = optimize_result_value(S)
-					j = 1
 					tot_converged = 1
-					"better likelihood found"
-					"trying more times for better likelihood"
+					"convergence with likelihood improvement"
 					best_retCode		= optimize_result_errortext(S)
 					best_params 		= optimize_result_params(S)'
 					best_iterations 	= optimize_result_iterations(S)
+				} else{
+					"convergence without likelihood improvement"
 				}
 			} else if (set_limit==1){
 				param_lim = J(rows(params),cols(params),param_limit)
 				limit = (abs(params)<=param_lim)
 				if (limit == 1){
-					"convergence"
 					if (tot_converged==0){
 						if (startoriginal == .){
 							if (optimize_result_value(S) > swopit_likelihood){
+								"convergence"
 								best_lik = optimize_result_value(S)
 								tot_converged = 1
-								j = 1
-								"trying more times for better likelihood"
 								best_retCode		= optimize_result_errortext(S)
 								best_params 		= optimize_result_params(S)'
 								best_iterations 	= optimize_result_iterations(S)
 							} else{
-								"likelihood is worse than original Swopit: local maxima"
-								"trying again for better likelihood"
-								j = 1
+								"convergence but likelihood is worse than original Swopit: local maxima"
 							}
 						}
 						else{
+							"convergence"
 							best_lik = optimize_result_value(S)
 							tot_converged = 1
-							j = 1
-							"trying more times for better likelihood"
 							best_retCode		= optimize_result_errortext(S)
 							best_params 		= optimize_result_params(S)'
 							best_iterations 	= optimize_result_iterations(S)
 						}
 					} else if (optimize_result_value(S) > best_lik){
 						best_lik = optimize_result_value(S)
-						j = 1
 						tot_converged = 1
-						"better likelihood found"
-						"trying more times for better likelihood"
+						"convergence with likelihood improvement"
 						best_retCode		= optimize_result_errortext(S)
 						best_params 		= optimize_result_params(S)'
 						best_iterations 	= optimize_result_iterations(S)
+					} else{
+						"convergence without likelihood improvement"
 					}
 					
 				} else if (limit == 0){
-					"trying more times for better results"
-					"convergence with absurd parameters, trying again with different method:"
-					j = 1
+					"convergence with absurd parameters: disregarding estimation"
 				}
 			}
 		}else{
@@ -674,14 +706,14 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 		retCode		= best_retCode
 		params 		= best_params
 		iterations 	= best_iterations
-
-		"No more converged estimations found with higher likelihood"
 		
 	}else{
-		"Sorry, but despite all attempts, estimation of SWOPITC parameters did not converge."
+		"The command performed " + strofreal(guesses) + " random initializations and the estimation algorithm failed to converge."
 		"Perhaps, there are too few data for such a complex model."
+		"Try again, increase the number of random initializations in guesses() or provide your starting values."
 		"Error code is " + strofreal(errorcode) + ": " + retCode
 		"Convergence status is " + strofreal(convg)
+		exit(1)
 	
 	}
 	
@@ -927,13 +959,13 @@ class SWOPITModel scalar swopitmain(string scalar xynames, string scalar znames,
 
 	printf("%s\n", model_suptype)
 	printf("Regime switching:        %s  \n", switching_type)
-	printf("Number of observations = %9.0f \n", model.n)
-	printf("Log likelihood         = %9.4f \n", model.logLik)
-	printf("McFadden pseudo R2     = %9.4f \n", model.R2)
-	printf("LR chi2(%2.0f)            = %9.4f \n", model.df - model.df_null, 	model.chi2)
-	printf("Prob > chi2            = %9.4f \n", model.chi2_pvalue)
-	printf("AIC                    = %9.4f \n" , model.AIC)
-	printf("BIC                    = %9.4f \n" , model.BIC)
+	printf("Number of observations = %15.0f \n", model.n)
+	printf("Log likelihood         = %15.4f \n", model.logLik)
+	printf("McFadden pseudo R2     = %15.4f \n", model.R2)
+	printf("LR chi2(%2.0f)            = %15.4f \n", model.df - model.df_null, 	model.chi2)
+	printf("Prob > chi2            = %15.4f \n", model.chi2_pvalue)
+	printf("AIC                    = %15.4f \n" , model.AIC)
+	printf("BIC                    = %15.4f \n" , model.BIC)
 	
 	model.yname = yname
 	model.x1names = x1names
