@@ -26,9 +26,9 @@
 
 {synopt :{opt outtwo:indepvars(varlist)}} independent variables in the outcome equation of the 2nd regime; if nothing specified, it is identical to {it:indepvars}.{p_end}
 
-{synopt :{opt endo:genous(string)}} specifies that the endogenous class assignment (regime switching) is to be used instead of the default exogenous switching.{p_end}
+{synopt :{opt endo:genous(string)}} specifies that the endogenous class assignment (regime switching) is to be used instead of the default exogenous switching.{p_end}
 
-{synopt :{opt guesses:(scalar)}} define the number of guesses of starting values; if nothing specified it is set to 5.{p_end}
+{synopt :{opt guesses:(scalar)}} specifies the number of attempts with different random starting values; if nothing specified it is set to 5.{p_end}
 
 {synopt :{opt change:(scalar)}} interval for starting values. If starting values are given by user, this will create slightly adjusted starting values to ensure global optimization according to the formula: {it:startingvalues = startingvalues + change * UNIF(-abs(startingvalues), abs(startingvalues))}; if nothing specified it is set to 0.5. In the case of the Swopitc model the initial correlations will then be determined by maximizing the likelihood functions over a grid search from -0.95 to 0.95 in increments of 0.05 holding the other parameters fixed.{p_end}
 
@@ -42,9 +42,9 @@
 
 {synopt :{opt nrtol:(scalar)}} specifies the tolerance for the scaled gradient; if nothing specified it is set to 1e-5.{p_end}
 
-{synopt :{opt boot:strap(scalar)}} specifies the number of bootstrap replications to be performed to estimate the standard errors. Bootstrapping uses the initial values of estimated coefficients as the starting ones. The default is bootstrap(0), and no bootstrapping is performed.{p_end}
+{synopt :{opt boot:strap(scalar)}} specifies the number of bootstrap replications to be performed to estimate the standard errors. Bootstrapping uses the initial values of estimated coefficients as the starting ones. The default is bootstrap(0), and no bootstrapping is performed.{p_end}
 
-{synopt :{opt bootguesses(scalar)}} specifies the number of attempts with different random starting values in the bootstrap estimations, which have to deliver the same estimation results with the highest likelihood achieved. The default is bootguesses(7).{p_end}
+{synopt :{opt bootguesses(scalar)}} specifies the number of attempts with different random starting values in the bootstrap estimations, which have to deliver the same estimation results with the highest likelihood achieved. The default is bootguesses(7).{p_end}
 
 {syntab :Maximization}
 {synopt :{opt initial:(string asis)}} specifies a whitespace-delimited list string of the starting values of the parameters in the following order: gamma, mu, beta1, alpha1, beta2 and alpha2 for the {cmd:swopit} model, and gamma, mu, beta1, alpha1, beta2, alpha2, rho1 and rho2 for the {cmd:swopitc} model.{p_end}
@@ -69,7 +69,7 @@
        . swopit rate_change spread pb houst gdp, reg(spread gdp) outone(spread pb) outtwo(houst gdp)
 
 {pstd}Fit two-regime switching ordered probit model with endogenous switching{p_end}
-       . swopitc rate_change spread pb houst gdp, reg(spread gdp) outone(spread pb) outtwo(houst gdp)
+       . swopit rate_change spread pb houst gdp, reg(spread gdp) outone(spread pb) outtwo(houst gdp) endo
 
 {title:Stored results}
 
