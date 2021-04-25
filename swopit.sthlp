@@ -36,7 +36,7 @@
 
 {synopt :{opt maxiter:(scalar)}} maximum number of optimization iterations before quitting; if nothing specified it is set to 30.{p_end}
 
-{synopt :{opt ptol:(scalar)}} speicifes the tolerance for the relative difference in coefficients; if nothing specified it is set to 1e-6.{p_end}
+{synopt :{opt ptol:(scalar)}} speicifies the tolerance for the relative difference in coefficients; if nothing specified it is set to 1e-6.{p_end}
 
 {synopt :{opt vtol:(scalar)}} specifies the tolerace for the relative difference in objective function; if nothing specified it is set to 1e-7.{p_end}
 
