@@ -236,20 +236,6 @@ class SWOPITModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_lim
 		}
 	
 	}
-	if (tot_converged == 1){
-		retCode		= best_retCode
-		params 		= best_params
-		iterations 	= best_iterations
-	
-	}else{
-		"The command performed " + strofreal(guesses) + " random initializations and the estimation algorithm failed to converge."
-		"Perhaps, there are too few data for such a complex model."
-		"Try again, increase the number of random initializations in guesses() or provide your starting values."
-		"Error code is " + strofreal(errorcode) + ": " + retCode
-		"Convergence status is " + strofreal(convg)
-		exit(1)
-	
-	}
 	_swopit_params(params, kx1,kx2, kz, ncat, b1=., b2=., a1=., a2=., g=., mu=.)
 	params = g\decodeIncreasingSequence(mu)\b1\decodeIncreasingSequence(a1)\b2\decodeIncreasingSequence(a2)
 	
@@ -351,6 +337,20 @@ class SWOPITModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_lim
 	model.logLik	= maxLik
 	model.probabilities = prob_obs
 	model.ll_obs = log(rowsum(prob_obs :* q))
+
+	if (tot_converged == 1){
+		retCode		= best_retCode
+		params 		= best_params
+		iterations 	= best_iterations
+	
+	}else{
+		"The command performed " + strofreal(guesses) + " random initializations and the estimation algorithm failed to converge."
+		"Perhaps, there are too few data for such a complex model."
+		"Try again, increase the number of random initializations in guesses() or provide your starting values."
+		"Error code is " + strofreal(errorcode) + ": " + retCode
+		"Convergence status is " + strofreal(convg)
+	
+	}
 	
 	return(model)
 }
@@ -702,20 +702,6 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 		}
 	
 	}
-	if (tot_converged == 1){
-		retCode		= best_retCode
-		params 		= best_params
-		iterations 	= best_iterations
-		
-	}else{
-		"The command performed " + strofreal(guesses) + " random initializations and the estimation algorithm failed to converge."
-		"Perhaps, there are too few data for such a complex model."
-		"Try again, increase the number of random initializations in guesses() or provide your starting values."
-		"Error code is " + strofreal(errorcode) + ": " + retCode
-		"Convergence status is " + strofreal(convg)
-		exit(1)
-	
-	}
 	
 	_swopitc_params(params, kx1,kx2, kz, ncat, b1=., b2=., a1=., a2=., g=., mu=., rho1=., rho2=.)
 	params = g\decodeIncreasingSequence(mu)\b1\decodeIncreasingSequence(a1)\b2\decodeIncreasingSequence(a2)\invlogit(rho1)*2-1\invlogit(rho2)*2-1
@@ -818,6 +804,20 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 	model.logLik	= maxLik
 	model.probabilities = prob_obs
 	model.ll_obs = log(rowsum(prob_obs :* q))
+
+	if (tot_converged == 1){
+		retCode		= best_retCode
+		params 		= best_params
+		iterations 	= best_iterations
+		
+	}else{
+		"The command performed " + strofreal(guesses) + " random initializations and the estimation algorithm failed to converge."
+		"Perhaps, there are too few data for such a complex model."
+		"Try again, increase the number of random initializations in guesses() or provide your starting values."
+		"Error code is " + strofreal(errorcode) + ": " + retCode
+		"Convergence status is " + strofreal(convg)
+	
+	}
 	
 	return(model)
 }
@@ -906,6 +906,11 @@ class SWOPITModel scalar swopitmain(string scalar xynames, string scalar znames,
 	model.outeq1 = outeq1
 	model.outeq2 = outeq2
 	model.regeq = regeq
+
+
+	if (model.converged == 0){
+		exit(1)
+	}
 
 
 	if (boot != 0){
