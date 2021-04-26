@@ -916,12 +916,12 @@ class SWOPITModel scalar swopitmain(string scalar xynames, string scalar znames,
 	}
 
 
+	
 	if (boot != 0){
 		"Starting BOOTSTRAP estimations"
 		ready = 0
 		boot_initial = model.params'
 		for (booti = 1; booti <= 10 * boot; booti++){
-			rseed(booti);
 			boot_indices = runiformint(n, 1, 1, n);
 			
 			y_iter =  y[boot_indices,]
@@ -956,6 +956,13 @@ class SWOPITModel scalar swopitmain(string scalar xynames, string scalar znames,
 		}
 		bootstds = colsum((allpa:- colsum(allpa):/boot):^2)/(boot-1)
 		model.V = diag(bootstds)
+
+		if (ready < boot){
+			"Not enough samples with convergence within 10 * boot replications"
+			"Only " + ready + " samples converged"
+			"Perhaps increase the number of guesses to achieve more convergence"
+			"Results will be shown based on all converged bootstrap estimations"
+		}
 	}
 
 	if(model.converged == 1){
@@ -964,6 +971,11 @@ class SWOPITModel scalar swopitmain(string scalar xynames, string scalar znames,
 
 	model_suptype = "Two-regime switching ordered probit regression"
 	model_type = "Two-regime switching ordered probit regression"
+
+	if (boot != 0){
+		model_suptype = "Two-regime switching ordered probit regression with bootstrap"
+		model_type = "Two-regime switching ordered probit regression with bootstrap"
+	}
 
 	printf("%s\n", model_suptype)
 	printf("Regime switching:        %s  \n", switching_type)
