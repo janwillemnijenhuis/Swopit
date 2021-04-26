@@ -10,14 +10,14 @@
 {pstd}
 The following postestimation commands are available after {cmd:swopit}: 
 
-{synoptset 20 notes}{...}
+{synoptset 22 notes}{...}
 {p2coldent :Command}Description{p_end}
 {synoptline}
 
-{synopt :{helpb swopit postestimation##swopitpredict:swopitpredict}}predicted probabilities and other predictions for all values of independent variables{p_end}
-{synopt :{helpb swopit postestimation##swopitprobabilities:swopitprobabilities}}predicted probabilities for specified values of independent variables{p_end}
-{synopt :{helpb swopit postestimation##swopitmargins:swopitmargins}}marginal effects on probabilities for specified values of independent variables{p_end}
-{synopt :{helpb swopit postestimation##swopitclassification:swopitclassification}}classification table and other goodness-of-fit measures{p_end}
+{synopt :{helpb swopit postestimation##swopitpredict:swopitpredict}}      predicted probabilities of the observed choices (by default) or latent classes for each observation.{p_end}
+{synopt :{helpb swopit postestimation##swopitprobabilities:swopitprobabilities}}     predicted probabilities for specified values of independent variables{p_end}
+{synopt :{helpb swopit postestimation##swopitmargins:swopitmargins}}     marginal effects on probabilities for specified values of independent variables{p_end}
+{synopt :{helpb swopit postestimation##swopitclassification:swopitclassification}} classification table and other goodness-of-fit measures{p_end}
 {synoptline}
 {p2colreset}{...}
 
@@ -25,29 +25,28 @@ The following postestimation commands are available after {cmd:swopit}:
 {marker predict}{...}
 {title:Syntax for swopitpredict}
 {pstd}
-{cmd:swopitpredict} {newvar} {bind:[{cmd:,} {it:options}]}{p_end}
+{cmd:swopitpredict} {varname} [,{opt regimes} {opt choice(string)}]
 
 {synoptset 28 tabbed}{...}
 {synopthdr}
 {synoptline}
 
-{synopt :{cmd:regimes}}indicates that the probabilities of the regimes must be predicted instead of the choice probabilities.{p_end}
+{synopt :{cmd:regimes}} calculates the predicted probabilities of the latent classes (regimes) instead of the choice probabilities (by default).{p_end}
 
 {synopt :{opt output(string)}}specifies the different types of predictions. The possible options for {it:string} are: {it:choice} for reporting the predicted outcome (the choice with the largest predicted probability); {it:mean} for reporting the expected value of the dependent variable computed as a summation of i*Pr(y=i) across all choices i; and 
 {it:cum} for predicting the cumulative choice probabilities such as Pr(y<=0), Pr(y<=1), ... . 
-If {it:string} is not specified, the usual choice probabilities such as Pr(y=0), Pr(y=1), ... are predicted and saved into new variables with the {it:newvar} prefix.{p_end}
+If {it:string} is not specified, the usual choice probabilities such as Pr(y=0), Pr(y=1), ... are predicted and saved into new variables with the {it:varname} prefix.{p_end}
 {synoptline}
-
 
 {title:Description for swopitpredict}
 
-{p 4 7}{cmd:swopitpredict} creates new variables containing predictions such as the predicted probabilities of the discrete choices, the regimes, the types of zeros conditional on the regime, the expected values of the dependent variable, the predicted choice (one with the largest predicted probability) at all observed values of the independent variables in the sample.
-
+{p 4 7}{cmd:swopitpredict} This command provides the predicted probabilities of the observed choices (by default) or latent classes for each observation. 
+It creates the variables named varname_i where i is the label of the observed choice or latent class. varname can only consist of letters and underscores. If an invalid name is given an error message is displayed.{p_end}
 {title:Examples for predict}
 
 {pstd}Setup{p_end}
        . webuse rate_change
-       . swopit rate_change spread pb houst gdp, endo
+       . swopit rate_change spread pb houst gdp, reg(houst gdp) outone(spread gdp) outtwo(spread pb) endo
 
 {pstd}Predicted probabilities of discrete choices{p_end}
        . predict pr_choice
@@ -61,7 +60,7 @@ If {it:string} is not specified, the usual choice probabilities such as Pr(y=0),
 {pstd}Predicted cumulative probabilities of discrete choices{p_end}
        . predict pr_choice, output(cum)
 
-{pstd}Predicted probabilities of three regimes{p_end}
+{pstd}Predicted probabilities of the regimes{p_end}
        . predict pr_regime, regimes
 
 {synoptline}
@@ -75,14 +74,19 @@ If {it:string} is not specified, the usual choice probabilities such as Pr(y=0),
 {synoptset 20 notes}{...}
 {p2coldent :Option}Description{p_end}
 {synoptline}
-{synopt :{opt at(string)}}specifies for which values of the independent variables to estimate the predicted probabilities. If at() is used ({it:string} is a list of varname=value expressions, separated by commas), the predicted probabilities are estimated at these values and displayed without saving to the dataset. If some independent variable names are not specified, their median values are taken instead. If at() is not used, by default the predicted probabilities are estimated at the median values of the independent variables.{p_end}
-{synopt :{cmd:regimes}}indicates that the probabilities of the regimes must be predicted instead of the choice probabilities.{p_end}
+
+{synopt :{opt at(string)}} specifies the values of the independent variables at which to estimate the probabilities. 
+By default, the probabilities are computed at the median values of the independent variables. 
+The syntax of this command is varname = value for each variable, separated by a blank space. varname is the name of the variable listed in indepvars. If an independent variable from indepvars is excluded from this option, the probabilities are estimated at the median value of this variable.{p_end}
+
+{synopt :{cmd:regimes}}calculates the predicted probabilities of the latent classes (regimes) instead of the choice probabilities (by default).{p_end}
+
 {synoptline}
 {p2colreset}{...}
 
 {title:Description for swopitprobabilities}
 
-{p 4 7}{cmd:swopitprobabilities} shows the predicted probabilities estimated at the specified values of independent variables along with the standard errors.{p_end}
+{p 4 7}{cmd:swopitprobabilities} This command provides the predicted probabilities of the observed choices (by default) or latent classes with their standard errors for the specified values of the independent variables.{p_end}
 
 {title:Examples for swopitprobabilities}
 
@@ -110,14 +114,18 @@ If {it:string} is not specified, the usual choice probabilities such as Pr(y=0),
 {synoptset 20 notes}{...}
 {p2coldent :Option}Description{p_end}
 {synoptline}
-{synopt :{opt at(string)}}specifies for which values of the independent variables to estimate the marginal effects on the predicted probabilities. If at() is used ({it:string} is a list of varname=value expressions, separated by commas), the marginal effects are estimated for these values and displayed without saving to the dataset. If some independent variable names are not specified, their median values are taken instead. If at() is not used, by default the marginal effects are estimated for the median values of the independent variables.{p_end}
-{synopt :{cmd:regimes}}indicates that the marginal effects on the probabilities of the regimes must be predicted instead of the effects on the choice probabilities.{p_end}
+
+{synopt :{opt at(string)}}specifies the values of the independent variables at which to estimate the marginal effects. 
+By default, the marginal effects are computed at the median values of the independent variables. The syntax of this command is varname = value for each variable, separated by a blank space. varname is the name of the variable listed in indepvars. If an independent variable from indepvars is excluded from this option, the marginal effects are estimated at the median value of this variable.{p_end}
+
+{synopt :{cmd:regimes}}calculates the predicted marginal effects of the latent classes (regimes) instead of the choice marginal effects (by default).{p_end}
+
 {synoptline}
 {p2colreset}{...}
 
 {title:Description for swopitmargins}
 
-{p 4 7}{cmd:swopitmargins} shows the marginal effects of each independent variable on the predicted probabilities estimated at the specified values of the independent variables along with the standard errors.{p_end}
+{p 4 7}{cmd:swopitmargins} This command provides the marginal (partial) effects on the predicted probabilities of the observed choices (by default) or latent classes with their standard errors for the specified values of the independent variables.{p_end}
 
 {title:Examples for swopitmargins}
 
@@ -145,10 +153,9 @@ If {it:string} is not specified, the usual choice probabilities such as Pr(y=0),
 
 {title:Description for swopitclassification}
 
-{p 4 7}{cmd:swopitclassification} shows: the classification table (or confusion matrix); the percentage of correct predictions; the two strictly proper scores {c -} the probability, or Brier, score (Brier 1950) and the ranked probability score (Epstein 1969); the precisions, the hit rates (or recalls) and the adjusted noise-to-signal ratios (Kaminsky and Reinhart 1999).{p_end}
-{p 10 7}The classification table reports the predicted choices (ones with the highest predicted probability) in columns, the actual choices in rows, and the number of (mis)classifications in each cell.{p_end}
-{p 10 7}The Brier probability score is computed as a summation of (1/T)[Pr(y=j)-I(j,t)]^2 over all t from 1 to T and all j, where indicator I(j,t)=1 if y(t)=j and I(j,t)=0 otherwise. The ranked probability score is computed as a summation of (1/T)[Q(j,t)-D(j,t)]^2 over all t and j, where Q(j,t) is a summation of Pr(y=i) over all i less or equal to j, and D(j,t) is a summation of I(i,t) over all i less or equal to j. The better the prediction, the smaller both score values. Both scores have a minimum value of zero when all the actual outcomes are predicted with a unit probability.{p_end}
-{p 10 7}The precision, the hit rate (or recall) and the adjusted noise-to-signal ratios are defined as follows. Let TP denote the true positive event that the outcome was predicted and occurred; let FP denote the false positive event that the outcome was predicted but did not occur; let FN denote the false positive event that the outcome was not predicted but occurred; and let TN denote the true negative event that the outcome was not predicted and did not occur. The desirable outcomes fall into categories TP and TN, while the noisy ones fall into categories FP and FN. A perfect prediction has no entries in FP and FN, while a noisy prediction has many entries in FP and FN, but few in TP and TN. The precision is defined for each choice as TP/(TP+FP), the recall {c -} as TP/(TP+FN), and the adjusted noise-to-signal ratio {c -} as [FP/(FP+TN)]/[TP/(TP+FN)].{p_end}
+{p 4 7}{cmd:swopitclassification} This command constructs a confusion matrix (classification table) for the dependent variable. 
+The classification table shows the observed choices in the rows and the predicted ones (the choices with the highest predicted probability) in the columns. The diagonal elements give the numbers of correctly predicted choices. 
+The command also reports the accuracy (the percentage of correct predictions), the Brier probability score (Brier 1950), the ranked probability score (Epstein 1969), the precisions, the recalls and the adjusted noise-to-signal ratios (Kaminsky and Reinhart 1999).{p_end}
 
 {title:Examples for swopitclassification}
 
