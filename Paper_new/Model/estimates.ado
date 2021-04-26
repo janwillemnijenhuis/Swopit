@@ -236,6 +236,13 @@ class SWOPITModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_lim
 		}
 	
 	}
+
+	if (tot_converged == 1){
+		retCode		= best_retCode
+		params 		= best_params
+		iterations 	= best_iterations
+	}
+
 	_swopit_params(params, kx1,kx2, kz, ncat, b1=., b2=., a1=., a2=., g=., mu=.)
 	params = g\decodeIncreasingSequence(mu)\b1\decodeIncreasingSequence(a1)\b2\decodeIncreasingSequence(a2)
 	
@@ -338,12 +345,7 @@ class SWOPITModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_lim
 	model.probabilities = prob_obs
 	model.ll_obs = log(rowsum(prob_obs :* q))
 
-	if (tot_converged == 1){
-		retCode		= best_retCode
-		params 		= best_params
-		iterations 	= best_iterations
-	
-	}else{
+	if (tot_converged != 1){
 		"The command performed " + strofreal(guesses) + " random initializations and the estimation algorithm failed to converge."
 		"Perhaps, there are too few data for such a complex model."
 		"Try again, increase the number of random initializations in guesses() or provide your starting values."
@@ -702,6 +704,12 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 		}
 	
 	}
+
+	if (tot_converged == 1){
+		retCode		= best_retCode
+		params 		= best_params
+		iterations 	= best_iterations
+	}
 	
 	_swopitc_params(params, kx1,kx2, kz, ncat, b1=., b2=., a1=., a2=., g=., mu=., rho1=., rho2=.)
 	params = g\decodeIncreasingSequence(mu)\b1\decodeIncreasingSequence(a1)\b2\decodeIncreasingSequence(a2)\invlogit(rho1)*2-1\invlogit(rho2)*2-1
@@ -734,8 +742,8 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 	
 	optimize_init_params(S2, params')
 	errorcode2 = _optimize_evaluate(S2)
-	if (convg == 0) {
-		// not successful, robust covatiance matrix cannot be calculated
+	if (tot_converged == 0) {
+		// not successful, robust covariance matrix cannot be calculated
 		maxLik	= optimize_result_value(S2)
 		grad 	= optimize_result_gradient(S2)
 		covMat	= optimize_result_V(S2)
@@ -805,12 +813,7 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 	model.probabilities = prob_obs
 	model.ll_obs = log(rowsum(prob_obs :* q))
 
-	if (tot_converged == 1){
-		retCode		= best_retCode
-		params 		= best_params
-		iterations 	= best_iterations
-		
-	}else{
+	if (tot_converged != 1){
 		"The command performed " + strofreal(guesses) + " random initializations and the estimation algorithm failed to converge."
 		"Perhaps, there are too few data for such a complex model."
 		"Try again, increase the number of random initializations in guesses() or provide your starting values."
@@ -1304,7 +1307,7 @@ function SWOPITclassification(class SWOPITModel scalar model){
 	n2s = noise :/ recall
 	
 	result = precision, recall, n2s
-	colname = "Precision" \  "Recall" \  "Adj. N2S"
+	colname = "Precision" \  "Recall" \  "Adj. noise-to-signal"
 	rowname = "y=" :+ strofreal(model.allcat) 
 	print_matrix(result, rowname, colname,., ., ., 4, ., .)
 	printf("\n")

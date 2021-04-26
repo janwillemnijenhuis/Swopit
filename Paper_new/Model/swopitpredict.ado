@@ -5,3 +5,5 @@ program swopitpredict, rclass
 	marksample touse
 	mata: SWOPITpredict(SWOPITMODEL, "`1'", "`regimes'"=="regimes", "`output'")
 end
+
+
