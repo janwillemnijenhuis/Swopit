@@ -825,7 +825,7 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 	return(model)
 }
 
-class SWOPITModel scalar swopitmain(string scalar xynames, string scalar znames, string scalar x1names, string scalar x2names, touse, initial, guesses, change, limit, maxiter, ptol, vtol, nrtol, endogenous, boot, bootguesses){
+class SWOPITModel scalar swopitmain(string scalar xynames, string scalar znames, string scalar x1names, string scalar x2names, touse, initial, guesses, change, limit, maxiter, ptol, vtol, nrtol, endogenous, boot, bootguesses, bootiter){
 
 	col_names = xynames
 	xytokens = tokens(col_names)
@@ -888,6 +888,7 @@ class SWOPITModel scalar swopitmain(string scalar xynames, string scalar znames,
 	vtol = strtoreal(vtol)
 	boot = strtoreal(boot)
 	bootguesses = strtoreal(bootguesses)
+	bootiter = strtoreal(bootiter)
 
 	initial = initial'
 	
@@ -932,10 +933,10 @@ class SWOPITModel scalar swopitmain(string scalar xynames, string scalar znames,
 
 			class SWOPITModel scalar bootmodel
 			if (endogenous){
-				bootmodel = estimateswopitc(y_iter, x1_iter, x2_iter, z_iter, bootguesses, change, limit, boot_initial, maxiter, ptol, vtol, nrtol)
+				bootmodel = estimateswopitc(y_iter, x1_iter, x2_iter, z_iter, bootguesses, change, limit, boot_initial, bootiter, ptol, vtol, nrtol)
 
 			}else{
-				bootmodel = estimateswopit(y_iter, x1_iter, x2_iter, z_iter, bootguesses, change, limit, boot_initial, maxiter, ptol, vtol, nrtol)			
+				bootmodel = estimateswopit(y_iter, x1_iter, x2_iter, z_iter, bootguesses, change, limit, boot_initial, bootiter, ptol, vtol, nrtol)			
 			}
 
 			if (bootmodel.converged == 0){
@@ -959,7 +960,7 @@ class SWOPITModel scalar swopitmain(string scalar xynames, string scalar znames,
 
 		if (ready < boot){
 			"Not enough samples with convergence within 10 * boot replications"
-			"Only " + ready + " samples converged"
+			"Only " + strofreal(ready) + " samples converged"
 			"Perhaps increase the number of guesses to achieve more convergence"
 			"Results will be shown based on all converged bootstrap estimations"
 		}

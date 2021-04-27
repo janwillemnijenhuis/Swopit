@@ -1,5 +1,5 @@
 version 14
-cd "C:\Users\janwi\OneDrive\Documents\PaperSwopit\Swopit\Paper_new\Model" 
+cd "/Users/jhuismans/Desktop/Paper Swopit/Swopit/Paper_new/Model" 
 mata: mata clear
 run DefModel.ado
 run helpfunctest.ado
@@ -14,7 +14,7 @@ mata:
 n = 250	//0000
 dgp = "SWOPIT" //ZIOP, SWOPIT, SWOPITC
 overlap = "none" //"none", "partial", "complete" IMPORTANT: no caps
-boot = "OFF" //ON, OFF note: boot for now only supported with getME and getprobs == TRUE (this is a small change just to not save me/pr in boot_matrix)
+boot = "ON" //ON, OFF note: boot for now only supported with getME and getprobs == TRUE (this is a small change just to not save me/pr in boot_matrix)
 stratified = "OFF" //ON, OFF, stratified bootstrap
 covar = "TRUE" //ALL for all covariates, TRUE for calibration covariates
 getprobs = "TRUE" //FALSE to calculate without probs, TRUE for with
