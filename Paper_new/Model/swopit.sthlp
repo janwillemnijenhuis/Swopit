@@ -77,6 +77,10 @@ The estimation attempts are stopped after the first converged one or until all a
 The default is bootguesses(3).
 {p_end}
 
+{synopt :{opt bootiter(scalar)}}  specifies the maximum number of iterations in the bootstrap estimation before the optimisation algorithm quits.
+The default is bootiter(50).
+{p_end}
+
 {synoptline}
 
 {pstd}See {help swopitpostestimation:swopit postestimation} for features available after estimation.{p_end}
