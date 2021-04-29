@@ -1,4 +1,4 @@
-# COPYRIGHT STATEMENT: We give to consent to anyone to use this code for non-commercial and non-profit purposes only. For commercial purposes contact one of the authors. 
+#### COPYRIGHT STATEMENT: We give to consent to anyone to use this code for non-commercial and non-profit purposes only. For commercial purposes contact one of the authors. 
 # © 2021 Andrei Sirchenko, Jochem Huismans and Jan Willem Nijenhuis. All rights reserved.
 ------------------------------------------------------------------------------
 # Swopit
