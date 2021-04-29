@@ -29,7 +29,7 @@ oprobit health area weight female rural, nolog
 
 estimates stat
 
-swopit health weight female rural, reg(area weight female rural) outone(area weight female rural outtwo(area weight female rural)
+swopit health weight female rural, reg(area weight female rural) outone(area weight female rural) outtwo(area weight female rural)
 
 swopit health weight female rural, reg(area weight female rural) outone(area weight female rural) outtwo(area weight female rural) endo
 
