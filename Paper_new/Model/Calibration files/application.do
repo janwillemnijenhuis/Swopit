@@ -23,13 +23,14 @@ swopitmargins, at(house=1.65 gdp=4.1 bias=0 spread=0.55)
 
 swopitclassification
 
+capture swopit y house gdp bias spread, reg(house gdp) outone(spread bias) outtwo(spread bias) endo
 // health data application as in paper 
 use fmm_health.dta, clear
 oprobit health area weight female rural, nolog
 
 estimates stat
 
-swopit health weight female rural, reg(area weight female rural) outone(area weight female rural outtwo(area weight female rural)
+swopit health weight female rural, reg(area weight female rural) outone(area weight female rural) outtwo(area weight female rural)
 
 swopit health weight female rural, reg(area weight female rural) outone(area weight female rural) outtwo(area weight female rural) endo
 
