@@ -28,7 +28,7 @@ n_start_guesses = 5 // change to the number of starting guesses needed. If nothi
 param_limit=100 //invoke limit on parameter values. If set to 0 no limit is invoked.
 n_start_guesses_boot = 1 //starting guesses needed for bootstrap. If nothing specified starting guesses = 5
 s_change = 0.2 //If starting values are specified, next one willbe in [b0 - s*abs(b0),  b + s*abs(b0)], If nothing specified s_change = 0.5
-n_boot = 300 //number of bootstraps
+n_boot = 500 //number of bootstraps
 max_boot = 100 * n_boot //change to maximum number of attempts 
 
 // SET PARAMETERS FOR SIMULATION //
@@ -48,13 +48,13 @@ not_converged = 0
 
 //it limit depends on n_converged, 1 in 10 needs to converge
 for(it = start_iter; it <= sim_iter + start_iter; it++){
-	maxiter=30 // if nothing specified set to 30
+	maxiter=50 // if nothing specified set to 30
 	ptol=1e-6 // if nothing specified set to 1e-6
 	vtol=1e-7 // if nothing specified set to 1e-7
 	nrtol=1e-5 // if nothing specified set to 1e-5
 	lambda=1e-50 // if nothing specified set to 1e-50
 	startvalues=. // if nothing specified left empty
-	maxiter_boot = 20
+	maxiter_boot = 15
 
 	rseed(42+it)
 	
@@ -82,7 +82,7 @@ for(it = start_iter; it <= sim_iter + start_iter; it++){
 		x_original = x
 		z_original = z
 		for (booti = 1; booti <= max_boot; booti++) {
-			rseed(42 + it + booti * 10000000 + 123456789);
+			//rseed(42 + it + booti * 10000000 + 123456789);
 			if (stratified == "OFF"){
 				y = y_original
 				x = x_original
