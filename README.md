@@ -17,6 +17,6 @@ We have added a calibration file with precalibrated parameters. To run this:
 
 ### To use on real dataset:
 This will be added after completion of empirical application.
-1. Run xxx (dataset name here) from command window;
+1. Run fmm_health.dta/policy_rate.dta from command window;
 2. In Stata run "swopit" in command window according to help file;
 3. Perform postestimation commands according to help file.
