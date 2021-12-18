@@ -110,9 +110,10 @@ The default is bootiter(50).
 {synopt:{cmd:e(r2_p)}}McFadden pseudo-R-squared{p_end}
 {synopt:{cmd:e(ll)}}log likelihood{p_end}
 {synopt:{cmd:e(ll_0)}}log likelihood, constant-only model{p_end}
-{synopt:{cmd:e(vuong)}}Vuong test statistic{p_end}
-{synopt:{cmd:e(vuong_aic)}}Vuong test statistic with AIC correction{p_end}
-{synopt:{cmd:e(vuong_bic)}}Vuong test statistic with BIC correction{p_end}
+{synopt:{cmd:e(aic)}}Akaike Information Criterion{p_end}
+{synopt:{cmd:e(bic)}}Bayesian Information Criterion{p_end}
+{synopt:{cmd:e(chi2)}}Chi-square test Statistic{p_end}
+{synopt:{cmd:e(p)}}p-value of Chi-square test{p_end}
 
 {synoptset 20 tabbed}{...}
 {p2col 5 20 24 2: Macros}{p_end}
