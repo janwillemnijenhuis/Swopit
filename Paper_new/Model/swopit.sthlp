@@ -13,7 +13,9 @@
 {pstd}{cmd:swopit} {depvar} {it:indepvars} {ifin} {bind:[{cmd:,} {it:options}]}{p_end}
 
 {p 4 7} The dependent variable {it:depvar} may take on two or more discrete ordered values. The independent variables listed in {it:indepvar} will be, by default, included in each model. 
-The alternative (and possibly not the same) lists of independent variables to be included in the class assignment model and each outcome model can be specified in {it:options}. The following options are available.
+The alternative (and possibly not the same) lists of independent variables to be included in the class assignment model and each outcome model can be specified in {it:options}. {p_end}
+{p 4 7}To avoid the locally optimal solutions the swopit command performs several estimation attempts with different initialization by randomly assigning observations to each class (regime). Besides, at each attempt, the four optimization techniques are applied one after another until convergence is achieved or all four of them are used. After each random initialization, the command obtains the starting values for the slope and threshold parameters using the independent estimations of binary probit class-assignment model and OP output models. Further, in the case of endogenous class assignment, the command obtains the starting values for rho1 and rho2 by maximizing the likelihood functions over a grid search from -0.95 to 0.95 in increments of 0.05 holding the other parameters fixed at their estimates in the exogenous switching case. Since the likelihood function may have multiple local maxima and large flat regions (as is common in the finite-mixtures of discrete-choice models), after each estimation attempt the command may display the multiple warning messages such as "numerical derivatives are approximate; flat or discontinuous region encountered" and the error-like messages such as "could not calculate numerical derivatives -- flat or discontinuous region encountered; no convergence.
+The following options are available.
 {p_end}
 
 {synoptset 26 tabbed}{...}
