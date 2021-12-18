@@ -2,6 +2,7 @@ version 14
 mata
 class SWOPITModel {
 	string scalar model_class
+	string scalar opt_method
 	
 	// utility parameters
 	real vector beta

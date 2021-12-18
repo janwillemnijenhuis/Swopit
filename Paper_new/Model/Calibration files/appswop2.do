@@ -25,4 +25,4 @@ swopit y x1 x2 x3 x4 x5, reg(x1) outone(x2 x3) outtwo(x4 x5) maxiter(30) log
 // swopitclassification
 
 // NOT YET SUPPORTED //
-swopitpredict
+// swopitpredict

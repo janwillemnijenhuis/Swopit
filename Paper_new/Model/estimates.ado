@@ -191,12 +191,14 @@ class SWOPITModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_lim
 				if (tot_converged==0){
 					printMsg("convergence", nolog)
 					best_lik = optimize_result_value(S)
+					best_opt = opt_method
 					tot_converged = 1
 					best_retCode		= optimize_result_errortext(S)
 					best_params 		= optimize_result_params(S)'
 					best_iterations 	= optimize_result_iterations(S)
 				} else if (optimize_result_value(S) > best_lik){
 					best_lik = optimize_result_value(S)
+					best_opt = opt_method
 					tot_converged = 1
 					printMsg("convergence with likelihood improvement", nolog)
 					best_retCode		= optimize_result_errortext(S)
@@ -213,12 +215,14 @@ class SWOPITModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_lim
 					if (tot_converged==0){
 						printMsg("convergence", nolog)
 						best_lik = optimize_result_value(S)
+						best_opt = opt_method
 						tot_converged = 1
 						best_retCode		= optimize_result_errortext(S)
 						best_params 		= optimize_result_params(S)'
 						best_iterations 	= optimize_result_iterations(S)
 					} else if (optimize_result_value(S) > best_lik){
 						best_lik = optimize_result_value(S)
+						best_opt = opt_method
 						tot_converged = 1
 						printMsg("convergence with likelihood improvement", nolog)
 						best_retCode		= optimize_result_errortext(S)
@@ -295,6 +299,17 @@ class SWOPITModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_lim
 		covMat_rob = optimize_result_V_robust(S2)
 		//covMat_rob
 	}
+	
+	if (best_opt == "nr") {
+		maxMethod = "Newton Raphson"
+	} else if (best_opt == "bhhh") {
+		maxMethod = "BHHH"
+	} else if (best_opt == "dfp") {
+		maxMethod = "DFP"
+	} else {
+		maxMethod = "BFGS"
+	}
+	
 	//calculate probabilities per observation
 	prob_obs = mlswoptwo(params, x1 , x2, z, q, ncat, 1)
 
@@ -343,6 +358,7 @@ class SWOPITModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_lim
 	model.V	= covMat
 	model.V_rob	= covMat_rob
 	model.logLik	= maxLik
+	model.opt_method = maxMethod
 	model.probabilities = prob_obs
 	model.ll_obs = log(rowsum(prob_obs :* q))
 
@@ -638,6 +654,7 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 						if (optimize_result_value(S) > swopit_likelihood){
 							printMsg("convergence", nolog)
 							best_lik = optimize_result_value(S)
+							best_opt = opt_method
 							tot_converged = 1
 							best_retCode		= optimize_result_errortext(S)
 							best_params 		= optimize_result_params(S)'
@@ -648,6 +665,7 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 					}else{
 						printMsg("convergence", nolog)
 						best_lik = optimize_result_value(S)
+						best_opt = opt_method
 						tot_converged = 1
 						best_retCode		= optimize_result_errortext(S)
 						best_params 		= optimize_result_params(S)'
@@ -656,6 +674,7 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 
 				} else if (optimize_result_value(S) > best_lik){
 					best_lik = optimize_result_value(S)
+					best_opt = opt_method
 					tot_converged = 1
 					printMsg("convergence with likelihood improvement", nolog)
 					best_retCode		= optimize_result_errortext(S)
@@ -673,6 +692,7 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 							if (optimize_result_value(S) > swopit_likelihood){
 								printMsg("convergence", nolog)
 								best_lik = optimize_result_value(S)
+								best_opt = opt_method
 								tot_converged = 1
 								best_retCode		= optimize_result_errortext(S)
 								best_params 		= optimize_result_params(S)'
@@ -684,6 +704,7 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 						else{
 							printMsg("convergence", nolog)
 							best_lik = optimize_result_value(S)
+							best_opt = opt_method
 							tot_converged = 1
 							best_retCode		= optimize_result_errortext(S)
 							best_params 		= optimize_result_params(S)'
@@ -691,6 +712,7 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 						}
 					} else if (optimize_result_value(S) > best_lik){
 						best_lik = optimize_result_value(S)
+						best_opt = opt_method
 						tot_converged = 1
 						printMsg("convergence with likelihood improvement", nolog)
 						best_retCode		= optimize_result_errortext(S)
@@ -767,6 +789,17 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 		covMat_rob = optimize_result_V_robust(S2)
 		//covMat_rob
 	}
+	
+	if (best_opt == "nr") {
+		maxMethod = "Newton Raphson"
+	} else if (best_opt == "bhhh") {
+		maxMethod = "BHHH"
+	} else if (best_opt == "dfp") {
+		maxMethod = "DFP"
+	} else {
+		maxMethod = "BFGS"
+	}
+	
 	//calculate probabilities per observation
 	prob_obs =  mlswoptwoc(params, x1 , x2, z, q, ncat, 1)
 	//This will all be used to get all the information
@@ -814,6 +847,7 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 	model.V	= covMat
 	model.V_rob	= covMat_rob
 	model.logLik	= maxLik
+	model.opt_method = maxMethod
 	model.probabilities = prob_obs
 	model.ll_obs = log(rowsum(prob_obs :* q))
 
@@ -992,10 +1026,14 @@ class SWOPITModel scalar swopitmain(string scalar xynames, string scalar znames,
 	}
 
 	displayas("txt")
-	printf("%s\n", model_suptype)
+	printf("%s\n\n", model_suptype)
 	printf("Regime switching       = ")
 	displayas("res")
 	printf("%15s  \n", switching_type)
+	displayas("txt")
+	printf("Optimization method    = ")
+	displayas("res")
+	printf("%15s\n", model.opt_method)
 	displayas("txt")
 	printf("Number of observations = ")
 	displayas("res")
