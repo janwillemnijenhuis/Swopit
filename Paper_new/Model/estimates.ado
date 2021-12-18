@@ -1417,10 +1417,11 @@ function SWOPITclassification(class SWOPITModel scalar model){
 	print_matrix(conf_mat, rowstripes, colstripes,., ., ., 0, rowtitle, coltitle)
 }
 
-function SWOPITpredict(class SWOPITModel scalar model, string scalar newVarName, real scalar regime, scalar output){
+function SWOPITpredict(class SWOPITModel scalar model, string scalar newVarName, real scalar regime, scalar output, tabstat){
 	if (strlen(newVarName) == 0) {
 		newVarName = "swopit_pr"
 	} 
+// this used to be the code, left here if we need to still change it
 // 	else {
 // 		sp = strpos(newVarName, ",")
 // 		if (sp != 0){
@@ -1488,6 +1489,10 @@ function SWOPITpredict(class SWOPITModel scalar model, string scalar newVarName,
 			st_varlabel(label_indices[i], labels[i])
 		}
 		v[,] = p
+	}
+	
+	if (tabstat) {
+		stata("tabstat " + newVarName + "_*")
 	}
 
 }
