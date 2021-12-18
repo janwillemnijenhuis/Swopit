@@ -1380,10 +1380,15 @@ function SWOPITclassification(class SWOPITModel scalar model){
 }
 
 function SWOPITpredict(class SWOPITModel scalar model, string scalar newVarName, real scalar regime, scalar output){
-	sp = strpos(newVarName, ",")
-	if (sp != 0){
-		newVarName = substr(newVarName, 1, sp - 1)
-	}
+	if (strlen(newVarName) == 0) {
+		newVarName = "swopit_pr"
+	} 
+// 	else {
+// 		sp = strpos(newVarName, ",")
+// 		if (sp != 0){
+// 			newVarName = substr(newVarName, 1, sp - 1)
+// 		}
+// 	}
 	loop = 1 // code of prediction type
 	if (regime) {
 		loop = 3
