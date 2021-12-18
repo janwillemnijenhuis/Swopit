@@ -1,6 +1,12 @@
 version 14
 
 mata:
+function printMsg(s, nolog) {
+	if (nolog != 0) {
+		s
+	}
+}
+
 function punishSort(x) {
 	// the function returns vector x, if it is sorted in ascending order
 	// otherwise, it returns modified x in increasing order with very small distances between swapped points
