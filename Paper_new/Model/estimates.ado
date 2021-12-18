@@ -29,8 +29,9 @@ class SWOPITModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_lim
 	startoriginal = startvalues
 
 	if (cols(startoriginal) != parlen && startoriginal != . && cols(startoriginal) > 0) {
-		"Vector of initial values must have length "+ strofreal(parlen)
-		"Please make corrections and re-enter correct initial values or leave them empty"
+		displayas("err")
+		printf("Vector of initial values must have length "+ strofreal(parlen) + "\n")
+		printf("Please make corrections and re-enter correct initial values or leave them empty\n")
 		exit(1)
 	}
 	
@@ -73,13 +74,15 @@ class SWOPITModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_lim
 				_swopit_params(startparam, kx1,kx2, kz, ncat, b1=., b2=., a1=., a2=., g=., mu=.)
 
 				if (sort(a1,1) != a1){
-					"Initial thresholds of regime 1 are not in order"
-					"Please make corrections and re-enter the thresholds in the correct ordering, from the smallest to the largest"
+					displayas("err")
+					printf("Initial thresholds of regime 1 are not in order\n")
+					printf("Please make corrections and re-enter the thresholds in the correct ordering, from the smallest to the largest\n")
 					exit(1)
 				}
 				if (sort(a2,1) != a2){
-					"Initial thresholds of regime 2 are not in order"
-					"Please make corrections and re-enter the thresholds in the correct ordering, from the smallest to the largest"
+					displayas("err")
+					printf("Initial thresholds of regime 2 are not in order\n")
+					printf("Please make corrections and re-enter the thresholds in the correct ordering, from the smallest to the largest")
 					exit(1)
 				}
 
@@ -344,11 +347,12 @@ class SWOPITModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_lim
 	model.ll_obs = log(rowsum(prob_obs :* q))
 
 	if (tot_converged != 1){
-		"The command performed " + strofreal(guesses) + " random initializations and the estimation algorithm failed to converge."
-		"Perhaps, there are too few data for such a complex model."
-		"Try again, increase the number of random initializations in guesses() or provide your starting values."
-		"Error code is " + strofreal(errorcode) + ": " + retCode
-		"Convergence status is " + strofreal(convg)
+		displayas("res")
+		printf("The command performed " + strofreal(guesses) + " random initializations and the estimation algorithm failed to converge.\n")
+		printf("Perhaps, there are too few data for such a complex model.\n")
+		printf("Try again, increase the number of random initializations in guesses() or provide your starting values.\n")
+		printf("Error code is " + strofreal(errorcode) + ": " + retCode + "\n")
+		printf("Convergence status is " + strofreal(convg) + "\n")
 	
 	}
 	
@@ -385,8 +389,9 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 	startoriginal = startvalues
 
 	if (cols(startoriginal) != parlen && startoriginal != . && cols(startoriginal) > 0) {
-		"Vector of initial values must have length "+ strofreal(parlen)
-		"Please make corrections and re-enter correct initial values or leave them empty"
+		displayas("err")
+		printf("Vector of initial values must have length "+ strofreal(parlen))
+		printf("Please make corrections and re-enter correct initial values or leave them empty\n")
 		exit(1)
 	}
 	
@@ -496,13 +501,15 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 				_swopitc_params(startparam, kx1,kx2, kz, ncat, b1=., b2=., a1=., a2=., g=., mu=., rho1=., rho2=.)
 
 				if (sort(a1,1) != a1){
-					"Initial thresholds of regime 1 are not in order"
-					"Please make corrections and re-enter the thresholds in the correct ordering, from the smallest to the largest"
+					displayas("err")
+					printf("Initial thresholds of regime 1 are not in order\n")
+					printf("Please make corrections and re-enter the thresholds in the correct ordering, from the smallest to the largest\n")
 					exit(1)
 				}
 				if (sort(a2,1) != a2){
-					"Initial thresholds of regime 2 are not in order"
-					"Please make corrections and re-enter the thresholds in the correct ordering, from the smallest to the largest"
+					displayas("err")
+					printf("Initial thresholds of regime 2 are not in order\n")
+					printf("Please make corrections and re-enter the thresholds in the correct ordering, from the smallest to the largest\n")
 					exit(1)
 				}
 			}
@@ -603,7 +610,7 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 			retCode		= optimize_result_errortext(S)
 			params 		= optimize_result_params(S)'
 			iterations 	= optimize_result_iterations(S)
-
+			
 			if (convg==1){
 			    if (set_limit==0){
 				    printMsg("convergence", nolog)
@@ -762,7 +769,6 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 	}
 	//calculate probabilities per observation
 	prob_obs =  mlswoptwoc(params, x1 , x2, z, q, ncat, 1)
-
 	//This will all be used to get all the information
 
 	class SWOPITModel scalar model 
@@ -812,11 +818,12 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 	model.ll_obs = log(rowsum(prob_obs :* q))
 
 	if (tot_converged != 1){
-		"The command performed " + strofreal(guesses) + " random initializations and the estimation algorithm failed to converge."
-		"Perhaps, there are too few data for such a complex model."
-		"Try again, increase the number of random initializations in guesses() or provide your starting values."
-		"Error code is " + strofreal(errorcode) + ": " + retCode
-		"Convergence status is " + strofreal(convg)
+		displayas("err")
+		printf("The command performed " + strofreal(guesses) + " random initializations and the estimation algorithm failed to converge.\n")
+		printf("Perhaps, there are too few data for such a complex model.\n")
+		printf("Try again, increase the number of random initializations in guesses() or provide your starting values.\n")
+		printf("Error code is " + strofreal(errorcode) + ": " + retCode + "\n")
+		printf("Convergence status is " + strofreal(convg) + "\n")
 	
 	}
 	
@@ -869,8 +876,9 @@ class SWOPITModel scalar swopitmain(string scalar xynames, string scalar znames,
 	if (initial != "") {
 		initial = strtoreal(tokens(initial))'
 		if (sum(initial :== .) > 0) {
-			"Incorrect initial values! Expected a numeric sequence delimited with whitespace."
-			"Default initial values will be used."
+			displayas("err")
+			printf("Incorrect initial values! Expected a numeric sequence delimited with whitespace.\n")
+			printf("Default initial values will be used.\n")
 			initial = .
 		}
 	} else {
@@ -962,15 +970,17 @@ class SWOPITModel scalar swopitmain(string scalar xynames, string scalar znames,
 		model.V = diag(bootstds)
 
 		if (ready < boot){
-			"Not enough samples with convergence within 10 * boot replications"
-			"Only " + strofreal(ready) + " samples converged"
-			"Perhaps increase the number of guesses to achieve more convergence"
-			"Results will be shown based on all converged bootstrap estimations"
+			displayas("err")
+			printf("Not enough samples with convergence within 10 * boot replications\n")
+			printf("Only " + strofreal(ready) + " samples converged\n")
+			printf("Perhaps increase the number of guesses to achieve more convergence\n")
+			printf("Results will be shown based on all converged bootstrap estimations\n")
 		}
 	}
 
 	if(model.converged == 1){
-		"Printing converged estimation with highest likelihood:"
+		displayas("txt")
+		printf("\nPrinting converged estimation with highest likelihood:\n")
 	}
 
 	model_suptype = "Two-regime switching ordered probit regression"
@@ -981,15 +991,43 @@ class SWOPITModel scalar swopitmain(string scalar xynames, string scalar znames,
 		model_type = "Two-regime switching ordered probit regression with bootstrap"
 	}
 
+	displayas("txt")
 	printf("%s\n", model_suptype)
-	printf("Regime switching:        %s  \n", switching_type)
-	printf("Number of observations = %15.0f \n", model.n)
-	printf("Log likelihood         = %15.4f \n", model.logLik)
-	printf("McFadden pseudo R2     = %15.4f \n", model.R2)
-	printf("LR chi2(%2.0f)            = %15.4f \n", model.df - model.df_null, 	model.chi2)
-	printf("Prob > chi2            = %15.4f \n", model.chi2_pvalue)
-	printf("AIC                    = %15.4f \n" , model.AIC)
-	printf("BIC                    = %15.4f \n" , model.BIC)
+	printf("Regime switching       = ")
+	displayas("res")
+	printf("%15s  \n", switching_type)
+	displayas("txt")
+	printf("Number of observations = ")
+	displayas("res")
+	printf("%15.0f \n", model.n)
+	displayas("txt")
+	printf("Log likelihood         = ")
+	displayas("res")
+	printf("%15.4f \n", model.logLik)
+	displayas("txt")
+	printf("McFadden pseudo R2     = ")
+	displayas("res")
+	printf("%15.4f \n", model.R2)
+	displayas("txt")
+	printf("LR chi2(")
+	displayas("res")
+	printf("%2.0f", model.df - model.df_null)
+	displayas("txt")
+	printf(")            = ")
+	displayas("res")
+	printf("%15.4f \n", model.chi2)
+	displayas("txt")
+	printf("Prob > chi2            = ")
+	displayas("res")
+	printf("%15.4f \n", model.chi2_pvalue)
+	displayas("txt")
+	printf("AIC                    = ")
+	displayas("res")
+	printf("%15.4f \n" , model.AIC)
+	displayas("txt")
+	printf("BIC                    = ")
+	displayas("res")
+	printf("%15.4f \n" , model.BIC)
 	
 	model.yname = yname
 	model.x1names = x1names
@@ -1203,21 +1241,24 @@ function SWOPITmargins(class SWOPITModel scalar model, string atVarlist, zeroes,
 	output_mesetp(me, se, rowstripes, colstripes)
 	
 	// now the printing part! 
-	"Evaluated at:"
+	displayas("txt")
+	printf("\nEvaluated at:\n")
 	print_matrix(xzbar, ., model.XZnames)
-	""
 	if (zeroes) {
-		"Marginal effects of all variables on the probabilities of different types of zeros"
+		displayas("txt")
+		printf("\nMarginal effects of all variables on the probabilities of different types of zeros\n")
 	} 
 	else if (regime) {
-		"Marginal effects of all variables on the probabilities of different latent regimes"
+		displayas("txt")
+		printf("\nMarginal effects of all variables on the probabilities of different latent regimes\n")
 	}
 	else {
-		"Marginal effects of all variables on the probabilities of different outcomes"
+		displayas("txt")
+		printf("\nMarginal effects of all variables on the probabilities of different outcomes\n")
 	}
 	print_matrix(me, rowstripes, colstripes)
-	""
-	"Standard errors of marginal effects"
+	displayas("txt")
+	printf("\nStandard errors of marginal effects\n")
 	print_matrix(se, rowstripes, colstripes)
 }
 
@@ -1267,21 +1308,24 @@ function SWOPITprobabilities(class SWOPITModel scalar model, string atVarlist, z
 	output_mesetp(me, se, rowstripes, colstripes)
 	
 	// now the printing part! 
-	"Evaluated at:"
+	displayas("txt")
+	printf("\nEvaluated at:\n")
 	print_matrix(xz_from, ., model.XZnames)
-	""
 	if (zeroes) {
-		"Predicted probabilities of different types of zeros"
+		displayas("txt")
+		printf("\nPredicted probabilities of different types of zeros\n")
 	} 
 	else if (regime) {
-		"Predicted probabilities of different latent regimes"
+		displayas("txt")
+		printf("\nPredicted probabilities of different latent regimes\n")
 	}
 	else {
-		"Predicted probabilities of different outcomes"
+		displayas("txt")
+		printf("\nPredicted probabilities of different outcomes\n")
 	}
 	print_matrix(me, ., colstripes)
-	""
-	"Standard errors of the probabilities"
+	displayas("txt")
+	printf("\nStandard errors of the probabilities\n")
 	print_matrix(se, ., colstripes)
 }
 
@@ -1326,12 +1370,12 @@ function SWOPITclassification(class SWOPITModel scalar model){
 	colname = "Precision" \  "Recall" \  "Adj. noise-to-signal"
 	rowname = "y=" :+ strofreal(model.allcat) 
 	print_matrix(result, rowname, colname,., ., ., 4, ., .)
+	displayas("txt")
 	printf("\n")
 	printf("Accuracy                 = %9.4f \n", model.accuracy)
 	printf("Brier score              = %9.4f \n", model.brier_score)
 	printf("Ranked probability score = %9.4f \n", model.ranked_probability_score)
-	printf("\n")
-	"Confusion matrix"
+	printf("\nConfusion Matrix\n")
 	print_matrix(conf_mat, rowstripes, colstripes,., ., ., 0, rowtitle, coltitle)
 }
 

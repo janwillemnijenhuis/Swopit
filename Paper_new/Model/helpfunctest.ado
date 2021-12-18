@@ -3,7 +3,8 @@ version 14
 mata:
 function printMsg(s, nolog) {
 	if (nolog != 0) {
-		s
+		displayas("txt")
+		printf(s + "\n")
 	}
 }
 
@@ -1039,6 +1040,7 @@ void print_matrix(contents, rownames, colnames, | uline, lline, mline, digits, r
 		printf("%" + strofreal(rowname_width) + "s {c |} ", "")
 	}
 	for(j=1; j<=m; j++){
+		displayas("txt")
 		printf("%" + strofreal(colwidths[j]) + "s ", colnames[j])
 	}
 	printf("\n")
@@ -1047,15 +1049,18 @@ void print_matrix(contents, rownames, colnames, | uline, lline, mline, digits, r
 	}
 	// print the rest of the table
 	if (coltitle_rows==1){
+		displayas("txt")
 	    printf("%"+strofreal(rowname_width)+ "s {c |}\n",coltitle)
 	} else if (coltitle_rows>1){
 	    "A higher (>1) number of words for column title is not yet supported"
 	}
 	for(i=1; i<=n; i++) {
 		if (rowname_flag) {
+			displayas("txt")
 			printf("%" + strofreal(rowname_width)+ "s {c |} ", rownames[i])
 		}
 		for(j=1; j<=m; j++){
+			displayas("res")
 			printf("%" + strofreal(colwidths[j]) + "." + numberf + " ", contents[i, j])
 		}
 		printf("\n")
