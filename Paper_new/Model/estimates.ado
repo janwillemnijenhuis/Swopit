@@ -999,7 +999,9 @@ class SWOPITModel scalar swopitmain(string scalar xynames, string scalar znames,
 
 
 	
+	model.model_bootstrap = "Asymptotic"
 	if (boot != 0){
+		model.model_bootstrap = "Bootstrap"
 		printMsg("Starting BOOTSTRAP estimations", nolog)
 		ready = 0
 		boot_initial = model.params'
@@ -1038,6 +1040,7 @@ class SWOPITModel scalar swopitmain(string scalar xynames, string scalar znames,
 		}
 		bootstds = colsum((allpa:- colsum(allpa):/boot):^2)/(boot-1)
 		model.V = diag(bootstds)
+		model.boot_params = allpa
 
 		if (ready < boot){
 			displayas("err")
@@ -1070,6 +1073,10 @@ class SWOPITModel scalar swopitmain(string scalar xynames, string scalar znames,
 	printf("Optimization method    = ")
 	displayas("res")
 	printf("%15s\n", model.opt_method)
+	displayas("txt")
+	printf("SE method              = ")
+	displayas("res")
+	printf("%15s\n", model.model_bootstrap)
 	displayas("txt")
 	printf("Number of observations = ")
 	displayas("res")
@@ -1324,6 +1331,29 @@ function SWOPITmargins(class SWOPITModel scalar model, string atVarlist, zeroes,
 	kxz = cols(xzbar)
 	me = mese[1::kxz,]
 	se = mese[(1::kxz) :+ kxz,]
+
+	if (model.model_bootstrap == "Bootstrap"){
+		boot_params = model.boot_params
+
+		total_boot = rows(boot_params)
+		for (i = 1; i <= total_boot; i++){
+			boot_params_iter = boot_params[i,]
+			generalME(boot_params_iter, model.model_class, xzbar, model.ncat, model.outeq1, model.outeq2, model.regeq, loop, seboot=.)
+
+			if(i == 1){
+				se_all = seboot
+
+			}else{
+				se_all = se_all \ seboot
+
+			}
+		}
+
+	
+		se = colsum((se_all:- colsum(se_all):/total_boot):^2)/(total_boot-1) 
+		se = rowshape(se, length(xzbar))
+
+	}
 	
 	output_mesetp(me, se, rowstripes, colstripes)
 	
@@ -1404,6 +1434,38 @@ function SWOPITprobabilities(class SWOPITModel scalar model, string atVarlist, z
 	mese = generalPredictWithSE(model.model_class,model.params', xz_from, model.ncat, model.outeq1,model.outeq2,model.regeq,V, loop)
 	me = mese[1,]
 	se = mese[2,]
+
+
+
+	if(model.model_bootstrap == "Bootstrap"){
+		
+		boot_params = model.boot_params
+
+		xb1 = select(xz_from,model.outeq1)
+		xb2 = select(xz_from,model.outeq2)
+		z = select(xz_from,model.regeq)
+		dgp = model.model_class
+		ncat = model.ncat
+
+		total_boot = rows(boot_params)
+		for (i = 1; i <= total_boot; i++){
+			boot_params_iter = boot_params[i,]
+			generalPredictWrapper(boot_params_iter, xb1, xb2, z,dgp,ncat, loop, probsboot =.)
+
+			if(i == 1){
+				prediction_all = probsboot
+
+			}else{
+				prediction_all = prediction_all \ probsboot
+
+			}
+		}
+	
+		se = colsum((prediction_all:- colsum(prediction_all):/total_boot):^2)/(total_boot-1) 
+
+	}
+
+
 	output_mesetp(me, se, rowstripes, colstripes)
 	
 	// now the printing part! 

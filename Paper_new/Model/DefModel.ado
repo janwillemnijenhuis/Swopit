@@ -3,6 +3,7 @@ mata
 class SWOPITModel {
 	string scalar model_class
 	string scalar opt_method
+	string scalar model_bootstrap
 	
 	// utility parameters
 	real vector beta
@@ -47,6 +48,7 @@ class SWOPITModel {
 	real vector se_rob
 	real vector t_rob
 	real vector pval
+	real matrix boot_params
 	
 	// probabilities
 	real matrix probabilities
