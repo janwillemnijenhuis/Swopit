@@ -23,4 +23,4 @@ Help keywords:  swopit, swopitpostestimation
 
 File list: DefModel.ado estimates.ado helpfunctest.ado swopit.ado swopit.sthlp swopitclassification.ado swopitmargins.ado swopitpostestimation.sthlp swopitpredict.ado swopitprobabilities.ado appswop2.do calibration.do calibration2.do test.do test_calibrswop.do fmm_health.dta policy_rate.dta create_sets.py merge_matamatrix.do runsim.do
 
-Notes: "test"
+Notes:
