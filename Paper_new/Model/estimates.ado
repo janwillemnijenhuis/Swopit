@@ -1278,15 +1278,16 @@ function estimate_and_get_params_v2(dgp,covar, p, s, me, mese, pr, prse, conv, e
 function SWOPITmargins(class SWOPITModel scalar model, string atVarlist, zeroes, regime) {
 	xzbar = model.XZmedians
 	atTokens = tokens(atVarlist, " =")
+	if (length(model.XZnames) <= 1){
+		model.XZnames = tokens(model.XZnames)
+	}
 	
-// 	if (length(atTokens) >= 3) {
-// 		xzbar = update_named_vector(xzbar, model.XZnames, atTokens)
-// 	}
-	
-	nvars = length(ustrsplit(model.XZnames, " "))
+	nvars = length(model.XZnames)
 	
 	if (length(atTokens) == 3 * nvars) {
-		xzbar = update_named_vector(xzbar, model.XZnames, atTokens)
+		xz_from = update_named_vector(xz_from, model.XZnames, atTokens)
+	} else if (length(atTokens) == 0) {
+	    // do nothing
 	} else {
 	    displayas("err")
 		printf("Incorrect number of variables specified in at().\n")
@@ -1294,11 +1295,10 @@ function SWOPITmargins(class SWOPITModel scalar model, string atVarlist, zeroes,
 		printf("Please rerun the swopitmargins command and fix your input.\n")
 		printf("The marginal effects evaluated at their median value:\n")
 	}
+	
 	loop = 1 // code of prediction type
 
-	if (length(model.XZnames) <= 1){
-		model.XZnames = tokens(model.XZnames)
-	}
+	
 	
 	output_matrix("at", xzbar, " ", model.XZnames')
 
@@ -1353,10 +1353,16 @@ function SWOPITprobabilities(class SWOPITModel scalar model, string atVarlist, z
 	xz_from = model.XZmedians
 	atTokens = tokens(atVarlist, " =")
 	
-	nvars = length(ustrsplit(model.XZnames, " "))
+	if (length(model.XZnames) <= 1){
+		model.XZnames = tokens(model.XZnames)
+	}
+	
+	nvars = length(model.XZnames)
 	
 	if (length(atTokens) == 3 * nvars) {
 		xz_from = update_named_vector(xz_from, model.XZnames, atTokens)
+	} else if (length(atTokens) == 0) {
+	    // do nothing
 	} else {
 	    displayas("err")
 		printf("Incorrect number of variables specified in at().\n")
@@ -1372,9 +1378,7 @@ function SWOPITprobabilities(class SWOPITModel scalar model, string atVarlist, z
 		loop = 3
 	}
 	
-	if (length(model.XZnames) <= 1){
-		model.XZnames = tokens(model.XZnames)
-	}
+	
 
 	output_matrix("at", xz_from, " ", model.XZnames')
 
@@ -1475,9 +1479,11 @@ function SWOPITclassification(class SWOPITModel scalar model){
 }
 
 function SWOPITpredict(class SWOPITModel scalar model, string scalar newVarName, real scalar regime, scalar output, tabstat){
-	if (strlen(newVarName) == 0) {
+	if (strlen(newVarName) == 0 && !regime) {
 		newVarName = "swopit_pr"
-	} 
+	} else if (strlen(newVarName) == 0 && regime) {
+	    newVarName = "swopit_r"
+	}
 // this used to be the code, left here if we need to still change it
 // 	else {
 // 		sp = strpos(newVarName, ",")
