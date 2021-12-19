@@ -1277,6 +1277,7 @@ function estimate_and_get_params_v2(dgp,covar, p, s, me, mese, pr, prse, conv, e
 
 function SWOPITmargins(class SWOPITModel scalar model, string atVarlist, zeroes, regime) {
 	xzbar = model.XZmedians
+	printf("%f", length(xzbar))
 	atTokens = tokens(atVarlist, " =")
 	if (length(atTokens) >= 3) {
 		xzbar = update_named_vector(xzbar, model.XZnames, atTokens)
@@ -1339,6 +1340,7 @@ function SWOPITmargins(class SWOPITModel scalar model, string atVarlist, zeroes,
 function SWOPITprobabilities(class SWOPITModel scalar model, string atVarlist, zeroes, regime) {
 	xz_from = model.XZmedians
 	atTokens = tokens(atVarlist, " =")
+	
 	if (length(atTokens) >= 3) {
 		xz_from = update_named_vector(xz_from, model.XZnames, atTokens)
 	}
@@ -1373,6 +1375,7 @@ function SWOPITprobabilities(class SWOPITModel scalar model, string atVarlist, z
 	} else {
 		V = model.V
 	}
+	
 	rowstripes = " " // rowstripes made invisible
 	mese = generalPredictWithSE(model.model_class,model.params', xz_from, model.ncat, model.outeq1,model.outeq2,model.regeq,V, loop)
 	me = mese[1,]

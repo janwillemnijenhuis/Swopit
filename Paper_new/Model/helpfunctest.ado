@@ -595,7 +595,7 @@ function generalPredictWithSE(dgp, params, xzbar, ncat, outeq1, outeq2, regeq, V
 	xb2 = select(xzbar,outeq2)
 	z = select(xzbar,regeq)
 	generalPredictWrapper(params, xb1, xb2, z,dgp,ncat, loop, probs =.)
-	probs
+	
 	nc = cols(probs)
 	nr = rows(probs)
 	D = deriv_init()
