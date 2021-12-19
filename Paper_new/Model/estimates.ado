@@ -872,10 +872,14 @@ class SWOPITModel scalar swopitmain(string scalar xynames, string scalar znames,
 	yname = xytokens[1]
 	xnames = invtokens(xytokens[,2::cols(xytokens)])
 	
+	xsplit = ustrsplit(xnames, " ")
 	znames = znames
+	zsplit = ustrsplit(znames, " ")
 	x1names = x1names
+	x1split = ustrsplit(x1names, " ")
 	x2names = x2names
-
+	x2split = ustrsplit(x2names, " ")
+	
 	outeq1 = outeq2 = regeq = J(1,cols(tokens(xnames)),0)
 	for (i=1;i<=length(tokens(xnames));i++){
 		if (anyof(tokens(x1names),tokens(xnames)[i])==1){
@@ -888,7 +892,7 @@ class SWOPITModel scalar swopitmain(string scalar xynames, string scalar znames,
 			regeq[i]=1
 		}
 	}
-
+	
 	if (strlen(znames)==0){
 		znames=xnames
 	}
@@ -898,6 +902,38 @@ class SWOPITModel scalar swopitmain(string scalar xynames, string scalar znames,
 	if (strlen(x2names)==0){
 		x2names=xnames
 	}
+	
+	// the snippet below alters the order of the variables if they're inputted in a different order in the regime and outcome equations
+	tempz = J(1, cols(zsplit), "hi")
+	tempx1 = J(1, cols(x1split), "hi")
+	tempx2 = J(1, cols(x2split), "hi")
+	k = l = m = 1
+	for (i = 1; i <= length(xsplit); i++) {
+	    for (j = 1; j <= length(zsplit); j++) {
+		    if (xsplit[i] == zsplit[j]) {
+			    tempz[k] = xsplit[i]
+				k++
+			}
+		}
+		
+		for (j = 1; j <= length(x1split); j++) {
+		    if (xsplit[i] == x1split[j]) {
+			    tempx1[l] = xsplit[i]
+				l++
+			}
+		}
+		
+		for (j = 1; j <= length(x2split); j++) {
+		    if (xsplit[i] == x2split[j]) {
+			    tempx2[m] = xsplit[i]
+				m++
+			}
+		}
+	}
+	
+	znames = invtokens(tempz, " ")
+	x1names = invtokens(tempx1, " ")
+	x2names = invtokens(tempx2, " ")
 
 	st_view(z  = ., ., znames, touse)
 	st_view(y  = ., ., yname, touse)
@@ -1303,7 +1339,6 @@ function SWOPITmargins(class SWOPITModel scalar model, string atVarlist, zeroes,
 function SWOPITprobabilities(class SWOPITModel scalar model, string atVarlist, zeroes, regime) {
 	xz_from = model.XZmedians
 	atTokens = tokens(atVarlist, " =")
-	
 	if (length(atTokens) >= 3) {
 		xz_from = update_named_vector(xz_from, model.XZnames, atTokens)
 	}
@@ -1339,7 +1374,6 @@ function SWOPITprobabilities(class SWOPITModel scalar model, string atVarlist, z
 		V = model.V
 	}
 	rowstripes = " " // rowstripes made invisible
-
 	mese = generalPredictWithSE(model.model_class,model.params', xz_from, model.ncat, model.outeq1,model.outeq2,model.regeq,V, loop)
 	me = mese[1,]
 	se = mese[2,]

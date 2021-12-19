@@ -189,9 +189,7 @@ function mlswoptwo(params, x1, x2, z, q, ncat, | loop) {
 	kx2 	= cols(x2)
 	kz 	= cols(z)
 	n	= rows(x1)
-	
 	_swopit_params(params, kx1, kx2, kz, ncat, b1=., b2=., a1=., a2=., g=., mu=.)
-
 	// probs
 	zg	= z * g
 
@@ -596,9 +594,8 @@ function generalPredictWithSE(dgp, params, xzbar, ncat, outeq1, outeq2, regeq, V
 	xb1 = select(xzbar,outeq1)
 	xb2 = select(xzbar,outeq2)
 	z = select(xzbar,regeq)
-
 	generalPredictWrapper(params, xb1, xb2, z,dgp,ncat, loop, probs =.)
-	
+	probs
 	nc = cols(probs)
 	nr = rows(probs)
 	D = deriv_init()
