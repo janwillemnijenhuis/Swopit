@@ -1277,10 +1277,22 @@ function estimate_and_get_params_v2(dgp,covar, p, s, me, mese, pr, prse, conv, e
 
 function SWOPITmargins(class SWOPITModel scalar model, string atVarlist, zeroes, regime) {
 	xzbar = model.XZmedians
-	printf("%f", length(xzbar))
 	atTokens = tokens(atVarlist, " =")
-	if (length(atTokens) >= 3) {
+	
+// 	if (length(atTokens) >= 3) {
+// 		xzbar = update_named_vector(xzbar, model.XZnames, atTokens)
+// 	}
+	
+	nvars = length(ustrsplit(model.XZnames, " "))
+	
+	if (length(atTokens) == 3 * nvars) {
 		xzbar = update_named_vector(xzbar, model.XZnames, atTokens)
+	} else {
+	    displayas("err")
+		printf("Incorrect number of variables specified in at().\n")
+		printf("%f expected, received %f\n", nvars, length(atTokens) / 3)
+		printf("Please rerun the swopitmargins command and fix your input.\n")
+		printf("The marginal effects evaluated at their median value:\n")
 	}
 	loop = 1 // code of prediction type
 
@@ -1341,10 +1353,16 @@ function SWOPITprobabilities(class SWOPITModel scalar model, string atVarlist, z
 	xz_from = model.XZmedians
 	atTokens = tokens(atVarlist, " =")
 	
-	nvars = "test"
-	printf("%f", length(atTokens))
-	if (length(atTokens) >= 3) {
+	nvars = length(ustrsplit(model.XZnames, " "))
+	
+	if (length(atTokens) == 3 * nvars) {
 		xz_from = update_named_vector(xz_from, model.XZnames, atTokens)
+	} else {
+	    displayas("err")
+		printf("Incorrect number of variables specified in at().\n")
+		printf("%f expected, received %f\n", nvars, length(atTokens) / 3)
+		printf("Please rerun the swopitprobabilities command and fix your input.\n")
+		printf("The probabilities evaluated at their median value:\n")
 	}
 	
 	loop = 1 // code of prediction type
