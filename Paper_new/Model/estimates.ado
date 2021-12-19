@@ -1341,6 +1341,8 @@ function SWOPITprobabilities(class SWOPITModel scalar model, string atVarlist, z
 	xz_from = model.XZmedians
 	atTokens = tokens(atVarlist, " =")
 	
+	nvars = "test"
+	printf("%f", length(atTokens))
 	if (length(atTokens) >= 3) {
 		xz_from = update_named_vector(xz_from, model.XZnames, atTokens)
 	}
