@@ -20,7 +20,7 @@ swopit y x1 x2 x3 x4 x5, reg(x1) outone(x3 x2) outtwo(x4 x5) maxiter(30)
 //swopitc y x1 x2 x3 x4 x5, reg(x1 x2 x3 x4 x5) outone(x1 x2 x3 x4 x5) outtwo(x1 x2 x3 x4 x5)
 
 // POSTESTIMATION COMMANDS //
-// swopitmargins, at(x1=0 x2=2 x3=1 x4=0 x5=0)
-swopitprobabilities, at(x1=0 x2=1 x3=2 x4=0 x5=0) 
+ swopitmargins, at(x1=0 x2=2 x3=1 x4=0 x5=0)
+//swopitprobabilities, at(x1=0 x2=1 x3=2 x4=0 x5=0) 
 // swopitclassification
 // swopitpredict, tabstat
