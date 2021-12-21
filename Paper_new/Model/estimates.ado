@@ -363,7 +363,7 @@ class SWOPITModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_lim
 	model.ll_obs = log(rowsum(prob_obs :* q))
 
 	if (tot_converged != 1){
-		displayas("res")
+		displayas("err")
 		printf("The command performed " + strofreal(guesses) + " random initializations and the estimation algorithm failed to converge.\n")
 		printf("Perhaps, there are too few data for such a complex model.\n")
 		printf("Try again, increase the number of random initializations in guesses() or provide your starting values.\n")
@@ -1285,7 +1285,7 @@ function SWOPITmargins(class SWOPITModel scalar model, string atVarlist, zeroes,
 	nvars = length(model.XZnames)
 	
 	if (length(atTokens) == 3 * nvars) {
-		xz_from = update_named_vector(xz_from, model.XZnames, atTokens)
+		xz_from = update_named_vector(xzbar, model.XZnames, atTokens)
 	} else if (length(atTokens) == 0) {
 	    // do nothing
 	} else {
