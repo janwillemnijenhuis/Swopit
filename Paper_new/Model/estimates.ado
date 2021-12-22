@@ -1,14 +1,7 @@
 version 14
 mata
-class SWOPITModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_limit,startvalues, maxiter, ptol, vtol, nrtol, nolog){
-	if (param_limit == 0){
-	    set_limit=0
-		// if starting values are provided but one doesnt want a limit
-	} else {
-	    set_limit=1
-		// if one wants a limit and a limit is provided
-	}
-	
+class SWOPITModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change, param_limit, atVarlist, startvalues, maxiter, ptol, vtol, nrtol, nolog){
+    
 	starttime = clock(c("current_time"),"hms")
 	n	= rows(x1) // = rows(x2)
 	//kx	= cols(x)
@@ -18,7 +11,49 @@ class SWOPITModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_lim
 	allcat = uniqrows(y)
 	ncat = rows(allcat)
 	
-	parlen = (kx1 + ncat - 1 + kx2 + ncat - 1 + kz + 1) // seems redundant
+	if (param_limit == 0){
+	    set_limit=0
+		// if starting values are provided but one doesnt want a limit
+	} else {
+	    set_limit=1
+		// if one wants a limit and a limit is provided
+	}
+	
+	// set limit for params individually
+	parlen = (kx1 + ncat - 1 + kx2 + ncat - 1 + kz + 1) // seems redundant, now it doesn't haha ty
+	atTokens = tokens(atVarlist, " =") // create the tokens for the varlist
+	
+	// check if all parameters have a value
+	if (parlen * 3 == length(atTokens)) {
+	    param_lim = J(1, parlen, 0)
+		j = 1
+		low = 0 // indicator if one of the parameter limits is set very low
+	    for (i = 1; i <= length(atTokens); i++) {
+		    if (mod(i,3) == 0) {
+			    val = strtoreal(atTokens[i])
+				if (val < 1) {
+				    low = 1
+				}
+				param_lim[j] = val
+				j++
+			}
+		}
+		if (low == 1) {
+			displayas("err")
+			printf("The limit on one or more of the parameters is set very low.\n")
+			printf("If it doesn't converge, please try running with different limits.\n")
+		}
+		set_limit = 1
+		
+	} else if (length(atTokens) == 0) {
+	    // do nothing
+	} else {
+	    displayas("err")
+		printf("Incorrect number of parameters specified in at().\n")
+		printf("%f expected, received %f\n", parlen, length(atTokens) / 3)
+		printf("Limit on parameters will not be invoked.\n")
+		printf("Please rerun the command and specify the parameters correctly.\n")
+	}
 
 	// compute categories
 	q = J(n, ncat, 0)
@@ -171,7 +206,15 @@ class SWOPITModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_lim
 				    	//"convergence"
 				    	break
 				
-				} else if (set_limit==1){
+				} else if (set_limit==1 && length(param_lim) > 0){
+				    limit = (abs(params)<=param_lim')
+					if (limit == 1){
+						//"convergence"
+						break
+					} else if (limit == 0){
+						printMsg("convergence with absurd parameters", nolog)
+					}
+				} else {
 				    param_lim = J(rows(params),cols(params),param_limit)
 					limit = (abs(params)<=param_lim)
 					if (limit == 1){
@@ -207,6 +250,32 @@ class SWOPITModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_lim
 				} else{
 					printMsg("convergence without likelihood improvement", nolog)
 
+				}
+			} else if (set_limit==1 && length(param_lim) > 0){
+				limit = (abs(params)<=param_lim')
+				if (limit == 1){
+					if (tot_converged==0){
+						printMsg("convergence", nolog)
+						best_lik = optimize_result_value(S)
+						best_opt = opt_method
+						tot_converged = 1
+						best_retCode		= optimize_result_errortext(S)
+						best_params 		= optimize_result_params(S)'
+						best_iterations 	= optimize_result_iterations(S)
+					} else if (optimize_result_value(S) > best_lik){
+						best_lik = optimize_result_value(S)
+						best_opt = opt_method
+						tot_converged = 1
+						printMsg("convergence with likelihood improvement", nolog)
+						best_retCode		= optimize_result_errortext(S)
+						best_params 		= optimize_result_params(S)'
+						best_iterations 	= optimize_result_iterations(S)
+					} else{
+						printMsg("convergence without likelihood improvement", nolog)
+					}
+					
+				} else if (limit == 0){
+					printMsg("convergence with absurd parameters: disregarding estimation", nolog)
 				}
 			} else if (set_limit==1){
 				param_lim = J(rows(params),cols(params),param_limit)
@@ -365,7 +434,7 @@ class SWOPITModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_lim
 	if (tot_converged != 1){
 		displayas("err")
 		printf("The command performed " + strofreal(guesses) + " random initializations and the estimation algorithm failed to converge.\n")
-		printf("Perhaps, there are too few data for such a complex model.\n")
+		printf("Perhaps, there are too few data for such a complex model.\nIf you set a limit on the parameters, you might want to loosen it.\n")
 		printf("Try again, increase the number of random initializations in guesses() or provide your starting values.\n")
 		printf("Error code is " + strofreal(errorcode) + ": " + retCode + "\n")
 		printf("Convergence status is " + strofreal(convg) + "\n")
@@ -375,16 +444,8 @@ class SWOPITModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change,param_lim
 	return(model)
 }
 
-class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_limit,startvalues, maxiter, ptol, vtol, nrtol, nolog){
+class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_limit, atVarlist, startvalues, maxiter, ptol, vtol, nrtol, nolog){
 
-	if (param_limit == 0){
-	    set_limit=0
-		// if starting values are provided but one doesnt want a limit
-	} else {
-	    set_limit=1
-		// if one wants a limit and a limit is provided
-	}
-	
 	starttime = clock(c("current_time"),"hms")
 	n	= rows(x1) // = rows(x2)
 	//kx	= cols(x)
@@ -394,7 +455,55 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 	allcat = uniqrows(y)
 	ncat = rows(allcat)
 	
-	parlen = (kx1+ ncat -1 + kx2 + ncat - 1 + kz + 1 + 2)
+	if (param_limit == 0){
+	    set_limit=0
+		// if starting values are provided but one doesnt want a limit
+	} else {
+	    set_limit=1
+		// if one wants a limit and a limit is provided
+	}
+	
+	atVarlist_swopit = ""
+	// set limit for params individually
+	parlen = (kx1+ ncat -1 + kx2 + ncat - 1 + kz + 1 + 2) // seems redundant, now it doesn't haha ty
+	atTokens = tokens(atVarlist, " =") // create the tokens for the varlist
+	atV_swopit_length = length(atTokens) - 6
+	// check if all parameters have a value
+	if (parlen * 3 == length(atTokens)) {
+	    param_lim = J(1, parlen, 0) // init vector for param limit
+		atVarlist_swopit = J(1, atV_swopit_length, "hi") // init vector for normal swopit varlist
+		j = 1
+		low = 0 // indicator if one of the parameter limits is set very low
+	    for (i = 1; i <= length(atTokens); i++) {
+		    if (j < parlen - 1) {
+				    atVarlist_swopit[i] = atTokens[i]
+				}
+		    if (mod(i,3) == 0) {
+			    val = strtoreal(atTokens[i])
+				if (val < 1) {
+				    low = 1
+				}
+				param_lim[j] = val
+				j++
+			}
+		}
+		if (low == 1) {
+			displayas("err")
+			printf("The limit on one or more of the parameters is set very low (< 1).\n")
+			printf("If it doesn't converge, please try running with different limits.\n")
+		}
+		set_limit = 1
+		atVarlist_swopit = invtokens(atVarlist_swopit)
+		
+	} else if (length(atTokens) == 0) {
+	    // do nothing
+	} else {
+	    displayas("err")
+		printf("Incorrect number of parameters specified in at().\n")
+		printf("%f expected, received %f\n", parlen, length(atTokens) / 3)
+		printf("Limit on parameters will not be invoked.\n")
+		printf("Please rerun the command and specify the parameters correctly.\n")
+	}
 
 	// compute categories
 	q = J(n, ncat, 0)
@@ -406,12 +515,14 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 
 	if (cols(startoriginal) != parlen && startoriginal != . && cols(startoriginal) > 0) {
 		displayas("err")
-		printf("Vector of initial values must have length "+ strofreal(parlen))
+		printf("Vector of initial values must have length "+ strofreal(parlen) + "\n")
 		printf("Please make corrections and re-enter correct initial values or leave them empty\n")
 		exit(1)
 	}
 	
+
 	tot_converged = 0
+
 	for (j = 1; j <= guesses; j++){
 
 		if (startoriginal == .){
@@ -439,11 +550,12 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 				initialswopitvalues = paramsz\x1pars\x2pars
 
 				class SWOPITModel scalar initial_model 
-
+				
 				printMsg("EXOGENOUS switching to find starting values", nolog)
-				initial_model = estimateswopit(y,x1,x2,z,guesses, s_change, param_limit, initialswopitvalues', maxiter, ptol, vtol, nrtol, nolog)
+				
+				initial_model = estimateswopit(y,x1,x2,z,guesses, s_change, param_limit, atVarlist_swopit, initialswopitvalues', maxiter, ptol, vtol, nrtol, nolog)
 				printMsg("Starting ENDOGENOUS switching estimations", nolog)
-
+				
 				startparams = initial_model.params
 				swopit_likelihood = initial_model.logLik
 			
@@ -558,7 +670,6 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 		}
 
 		_swopitc_params(startparam, kx1,kx2, kz, ncat, b1=., b2=., a1=., a2=., g=., mu=., rho1=., rho2=.)
-		
 		a1 = sort(a1,1)
 		a2 = sort(a2,1)
 
@@ -631,7 +742,15 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 			    if (set_limit==0){
 				    printMsg("convergence", nolog)
 				    break
-				} else if (set_limit==1){
+				} else if (set_limit==1 && length(param_lim) > 0){
+				    limit = (abs(params)<=param_lim')
+					if (limit == 1){
+						//"convergence"
+						break
+					} else if (limit == 0){
+						printMsg("convergence with absurd parameters", nolog)
+					}
+				} else {
 				    param_lim = J(rows(params),cols(params),param_limit)
 					limit = (abs(params)<=param_lim)
 					if (limit == 1){
@@ -641,8 +760,8 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 						printMsg("convergence with absurd parameters", nolog)
 					}
 				}				
-				
-			}else{
+			}
+			else {
 				printMsg("no convergence", nolog)
 			}
 		}
@@ -683,7 +802,33 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 				} else{
 					printMsg("convergence without likelihood improvement", nolog)
 				}
-			} else if (set_limit==1){
+			} else if (set_limit==1 && length(param_lim) > 0){
+				limit = (abs(params)<=param_lim')
+				if (limit == 1){
+					if (tot_converged==0){
+						printMsg("convergence", nolog)
+						best_lik = optimize_result_value(S)
+						best_opt = opt_method
+						tot_converged = 1
+						best_retCode		= optimize_result_errortext(S)
+						best_params 		= optimize_result_params(S)'
+						best_iterations 	= optimize_result_iterations(S)
+					} else if (optimize_result_value(S) > best_lik){
+						best_lik = optimize_result_value(S)
+						best_opt = opt_method
+						tot_converged = 1
+						printMsg("convergence with likelihood improvement", nolog)
+						best_retCode		= optimize_result_errortext(S)
+						best_params 		= optimize_result_params(S)'
+						best_iterations 	= optimize_result_iterations(S)
+					} else{
+						printMsg("convergence without likelihood improvement", nolog)
+					}
+					
+				} else if (limit == 0){
+					printMsg("convergence with absurd parameters: disregarding estimation", nolog)
+				}
+			} else {
 				param_lim = J(rows(params),cols(params),param_limit)
 				limit = (abs(params)<=param_lim)
 				if (limit == 1){
@@ -854,7 +999,7 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 	if (tot_converged != 1){
 		displayas("err")
 		printf("The command performed " + strofreal(guesses) + " random initializations and the estimation algorithm failed to converge.\n")
-		printf("Perhaps, there are too few data for such a complex model.\n")
+		printf("Perhaps, there are too few data for such a complex model.\nIf you set a limit on the parameters, you might want to loosen it.\n")
 		printf("Try again, increase the number of random initializations in guesses() or provide your starting values.\n")
 		printf("Error code is " + strofreal(errorcode) + ": " + retCode + "\n")
 		printf("Convergence status is " + strofreal(convg) + "\n")
@@ -864,7 +1009,7 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 	return(model)
 }
 
-class SWOPITModel scalar swopitmain(string scalar xynames, string scalar znames, string scalar x1names, string scalar x2names, touse, initial, guesses, change, limit, maxiter, ptol, vtol, nrtol, endogenous, boot, bootguesses, bootiter, nolog){
+class SWOPITModel scalar swopitmain(string scalar xynames, string scalar znames, string scalar x1names, string scalar x2names, touse, initial, guesses, change, limit, string atVarlist, maxiter, ptol, vtol, nrtol, endogenous, boot, bootguesses, bootiter, nolog){
 
 	col_names = xynames
 	xytokens = tokens(col_names)
@@ -975,13 +1120,13 @@ class SWOPITModel scalar swopitmain(string scalar xynames, string scalar znames,
 	
 	class SWOPITModel scalar model
 	if (endogenous){
-		model = estimateswopitc(y, x1, x2, z, guesses, change, limit, initial, maxiter, ptol, vtol, nrtol, nolog)
+		model = estimateswopitc(y, x1, x2, z, guesses, change, limit, atVarlist, initial, maxiter, ptol, vtol, nrtol, nolog)
 		model.eqnames = J(1, cols(tokens(znames)) + 1, "Regime equation"), J(1, cols(tokens(x1names)) + rows(model.allcat) -1, "Outcome equation 1"), J(1, cols(tokens(x2names)) + rows(model.allcat) -1, "Outcome equation 2"), J(1,2,"Correlations")
 		model.parnames = tokens(znames), "/cut1", tokens(x1names), "/cut" :+ strofreal(1..(rows(model.allcat)-1)), tokens(x2names), "/cut" :+ strofreal(1..(rows(model.allcat)-1)), "rho1", "rho2"
 		switching_type = "Endogenous"
 
 	}else{
-		model = estimateswopit(y, x1, x2, z, guesses, change, limit, initial, maxiter, ptol, vtol, nrtol, nolog)
+		model = estimateswopit(y, x1, x2, z, guesses, change, limit, atVarlist, initial, maxiter, ptol, vtol, nrtol, nolog)
 		model.eqnames = J(1, cols(tokens(znames)) + 1, "Regime equation"), J(1, cols(tokens(x1names)) + rows(model.allcat)-1, "Outcome equation 1"), J(1, cols(tokens(x2names)) + rows(model.allcat)-1, "Outcome equation 2")
 		model.parnames = tokens(znames), "/cut1", tokens(x1names), "/cut" :+ strofreal(1..(rows(model.allcat)-1)), tokens(x2names), "/cut" :+ strofreal(1..(rows(model.allcat)-1))
 		switching_type = "Exogenous"
@@ -999,9 +1144,7 @@ class SWOPITModel scalar swopitmain(string scalar xynames, string scalar znames,
 
 
 	
-	model.model_bootstrap = "Asymptotic"
 	if (boot != 0){
-		model.model_bootstrap = "Bootstrap"
 		printMsg("Starting BOOTSTRAP estimations", nolog)
 		ready = 0
 		boot_initial = model.params'
@@ -1040,7 +1183,6 @@ class SWOPITModel scalar swopitmain(string scalar xynames, string scalar znames,
 		}
 		bootstds = colsum((allpa:- colsum(allpa):/boot):^2)/(boot-1)
 		model.V = diag(bootstds)
-		model.boot_params = allpa
 
 		if (ready < boot){
 			displayas("err")
@@ -1073,10 +1215,6 @@ class SWOPITModel scalar swopitmain(string scalar xynames, string scalar znames,
 	printf("Optimization method    = ")
 	displayas("res")
 	printf("%15s\n", model.opt_method)
-	displayas("txt")
-	printf("SE method              = ")
-	displayas("res")
-	printf("%15s\n", model.model_bootstrap)
 	displayas("txt")
 	printf("Number of observations = ")
 	displayas("res")
@@ -1331,29 +1469,6 @@ function SWOPITmargins(class SWOPITModel scalar model, string atVarlist, zeroes,
 	kxz = cols(xzbar)
 	me = mese[1::kxz,]
 	se = mese[(1::kxz) :+ kxz,]
-
-	if (model.model_bootstrap == "Bootstrap"){
-		boot_params = model.boot_params
-
-		total_boot = rows(boot_params)
-		for (i = 1; i <= total_boot; i++){
-			boot_params_iter = boot_params[i,]
-			generalME(boot_params_iter, model.model_class, xzbar, model.ncat, model.outeq1, model.outeq2, model.regeq, loop, seboot=.)
-
-			if(i == 1){
-				se_all = seboot
-
-			}else{
-				se_all = se_all \ seboot
-
-			}
-		}
-
-	
-		se = colsum((se_all:- colsum(se_all):/total_boot):^2)/(total_boot-1) 
-		se = rowshape(se, length(xzbar))
-
-	}
 	
 	output_mesetp(me, se, rowstripes, colstripes)
 	
@@ -1434,38 +1549,6 @@ function SWOPITprobabilities(class SWOPITModel scalar model, string atVarlist, z
 	mese = generalPredictWithSE(model.model_class,model.params', xz_from, model.ncat, model.outeq1,model.outeq2,model.regeq,V, loop)
 	me = mese[1,]
 	se = mese[2,]
-
-
-
-	if(model.model_bootstrap == "Bootstrap"){
-		
-		boot_params = model.boot_params
-
-		xb1 = select(xz_from,model.outeq1)
-		xb2 = select(xz_from,model.outeq2)
-		z = select(xz_from,model.regeq)
-		dgp = model.model_class
-		ncat = model.ncat
-
-		total_boot = rows(boot_params)
-		for (i = 1; i <= total_boot; i++){
-			boot_params_iter = boot_params[i,]
-			generalPredictWrapper(boot_params_iter, xb1, xb2, z,dgp,ncat, loop, probsboot =.)
-
-			if(i == 1){
-				prediction_all = probsboot
-
-			}else{
-				prediction_all = prediction_all \ probsboot
-
-			}
-		}
-	
-		se = colsum((prediction_all:- colsum(prediction_all):/total_boot):^2)/(total_boot-1) 
-
-	}
-
-
 	output_mesetp(me, se, rowstripes, colstripes)
 	
 	// now the printing part! 
