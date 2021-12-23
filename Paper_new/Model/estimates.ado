@@ -21,23 +21,20 @@ class SWOPITModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change, param_li
 	
 	// set limit for params individually
 	parlen = (kx1 + ncat - 1 + kx2 + ncat - 1 + kz + 1) // seems redundant, now it doesn't haha ty
-	atTokens = tokens(atVarlist, " =") // create the tokens for the varlist
+	atTokens = tokens(atVarlist, " ") // create the tokens for the varlist
 
-	
 	// check if all parameters have a value
-	if (parlen * 3 == length(atTokens)) {
+	if (parlen == length(atTokens)) {
 	    param_lim = J(1, parlen, 0)
 		j = 1
 		low = 0 // indicator if one of the parameter limits is set very low
 	    for (i = 1; i <= length(atTokens); i++) {
-		    if (mod(i,3) == 0) {
-			    val = strtoreal(atTokens[i])
-				if (val < 1) {
-				    low = 1
-				}
-				param_lim[j] = val
-				j++
+			val = strtoreal(atTokens[i])
+			if (val < 1) {
+				low = 1
 			}
+			param_lim[j] = val
+			j++
 		}
 		if (low == 1) {
 			displayas("err")
@@ -468,10 +465,10 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 	atVarlist_swopit = ""
 	// set limit for params individually
 	parlen = (kx1+ ncat -1 + kx2 + ncat - 1 + kz + 1 + 2) // seems redundant, now it doesn't haha ty
-	atTokens = tokens(atVarlist, " =") // create the tokens for the varlist
-	atV_swopit_length = length(atTokens) - 6
+	atTokens = tokens(atVarlist, " ") // create the tokens for the varlist
+	atV_swopit_length = parlen - 2
 	// check if all parameters have a value
-	if (parlen * 3 == length(atTokens)) {
+	if (parlen == length(atTokens)) {
 	    param_lim = J(1, parlen, 0) // init vector for param limit
 		atVarlist_swopit = J(1, atV_swopit_length, "hi") // init vector for normal swopit varlist
 		j = 1
@@ -479,15 +476,13 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 	    for (i = 1; i <= length(atTokens); i++) {
 		    if (j < parlen - 1) {
 				    atVarlist_swopit[i] = atTokens[i]
-				}
-		    if (mod(i,3) == 0) {
-			    val = strtoreal(atTokens[i])
-				if (val < 1) {
-				    low = 1
-				}
-				param_lim[j] = val
-				j++
 			}
+			val = strtoreal(atTokens[i])
+			if (val < 1) {
+				low = 1
+			}
+			param_lim[j] = val
+			j++
 		}
 		if (low == 1) {
 			displayas("err")
@@ -502,7 +497,7 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 	} else {
 	    displayas("err")
 		printf("Incorrect number of parameters specified in at().\n")
-		printf("%f expected, received %f\n", parlen, length(atTokens) / 3)
+		printf("%f expected, received %f\n", parlen, length(atTokens))
 		printf("Limit on parameters will not be invoked.\n")
 		printf("Please rerun the command and specify the parameters correctly.\n")
 	}
