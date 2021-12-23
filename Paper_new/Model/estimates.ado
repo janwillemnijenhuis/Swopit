@@ -1007,7 +1007,7 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 	return(model)
 }
 
-class SWOPITModel scalar swopitmain(string scalar xynames, string scalar znames, string scalar x1names, string scalar x2names, touse, initial, guesses, change, limit, string atVarlist, maxiter, ptol, vtol, nrtol, endogenous, boot, bootguesses, bootiter, nolog){
+class SWOPITModel scalar swopitmain(string scalar xynames, string scalar znames, string scalar x1names, string scalar x2names, touse, initial, guesses, change, string atVarlist, maxiter, ptol, vtol, nrtol, endogenous, boot, bootguesses, bootiter, nolog){
 
 	col_names = xynames
 	xytokens = tokens(col_names)
@@ -1105,7 +1105,6 @@ class SWOPITModel scalar swopitmain(string scalar xynames, string scalar znames,
 	}
 	guesses = strtoreal(guesses)
 	change = strtoreal(change)
-	limit = strtoreal(limit)
 	maxiter = strtoreal(maxiter)
 	nrtol = strtoreal(nrtol)
 	ptol = strtoreal(ptol)
@@ -1113,6 +1112,8 @@ class SWOPITModel scalar swopitmain(string scalar xynames, string scalar znames,
 	boot = strtoreal(boot)
 	bootguesses = strtoreal(bootguesses)
 	bootiter = strtoreal(bootiter)
+	//limit = strtoreal(limit)
+	limit = 0
 
 	initial = initial'
 	
@@ -1141,8 +1142,12 @@ class SWOPITModel scalar swopitmain(string scalar xynames, string scalar znames,
 	}
 
 
-	
+	model.model_bootstrap = "Asymptotic"
+
+	model.boot_params = model.params'
+
 	if (boot != 0){
+		model.model_bootstrap = "Bootstrap"
 		printMsg("Starting BOOTSTRAP estimations", nolog)
 		ready = 0
 		boot_initial = model.params'
@@ -1180,6 +1185,7 @@ class SWOPITModel scalar swopitmain(string scalar xynames, string scalar znames,
 			}
 		}
 		bootstds = colsum((allpa:- colsum(allpa):/boot):^2)/(boot-1)
+		model.boot_params = allpa
 		model.V = diag(bootstds)
 
 		if (ready < boot){
@@ -1199,16 +1205,20 @@ class SWOPITModel scalar swopitmain(string scalar xynames, string scalar znames,
 	model_suptype = "Two-regime switching ordered probit regression"
 	model_type = "Two-regime switching ordered probit regression"
 
-	if (boot != 0){
-		model_suptype = "Two-regime switching ordered probit regression with bootstrap"
-		model_type = "Two-regime switching ordered probit regression with bootstrap"
-	}
+	//if (boot != 0){
+	//	model_suptype = "Two-regime switching ordered probit regression with bootstrap"
+	//	model_type = "Two-regime switching ordered probit regression with bootstrap"
+	//}
 
 	displayas("txt")
 	printf("%s\n\n", model_suptype)
 	printf("Regime switching       = ")
 	displayas("res")
 	printf("%15s  \n", switching_type)
+	displayas("txt")
+ 	printf("SE method              = ")
+ 	displayas("res")
+ 	printf("%15s\n", model.model_bootstrap)
 	displayas("txt")
 	printf("Optimization method    = ")
 	displayas("res")
@@ -1253,6 +1263,7 @@ class SWOPITModel scalar swopitmain(string scalar xynames, string scalar znames,
 
 	//pass everything to stata, maybe only these 2 needed?
 	st_matrix("b", model.params')
+	st_matrix("boot", model.boot_params)
 	st_matrix("V", model.V)
 
 	stripes = model.eqnames' , model.parnames'
@@ -1262,6 +1273,8 @@ class SWOPITModel scalar swopitmain(string scalar xynames, string scalar znames,
 	st_matrixrowstripe("V", stripes)
 	st_local("depvar", model.yname)
 	st_local("N", strofreal(model.n))
+	st_local("switching", switching_type)
+	st_local("opt", model.opt_method)
 	st_numscalar("ll", model.logLik)
 	st_numscalar("k", rows(model.params))
 	st_matrix("ll_obs", model.ll_obs)
@@ -1467,6 +1480,29 @@ function SWOPITmargins(class SWOPITModel scalar model, string atVarlist, zeroes,
 	kxz = cols(xzbar)
 	me = mese[1::kxz,]
 	se = mese[(1::kxz) :+ kxz,]
+
+	if (model.model_bootstrap == "Bootstrap"){
+ 		boot_params = model.boot_params
+
+ 		total_boot = rows(boot_params)
+ 		for (i = 1; i <= total_boot; i++){
+ 			boot_params_iter = boot_params[i,]
+ 			generalME(boot_params_iter, model.model_class, xzbar, model.ncat, model.outeq1, model.outeq2, model.regeq, loop, seboot=.)
+
+ 			if(i == 1){
+ 				se_all = seboot
+
+ 			}else{
+ 				se_all = se_all \ seboot
+
+ 			}
+ 		}
+
+ 	
+ 		se = colsum((se_all:- colsum(se_all):/total_boot):^2)/(total_boot-1) 
+ 		se = rowshape(se, length(xzbar))
+
+ 	}
 	
 	output_mesetp(me, se, rowstripes, colstripes)
 	
@@ -1547,6 +1583,36 @@ function SWOPITprobabilities(class SWOPITModel scalar model, string atVarlist, z
 	mese = generalPredictWithSE(model.model_class,model.params', xz_from, model.ncat, model.outeq1,model.outeq2,model.regeq,V, loop)
 	me = mese[1,]
 	se = mese[2,]
+
+	if(model.model_bootstrap == "Bootstrap"){
+ 		
+ 		boot_params = model.boot_params
+
+ 		xb1 = select(xz_from,model.outeq1)
+ 		xb2 = select(xz_from,model.outeq2)
+ 		z = select(xz_from,model.regeq)
+ 		dgp = model.model_class
+ 		ncat = model.ncat
+
+ 		total_boot = rows(boot_params)
+ 		for (i = 1; i <= total_boot; i++){
+ 			boot_params_iter = boot_params[i,]
+ 			generalPredictWrapper(boot_params_iter, xb1, xb2, z,dgp,ncat, loop, probsboot =.)
+
+ 			if(i == 1){
+ 				prediction_all = probsboot
+
+ 			}else{
+ 				prediction_all = prediction_all \ probsboot
+
+ 			}
+ 		}
+ 	
+ 		se = colsum((prediction_all:- colsum(prediction_all):/total_boot):^2)/(total_boot-1) 
+
+ 	}
+
+
 	output_mesetp(me, se, rowstripes, colstripes)
 	
 	// now the printing part! 
