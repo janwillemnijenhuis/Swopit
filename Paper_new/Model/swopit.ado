@@ -11,7 +11,17 @@ program swopit, eclass
 	run DefModel.ado
 	run estimates.ado
 
-	mata: SWOPITMODEL = swopitmain("`varlist'","`regindepvars'","`outoneindepvars'","`outtwoindepvars'", "`touse'", "`initial'", "`guesses'", "`change'", "`paramlimit'", "`maxiter'", "`ptol'", "`vtol'", "`nrtol'", "`endogenous'" == "endogenous", "`bootstrap'", "`bootguesses'", "`bootiter'", "`log'" == "log")
+	if "`log'" != "log"{
+		capture mata: SWOPITMODEL = swopitmain("`varlist'","`regindepvars'","`outoneindepvars'","`outtwoindepvars'", "`touse'", "`initial'", "`guesses'", "`change'", "`paramlimit'", "`maxiter'", "`ptol'", "`vtol'", "`nrtol'", "`endogenous'" == "endogenous", "`bootstrap'", "`bootguesses'", "`bootiter'", "`log'" == "log")
+
+	}
+
+	if "`log'" == "log"{
+		mata: SWOPITMODEL = swopitmain("`varlist'","`regindepvars'","`outoneindepvars'","`outtwoindepvars'", "`touse'", "`initial'", "`guesses'", "`change'", "`paramlimit'", "`maxiter'", "`ptol'", "`vtol'", "`nrtol'", "`endogenous'" == "endogenous", "`bootstrap'", "`bootguesses'", "`bootiter'", "`log'" == "log")
+
+	}
+
+	mata: printoutput(SWOPITMODEL)
 
 	ereturn post b V, esample(`touse')  depname(`depvar') obs(`N')
 	ereturn local predict "swopitpredict"

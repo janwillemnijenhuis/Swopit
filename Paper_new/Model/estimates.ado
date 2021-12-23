@@ -171,11 +171,13 @@ class SWOPITModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change, param_li
 
 
 			singularHmethod= "hybrid"
-		
+	
+			
 			S = optimize_init()
 
+
+			optimize_init_verbose(S, 0)
 			optimize_init_tracelevel(S , "none")
-			optimize_init_verbose(S, 0)	
 
 			optimize_init_argument(S, 1, x1) // outcome matrix 1
 			optimize_init_argument(S, 2, x2) // outcome matrix 2
@@ -195,7 +197,11 @@ class SWOPITModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change, param_li
 			optimize_init_conv_warning(S, "off") 
 			optimize_init_technique(S, opt_method)
 			optimize_init_constraints(S,)
-			errorcode 	= _optimize(S)
+
+	
+			errorcode = _optimize(S)
+			
+
 			convg		= optimize_result_converged(S)
 			retCode		= optimize_result_errortext(S)
 			params 		= optimize_result_params(S)'
@@ -321,8 +327,9 @@ class SWOPITModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change, param_li
 	
 	S2 = optimize_init()
 
-	optimize_init_tracelevel(S , "none")
 	optimize_init_verbose(S, 0)
+	optimize_init_tracelevel(S , "none")
+	
 
 	optimize_init_argument(S2, 1, x1)
 	optimize_init_argument(S2, 2, x2)
@@ -710,8 +717,8 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 		
 			S = optimize_init()
 
+			optimize_init_verbose(S, 0)
 			optimize_init_tracelevel(S , "none")
-			optimize_init_verbose(S, 0)	
 
 			optimize_init_argument(S, 1, x1) // outcome matrix 1
 			optimize_init_argument(S, 2, x2) // outcome matrix 2
@@ -886,8 +893,9 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 	
 	S2 = optimize_init()
 
-	optimize_init_tracelevel(S , "none")
 	optimize_init_verbose(S, 0)
+	optimize_init_tracelevel(S , "none")
+	
 
 	optimize_init_argument(S2, 1, x1)
 	optimize_init_argument(S2, 2, x2)
@@ -1210,11 +1218,51 @@ class SWOPITModel scalar swopitmain(string scalar xynames, string scalar znames,
 	//	model_type = "Two-regime switching ordered probit regression with bootstrap"
 	//}
 
+	model.model_suptype = model_suptype
+	model.switching_type = switching_type
+	
+	model.yname = yname
+	model.x1names = x1names
+	model.x2names = x2names
+	model.znames = znames
+
+	//pass everything to stata, maybe only these 2 needed?
+	st_matrix("b", model.params')
+	st_matrix("boot", model.boot_params)
+	st_matrix("V", model.V)
+
+	stripes = model.eqnames' , model.parnames'
+
+	st_matrixcolstripe("b", stripes)
+	st_matrixcolstripe("V", stripes)
+	st_matrixrowstripe("V", stripes)
+	st_local("depvar", model.yname)
+	st_local("N", strofreal(model.n))
+	st_local("switching", switching_type)
+	st_local("opt", model.opt_method)
+	st_numscalar("ll", model.logLik)
+	st_numscalar("k", rows(model.params))
+	st_matrix("ll_obs", model.ll_obs)
+	st_numscalar("r2_p", model.R2)
+	st_numscalar("k_cat", model.ncat)
+	st_numscalar("df_m", model.df)
+	st_numscalar("ll_0", model.logLik0)
+	st_numscalar("chi2", model.chi2)
+	st_numscalar("p", model.chi2_pvalue)
+	st_numscalar("aic", model.AIC)
+	st_numscalar("bic", model.BIC)
+
+	return(model)
+
+}
+
+function printoutput(class SWOPITModel scalar model){
+
 	displayas("txt")
-	printf("%s\n\n", model_suptype)
+	printf("%s\n\n", model.model_suptype)
 	printf("Regime switching       = ")
 	displayas("res")
-	printf("%15s  \n", switching_type)
+	printf("%15s  \n", model.switching_type)
 	displayas("txt")
  	printf("SE method              = ")
  	displayas("res")
@@ -1255,40 +1303,6 @@ class SWOPITModel scalar swopitmain(string scalar xynames, string scalar znames,
 	printf("BIC                    = ")
 	displayas("res")
 	printf("%15.4f \n" , model.BIC)
-	
-	model.yname = yname
-	model.x1names = x1names
-	model.x2names = x2names
-	model.znames = znames
-
-	//pass everything to stata, maybe only these 2 needed?
-	st_matrix("b", model.params')
-	st_matrix("boot", model.boot_params)
-	st_matrix("V", model.V)
-
-	stripes = model.eqnames' , model.parnames'
-
-	st_matrixcolstripe("b", stripes)
-	st_matrixcolstripe("V", stripes)
-	st_matrixrowstripe("V", stripes)
-	st_local("depvar", model.yname)
-	st_local("N", strofreal(model.n))
-	st_local("switching", switching_type)
-	st_local("opt", model.opt_method)
-	st_numscalar("ll", model.logLik)
-	st_numscalar("k", rows(model.params))
-	st_matrix("ll_obs", model.ll_obs)
-	st_numscalar("r2_p", model.R2)
-	st_numscalar("k_cat", model.ncat)
-	st_numscalar("df_m", model.df)
-	st_numscalar("ll_0", model.logLik0)
-	st_numscalar("chi2", model.chi2)
-	st_numscalar("p", model.chi2_pvalue)
-	st_numscalar("aic", model.AIC)
-	st_numscalar("bic", model.BIC)
-
-	return(model)
-
 }
 
 
