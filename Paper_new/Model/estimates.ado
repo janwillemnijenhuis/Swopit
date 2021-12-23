@@ -1698,7 +1698,7 @@ function SWOPITpredict(class SWOPITModel scalar model, string scalar newVarName,
 	}
 	
 	if (tabstat) {
-		stata("tabstat " + newVarName + "_*")
+		stata("tabstat " + newVarName + "_*, stats(co me sd v ma mi) columns(statistics) format(%9.4g)")
 	}
 
 }
