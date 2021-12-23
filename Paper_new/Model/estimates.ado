@@ -22,6 +22,7 @@ class SWOPITModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change, param_li
 	// set limit for params individually
 	parlen = (kx1 + ncat - 1 + kx2 + ncat - 1 + kz + 1) // seems redundant, now it doesn't haha ty
 	atTokens = tokens(atVarlist, " =") // create the tokens for the varlist
+
 	
 	// check if all parameters have a value
 	if (parlen * 3 == length(atTokens)) {
@@ -101,9 +102,10 @@ class SWOPITModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change, param_li
 			startparam = paramsz\x1pars\x2pars
 			startvalues = startparam
 		} else{
-			if (tot_converged == 1){
-				break
-			}
+			//In order to stop after first converged when initial is specified
+			//if (tot_converged == 1){
+			//	break
+			//}
 			if (j == 1){
 				startparam = startvalues'
 				_swopit_params(startparam, kx1,kx2, kz, ncat, b1=., b2=., a1=., a2=., g=., mu=.)
@@ -620,9 +622,10 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 			}
 
 		} else{
-			if (tot_converged == 1){
-				break
-			}
+			//In order to stop after first converged when initial is specified
+			//if (tot_converged == 1){
+			//	break
+			//}
 			if (j == 1){
 				startparam = startvalues'
 
@@ -1159,10 +1162,10 @@ class SWOPITModel scalar swopitmain(string scalar xynames, string scalar znames,
 
 			class SWOPITModel scalar bootmodel
 			if (endogenous){
-				bootmodel = estimateswopitc(y_iter, x1_iter, x2_iter, z_iter, bootguesses, change, limit, boot_initial, bootiter, ptol, vtol, nrtol, nolog)
+				bootmodel = estimateswopitc(y_iter, x1_iter, x2_iter, z_iter, bootguesses, change, limit, atVarlist, boot_initial, bootiter, ptol, vtol, nrtol, nolog)
 
 			}else{
-				bootmodel = estimateswopit(y_iter, x1_iter, x2_iter, z_iter, bootguesses, change, limit, boot_initial, bootiter, ptol, vtol, nrtol, nolog)			
+				bootmodel = estimateswopit(y_iter, x1_iter, x2_iter, z_iter, bootguesses, change, limit, atVarlist , boot_initial, bootiter, ptol, vtol, nrtol, nolog)			
 			}
 
 			if (bootmodel.converged == 0){
