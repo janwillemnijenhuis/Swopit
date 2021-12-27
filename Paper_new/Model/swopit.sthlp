@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.0.1  04feb2021}{...}
+{* *! version 0.0.2  27dec2021}{...}
 {title:Title}
 
 {pstd}{helpb swopit##swopit:swopit} {c -} Two-regime switching ordered probit regression{p_end}
@@ -43,6 +43,12 @@ If starting values are specified in initial() then the estimation attempts are s
 {synopt :{opt lim:it(scalar)}} specifies the limit for the maximum absolute value of each parameter in the ML estimation. 
 The default is limit(0), and no constraints are applied.
 {p_end}
+
+{synopt :{opt paramlim:it(scalar)}} enables the user to specify a separate limit for each coefficient in a space-delimited list. This command will overwrite the previous
+option if they are both used. By default no constraints are applied.
+{p_end}
+
+{synopt :{opt log(string)}} verbose output of the {cmd:swopit} command. By default this is switched off and all output is surpressed. Error messages are shown regardless.{p_end}
 
 {synopt :{opt maxiter:(scalar)}} specifies the maximum number of iterations before the optimization algorithm quits and reports that the estimation of the model does not converge. 
 The default is maxiter(500).{p_end}
