@@ -1515,6 +1515,7 @@ function SWOPITmargins(class SWOPITModel scalar model, string atVarlist, zeroes,
  	
  		se = colsum((se_all:- colsum(se_all):/total_boot):^2)/(total_boot-1) 
  		se = rowshape(se, length(xzbar))
+		se = se:^0.5
 
  	}
 	
@@ -1623,6 +1624,7 @@ function SWOPITprobabilities(class SWOPITModel scalar model, string atVarlist, z
  		}
  	
  		se = colsum((prediction_all:- colsum(prediction_all):/total_boot):^2)/(total_boot-1) 
+		se = se:^0.5
 
  	}
 
