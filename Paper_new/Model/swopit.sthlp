@@ -86,7 +86,7 @@ The default is bootguesses(3).
 {p_end}
 
 {synopt :{opt bootiter(scalar)}}  specifies the maximum number of iterations in the bootstrap estimation before the optimisation algorithm quits.
-The default is bootiter(50).
+The default is bootiter(100).
 {p_end}
 
 {synoptline}

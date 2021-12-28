@@ -1,7 +1,7 @@
 capture program drop swopit
 program swopit, eclass
 	version 14
-	syntax varlist(min=2) [if] [in] [, REGindepvars(varlist) OUTONEindepvars(varlist) OUTTWOindepvars(varlist) INITIAL(string asis) GUESSES(real 5) CHANGE(real 0.5) PARAMLIMit(string asis) MAXITER(real 500) PTOL(real 1e-6) VTOL(real 1e-7) NRTOL(real 1e-5) ENDOgenous BOOTstrap(real 0) BOOTGUESSES(real 3) BOOTITER(real 50) LOG]
+	syntax varlist(min=2) [if] [in] [, REGindepvars(varlist) OUTONEindepvars(varlist) OUTTWOindepvars(varlist) INITIAL(string asis) GUESSES(real 5) CHANGE(real 0.5) PARAMLIMit(string asis) MAXITER(real 500) PTOL(real 1e-6) VTOL(real 1e-7) NRTOL(real 1e-5) ENDOgenous BOOTstrap(real 0) BOOTGUESSES(real 3) BOOTITER(real 100) LOG]
 
 	marksample touse
 
@@ -10,16 +10,9 @@ program swopit, eclass
 	run helpfunctest.ado
 	run DefModel.ado
 	run estimates.ado
+		
+	capture mata: SWOPITMODEL = swopitmain("`varlist'","`regindepvars'","`outoneindepvars'","`outtwoindepvars'", "`touse'", "`initial'", "`guesses'", "`change'", "`paramlimit'", "`maxiter'", "`ptol'", "`vtol'", "`nrtol'", "`endogenous'" == "endogenous", "`bootstrap'", "`bootguesses'", "`bootiter'", "`log'" == "log")
 
-	if "`log'" != "log"{
-		capture mata: SWOPITMODEL = swopitmain("`varlist'","`regindepvars'","`outoneindepvars'","`outtwoindepvars'", "`touse'", "`initial'", "`guesses'", "`change'", "`paramlimit'", "`maxiter'", "`ptol'", "`vtol'", "`nrtol'", "`endogenous'" == "endogenous", "`bootstrap'", "`bootguesses'", "`bootiter'", "`log'" == "log")
-
-	}
-
-	if "`log'" == "log"{
-		mata: SWOPITMODEL = swopitmain("`varlist'","`regindepvars'","`outoneindepvars'","`outtwoindepvars'", "`touse'", "`initial'", "`guesses'", "`change'", "`paramlimit'", "`maxiter'", "`ptol'", "`vtol'", "`nrtol'", "`endogenous'" == "endogenous", "`bootstrap'", "`bootguesses'", "`bootiter'", "`log'" == "log")
-
-	}
 
 	mata: printerror(SWOPITMODEL)
 	mata: printoutput(SWOPITMODEL)
