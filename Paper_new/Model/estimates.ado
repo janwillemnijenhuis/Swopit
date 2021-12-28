@@ -402,6 +402,7 @@ class SWOPITModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change, param_li
 	model.etime = clock(c("current_time"),"hms") - starttime
 	model.converged = tot_converged
 	model.iterations = iterations
+	model.guesses = guesses
 
 	model.params = params
 	model.se		= sqrt(diagonal(covMat))
@@ -436,16 +437,6 @@ class SWOPITModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change, param_li
 	model.opt_method = maxMethod
 	model.probabilities = prob_obs
 	model.ll_obs = log(rowsum(prob_obs :* q))
-
-	if (tot_converged != 1){
-		displayas("err")
-		printf("The command performed " + strofreal(guesses) + " random initializations and the estimation algorithm failed to converge.\n")
-		printf("Perhaps, there are too few data for such a complex model.\nIf you set a limit on the parameters, you might want to loosen it.\n")
-		printf("Try again, increase the number of random initializations in guesses() or provide your starting values.\n")
-		printf("Error code is " + strofreal(errorcode) + ": " + retCode + "\n")
-		printf("Convergence status is " + strofreal(convg) + "\n")
-	
-	}
 	
 	return(model)
 }
@@ -967,6 +958,7 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 	model.etime = clock(c("current_time"),"hms") - starttime
 	model.converged = tot_converged
 	model.iterations = iterations
+	model.guesses = guesses
 
 	model.params = params
 	model.se		= sqrt(diagonal(covMat))
@@ -1001,16 +993,6 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 	model.opt_method = maxMethod
 	model.probabilities = prob_obs
 	model.ll_obs = log(rowsum(prob_obs :* q))
-
-	if (tot_converged != 1){
-		displayas("err")
-		printf("The command performed " + strofreal(guesses) + " random initializations and the estimation algorithm failed to converge.\n")
-		printf("Perhaps, there are too few data for such a complex model.\nIf you set a limit on the parameters, you might want to loosen it.\n")
-		printf("Try again, increase the number of random initializations in guesses() or provide your starting values.\n")
-		printf("Error code is " + strofreal(errorcode) + ": " + retCode + "\n")
-		printf("Convergence status is " + strofreal(convg) + "\n")
-	
-	}
 	
 	return(model)
 }
@@ -1146,7 +1128,8 @@ class SWOPITModel scalar swopitmain(string scalar xynames, string scalar znames,
 
 
 	if (model.converged == 0){
-		exit(1)
+		return(model)
+		//exit(1)
 	}
 
 
@@ -1304,6 +1287,28 @@ function printoutput(class SWOPITModel scalar model){
 	displayas("res")
 	printf("%15.4f \n" , model.BIC)
 }
+
+function printerror(class SWOPITModel scalar model){
+
+	tot_converged = model.converged
+	errorcode = model.error_code
+	convg = tot_converged
+	guesses = model.guesses
+	retCode  = model.retCode
+
+	if (tot_converged != 1){
+		displayas("err")
+		printf("The command performed " + strofreal(guesses) + " random initializations and the estimation algorithm failed to converge.\n")
+		printf("Perhaps, there are too few data for such a complex model.\nIf you set a limit on the parameters, you might want to loosen it.\n")
+		printf("Try again, increase the number of random initializations in guesses() or provide your starting values.\n")
+		printf("Error code is " + strofreal(errorcode) + ": " + retCode + "\n")
+		printf("Convergence status is " + strofreal(convg) + "\n")
+		exit(1)
+	}
+	
+		
+}
+
 
 
 function estimate_and_get_params_v2(dgp,covar, p, s, me, mese, pr, prse, conv, etime, eiter, y, x, z, infcat, getprobs, regeq, outeq1,outeq2,outeqtot,getME,xpop,|guesses,s_change,param_limit,startvalues,maxiter,ptol,vtol,nrtol,lambda) {
@@ -1538,8 +1543,16 @@ function SWOPITmargins(class SWOPITModel scalar model, string atVarlist, zeroes,
 		printf("\nMarginal effects of all variables on the probabilities of different outcomes\n")
 	}
 	print_matrix(me, rowstripes, colstripes)
-	displayas("txt")
-	printf("\nStandard errors of marginal effects\n")
+
+	if(model.model_bootstrap == "Bootstrap"){
+		displayas("txt")
+		printf("\nBootstrap standard errors of marginal effects\n")
+	}
+	else{
+		displayas("txt")
+		printf("\nDelta-method standard errors of marginal effects\n")
+	}
+
 	print_matrix(se, rowstripes, colstripes)
 }
 
@@ -1648,8 +1661,16 @@ function SWOPITprobabilities(class SWOPITModel scalar model, string atVarlist, z
 		printf("\nPredicted probabilities of different outcomes\n")
 	}
 	print_matrix(me, ., colstripes)
-	displayas("txt")
-	printf("\nStandard errors of the probabilities\n")
+
+	if(model.model_bootstrap == "Bootstrap"){
+		displayas("txt")
+		printf("\nBootstrap standard errors of probabilities\n")
+	}
+	else{
+		displayas("txt")
+		printf("\nDelta-method standard errors of probabilities\n")
+	}
+
 	print_matrix(se, ., colstripes)
 }
 

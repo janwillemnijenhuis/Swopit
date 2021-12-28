@@ -21,6 +21,7 @@ program swopit, eclass
 
 	}
 
+	mata: printerror(SWOPITMODEL)
 	mata: printoutput(SWOPITMODEL)
 
 	ereturn post b V, esample(`touse')  depname(`depvar') obs(`N')
@@ -28,6 +29,7 @@ program swopit, eclass
 	ereturn local cmd "swopit"
 	ereturn local switching  = "`switching'"
 	ereturn local opt  = "`opt'"
+	ereturn local vce "Observed Information Matrix (OIM)"
 	ereturn scalar ll = ll
 	ereturn scalar k = k
 	ereturn matrix ll_obs ll_obs
@@ -41,6 +43,7 @@ program swopit, eclass
 	ereturn scalar bic = bic
 
 	if "`bootstrap'" != "0" {
+		ereturn local vce "Bootstrap"
 		ereturn local vcetype Bootstrap
 		ereturn matrix boot boot
 	}

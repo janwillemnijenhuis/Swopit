@@ -41,7 +41,8 @@ class SWOPITModel {
 	
 	// estimation options
 	real scalar robust
-	
+	real scalar guesses	
+
 	// main estimation results
 	real vector params
 	real matrix V
