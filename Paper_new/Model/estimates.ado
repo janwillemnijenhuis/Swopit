@@ -45,7 +45,7 @@ class SWOPITModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change, param_li
 	} else if (length(atTokens) == 0) {
 	    // do nothing
 	} else {
-		stata(`"noisily display as err "Incorrect number of parameters specified in paramlim().""')
+		stata(`"noisily display as err "Incorrect number of parameters specified in lim().""')
  		stata(`"noisily display as err "' + strofreal(parlen) + `" " expected, received " "' + strofreal(length(atTokens)) )
 		stata(`"noisily display as err "Limit on parameters will not be invoked.""')
  		stata(`"noisily display as err "Please rerun the command and specify the parameters correctly.""')
@@ -269,15 +269,15 @@ class SWOPITModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change, param_li
 					best_opt = opt_method
 					tot_converged = 1
 					if (nolog != 0) {
-							stata(`"noisily display as text "convergence with likelihood improvement""')
-						}
+						stata(`"noisily display as text "convergence with likelihood improvement""')
+					}
 					best_retCode		= optimize_result_errortext(S)
 					best_params 		= optimize_result_params(S)'
 					best_iterations 	= optimize_result_iterations(S)
 				} else{
 					if (nolog != 0) {
-							stata(`"noisily display as text "convergence without likelihood improvement""')
-						}
+						stata(`"noisily display as text "convergence without likelihood improvement""')
+					}
 				}
 			} else if (set_limit==1 && length(param_lim) > 0){
 				limit = (abs(params)<=param_lim')
@@ -533,7 +533,7 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 	} else if (length(atTokens) == 0) {
 	    // do nothing
 	} else {
-	    stata(`"noisily display as err "Incorrect number of parameters specified in paramlim().""')
+	    stata(`"noisily display as err "Incorrect number of parameters specified in lim().""')
  		stata(`"noisily display as err "' + strofreal(parlen) + `" " expected, received " "' + strofreal(length(atTokens)) )
 		stata(`"noisily display as err "Limit on parameters will not be invoked.""')
  		stata(`"noisily display as err "Please rerun the command and specify the parameters correctly.""')
@@ -968,7 +968,7 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 				}
 			}
 		}else{
-			if (nolog != 0) {
+			if (nolog != 0 && j!=guesses) {
 				stata(`"noisily display as text "no convergence, trying again with different starting values""')
 			}
 		}
@@ -1348,7 +1348,7 @@ class SWOPITModel scalar swopitmain(string scalar xynames, string scalar znames,
 function printoutput(class SWOPITModel scalar model){
 
 	displayas("txt")
-	printf("%s\n\n", model.model_suptype)
+	printf("\n%s\n\n", model.model_suptype)
 	printf("Latent class switching = ")
 	displayas("res")
 	printf("%15s  \n", model.switching_type)
@@ -1897,14 +1897,15 @@ function SWOPITpredict(class SWOPITModel scalar model, string scalar newVarName,
 		for (i = 2; i <= cols(p); ++i) {
 			v[,i] = v[,i-1] + p[,i]
 		}
-	} else {
-		tmp = st_addvar("double", label_indices[selectindex(_st_varindex(label_indices) :== .)])
-		st_view(v = ., ., label_indices)
-		for (i = 1; i <= length(labels); ++i) {
-			st_varlabel(label_indices[i], labels[i])
-		}
-		v[,] = p
 	}
+	//} else {
+	tmp = st_addvar("double", label_indices[selectindex(_st_varindex(label_indices) :== .)])
+	st_view(v = ., ., label_indices)
+	for (i = 1; i <= length(labels); ++i) {
+		st_varlabel(label_indices[i], labels[i])
+	}
+	v[,] = p
+	//}
 	
 	if (tabstat) {
 		stata("tabstat " + newVarName + "_*, stats(co me sd v ma mi) columns(statistics) format(%9.4g)")

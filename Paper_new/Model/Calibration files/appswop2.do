@@ -13,11 +13,12 @@ run swopitpredict.ado
 //use policy_rate.dta
 //use rates2.dta
 //use EUKnowledge.dta
-
+set seed 3
+set more off
 // RUN SWOPIT ESTIMATION //
-swopit y x1 x2 x3 x4 x5, reg(x1) outone(x2 x3) outtwo(x4 x5) paramlim(10) 
-// swopit y x1 x2 x3 x4 x5, reg(x1) outone(x2 x3) outtwo(x4 x5) endo maxiter(3) paramlim(10) 
-// swopit y house gdp bias spread, reg(house gdp) outone(spread bias) outtwo(spread bias) maxiter(30)
+swopit y x1 x2 x3 x4 x5, reg(x1) outone(x2 x3) outtwo(x4 x5) lim(10) 
+//swopit y x1 x2 x3 x4 x5, reg(x1) outone(x2 x3) outtwo(x4 x5) endo maxiter(3) lim(10)
+//swopit y house gdp bias spread, reg(house gdp) outone(spread bias) outtwo(spread bias) log endo
 // swopit health area weight female rural, reg(area weight female rural) outone(area weight female rural) outtwo(are weight female rural) endo
 
 // POSTESTIMATION COMMANDS //
