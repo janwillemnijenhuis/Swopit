@@ -23,8 +23,31 @@ class SWOPITModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change, param_li
 	parlen = (kx1 + ncat - 1 + kx2 + ncat - 1 + kz + 1) // seems redundant, now it doesn't haha ty
 	atTokens = tokens(atVarlist, " ") // create the tokens for the varlist
 
+	// First check if only one value is specified
+	if (length(atTokens) == 1) {
+	    if (nolog != 0){
+		stata(`"noisily display as text "The limit is set the same for all parameters""')
+	    }
+
+	    param_lim = J(1, parlen, 0)
+		j = 1
+		low = 0 // indicator if one of the parameter limits is set very low
+	    for (i = 1; i <= parlen; i++) {
+			val = strtoreal(atTokens[1])
+			if (val < 1) {
+				low = 1
+			}
+			param_lim[j] = val
+			j++
+		}
+		if (low == 1) {
+			stata(`"noisily display as err "The limit on all of the parameters is set very low.""')
+			stata(`"noisily display as err "If it does not converge, please try running with different limits.""')
+		} 
+		set_limit = 1
+	}
 	// check if all parameters have a value
-	if (parlen == length(atTokens)) {
+	else if (parlen == length(atTokens)) {
 	    param_lim = J(1, parlen, 0)
 		j = 1
 		low = 0 // indicator if one of the parameter limits is set very low
@@ -506,15 +529,44 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 	parlen = (kx1+ ncat -1 + kx2 + ncat - 1 + kz + 1 + 2) // seems redundant, now it doesn't haha ty
 	atTokens = tokens(atVarlist, " ") // create the tokens for the varlist
 	atV_swopit_length = parlen - 2
+
 	// check if all parameters have a value
-	if (parlen == length(atTokens)) {
+	// First check if only one value is specified
+	if (length(atTokens) == 1) {
+	    if (nolog != 0){
+		stata(`"noisily display as text "The limit is set the same for all parameters""')
+	    }
 	    param_lim = J(1, parlen, 0) // init vector for param limit
 		atVarlist_swopit = J(1, atV_swopit_length, "hi") // init vector for normal swopit varlist
 		j = 1
 		low = 0 // indicator if one of the parameter limits is set very low
 	    for (i = 1; i <= length(atTokens); i++) {
 		    if (j < parlen - 1) {
-				    atVarlist_swopit[i] = atTokens[i]
+				    atVarlist_swopit[i] = atTokens[1]
+			}
+			val = strtoreal(atTokens[1])
+			if (val < 1) {
+				low = 1
+			}
+			param_lim[j] = val
+			j++
+		}
+		if (low == 1) {
+			stata(`"noisily display as err "The limit on all of the parameters is set very low.""')
+			stata(`"noisily display as err "If it does not converge, please try running with different limits.""')
+		}
+		set_limit = 1
+		atVarlist_swopit = invtokens(atVarlist_swopit)
+
+	} else if (parlen == length(atTokens)) {
+	    param_lim = J(1, parlen, 0) // init vector for param limit
+		atVarlist_swopit = J(1, atV_swopit_length, "hi") // init vector for normal swopit varlist
+		j = 1
+		low = 0 // indicator if one of the parameter limits is set very low
+	    for (i = 1; i <= length(atTokens); i++) {
+		    if (j < parlen - 1) {
+				length(atVarlist_swopit)
+				atVarlist_swopit[i] = atTokens[i]
 			}
 			val = strtoreal(atTokens[i])
 			if (val < 1) {
@@ -1237,7 +1289,7 @@ class SWOPITModel scalar swopitmain(string scalar xynames, string scalar znames,
 	}
 
 
-	model.model_bootstrap = "Asymptotic"
+	model.model_bootstrap = "OIM"
 
 	model.boot_params = model.params'
 
@@ -1351,27 +1403,27 @@ function printoutput(class SWOPITModel scalar model){
 	printf("\n%s\n\n", model.model_suptype)
 	printf("Latent class switching = ")
 	displayas("res")
-	printf("%15s  \n", model.switching_type)
+	printf("%20s  \n", model.switching_type)
 	displayas("txt")
  	printf("SE method              = ")
  	displayas("res")
- 	printf("%15s\n", model.model_bootstrap)
+ 	printf("%20s\n", model.model_bootstrap)
 	displayas("txt")
 	printf("Optimization method    = ")
 	displayas("res")
-	printf("%15s\n", model.opt_method)
+	printf("%20s\n", model.opt_method)
 	displayas("txt")
 	printf("Number of observations = ")
 	displayas("res")
-	printf("%15.0f \n", model.n)
+	printf("%20.0f \n", model.n)
 	displayas("txt")
 	printf("Log likelihood         = ")
 	displayas("res")
-	printf("%15.4f \n", model.logLik)
+	printf("%20.4f \n", model.logLik)
 	displayas("txt")
 	printf("McFadden pseudo R2     = ")
 	displayas("res")
-	printf("%15.4f \n", model.R2)
+	printf("%20.4f \n", model.R2)
 	displayas("txt")
 	printf("LR chi2(")
 	displayas("res")
@@ -1379,19 +1431,19 @@ function printoutput(class SWOPITModel scalar model){
 	displayas("txt")
 	printf(")            = ")
 	displayas("res")
-	printf("%15.4f \n", model.chi2)
+	printf("%20.4f \n", model.chi2)
 	displayas("txt")
 	printf("Prob > chi2            = ")
 	displayas("res")
-	printf("%15.4f \n", model.chi2_pvalue)
+	printf("%20.4f \n", model.chi2_pvalue)
 	displayas("txt")
 	printf("AIC                    = ")
 	displayas("res")
-	printf("%15.4f \n" , model.AIC)
+	printf("%20.4f \n" , model.AIC)
 	displayas("txt")
 	printf("BIC                    = ")
 	displayas("res")
-	printf("%15.4f \n" , model.BIC)
+	printf("%20.4f \n" , model.BIC)
 }
 
 function printerror(class SWOPITModel scalar model){
