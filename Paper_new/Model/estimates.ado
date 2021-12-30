@@ -1949,19 +1949,20 @@ function SWOPITpredict(class SWOPITModel scalar model, string scalar newVarName,
 		for (i = 2; i <= cols(p); ++i) {
 			v[,i] = v[,i-1] + p[,i]
 		}
+	} else {
+		tmp = st_addvar("double", label_indices[selectindex(_st_varindex(label_indices) :== .)])
+		st_view(v = ., ., label_indices)
+		for (i = 1; i <= length(labels); ++i) {
+			st_varlabel(label_indices[i], labels[i])
+		}
+		v[,] = p
 	}
-	//} else {
-	tmp = st_addvar("double", label_indices[selectindex(_st_varindex(label_indices) :== .)])
-	st_view(v = ., ., label_indices)
-	for (i = 1; i <= length(labels); ++i) {
-		st_varlabel(label_indices[i], labels[i])
-	}
-	v[,] = p
-	//}
 	
 	if (tabstat) {
-		stata("tabstat " + newVarName + "_*, stats(co me sd v ma mi) columns(statistics) format(%9.4g)")
+		stata("tabstat " + newVarName + "*, stats(co me sd v ma mi) columns(statistics) format(%9.4g)")
+
 	}
+
 
 }
 
