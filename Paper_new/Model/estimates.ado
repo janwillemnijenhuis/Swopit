@@ -1324,7 +1324,7 @@ class SWOPITModel scalar swopitmain(string scalar xynames, string scalar znames,
 
 			if (bootmodel.converged == 0){
 				if (nolog != 0) {
-					stata(`"noisily display as text "Bad bootstrap data generated, resample once more""')
+					stata(`"noisily display as text "Resample once more""')
 				}
 				continue
 			}
