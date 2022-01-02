@@ -177,7 +177,7 @@ class SWOPITModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change, param_li
 			opt_method = "nr"
 			
 			if (nolog != 0) {
-				stata(`"noisily display as text "Attempt number ""' + strofreal(j) + `" " with method: nr" "')
+				stata(`"noisily display as text "Attempt #""' + strofreal(j) + `" " with method: nr" "')
 			}
 	
 			}
@@ -279,7 +279,7 @@ class SWOPITModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change, param_li
 			if (set_limit==0){
 				if (tot_converged==0){
 					if (nolog != 0) {
-							stata(`"noisily display as text "convergence""')
+							stata(`"noisily display as text "convergence (""' + strofreal(iterations) + `" " iterations)" "')
 						}
 					best_lik = optimize_result_value(S)
 					best_opt = opt_method
@@ -292,7 +292,7 @@ class SWOPITModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change, param_li
 					best_opt = opt_method
 					tot_converged = 1
 					if (nolog != 0) {
-						stata(`"noisily display as text "convergence with likelihood improvement""')
+						stata(`"noisily display as text "convergence with likelihood improvement (""' + strofreal(iterations) + `" " iterations)" "')
 					}
 					best_retCode		= optimize_result_errortext(S)
 					best_params 		= optimize_result_params(S)'
@@ -307,7 +307,7 @@ class SWOPITModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change, param_li
 				if (limit == 1){
 					if (tot_converged==0){
 						if (nolog != 0) {
-							stata(`"noisily display as text "convergence""')
+							stata(`"noisily display as text "convergence (""' + strofreal(iterations) + `" " iterations)" "')
 						}
 						best_lik = optimize_result_value(S)
 						best_opt = opt_method
@@ -320,7 +320,7 @@ class SWOPITModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change, param_li
 						best_opt = opt_method
 						tot_converged = 1
 						if (nolog != 0) {
-							stata(`"noisily display as text "convergence with likelihood improvement""')
+							stata(`"noisily display as text "convergence with likelihood improvement (""' + strofreal(iterations) + `" " iterations)" "')
 						}
 						best_retCode		= optimize_result_errortext(S)
 						best_params 		= optimize_result_params(S)'
@@ -342,7 +342,7 @@ class SWOPITModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change, param_li
 				if (limit == 1){
 					if (tot_converged==0){
 						if (nolog != 0) {
-							stata(`"noisily display as text "convergence""')
+							stata(`"noisily display as text "convergence (""' + strofreal(iterations) + `" " iterations)" "')
 						}
 						best_lik = optimize_result_value(S)
 						best_opt = opt_method
@@ -355,7 +355,7 @@ class SWOPITModel scalar estimateswopit(y, x1, x2, z,|guesses,s_change, param_li
 						best_opt = opt_method
 						tot_converged = 1
 						if (nolog != 0) {
-							stata(`"noisily display as text "convergence with likelihood improvement""')
+							stata(`"noisily display as text "convergence with likelihood improvement (""' + strofreal(iterations) + `" " iterations)" "')
 						}
 						best_retCode		= optimize_result_errortext(S)
 						best_params 		= optimize_result_params(S)'
@@ -788,7 +788,7 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 				initial_coded_param = coded_param
 				opt_method = "nr"
 				if (nolog != 0) {
-					stata(`"noisily display as text "Attempt number ""' + strofreal(j) + `" " with method: nr" "')
+					stata(`"noisily display as text "Attempt #""' + strofreal(j) + `" " with method: nr" "')
 				}
 			}
 			if (i == 2) {
@@ -849,7 +849,7 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 			if (convg==1){
 			    if (set_limit==0){
 					if (nolog != 0) {
-						stata(`"noisily display as text "convergence""')
+						stata(`"noisily display as text "convergence (""' + strofreal(iterations) + `" " iterations)" "')
 					}
 				    break
 				} else if (set_limit==1 && length(param_lim) > 0){
@@ -867,7 +867,7 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 					limit = (abs(params)<=param_lim)
 					if (limit == 1){
 						if (nolog != 0) {
-							stata(`"noisily display as text "convergence""')
+							stata(`"noisily display as text "convergence (""' + strofreal(iterations) + `" iterations)"')
 						}
 						break
 					} else if (limit == 0){
@@ -890,7 +890,7 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 					if (startoriginal == .){
 						if (optimize_result_value(S) > swopit_likelihood){
 							if (nolog != 0) {
-								stata(`"noisily display as text "convergence""')
+								stata(`"noisily display as text "convergence (""' + strofreal(iterations) + `" " iterations)" "')
 							}
 							best_lik = optimize_result_value(S)
 							best_opt = opt_method
@@ -905,7 +905,7 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 						}
 					}else{
 						if (nolog != 0) {
-							stata(`"noisily display as text "convergence""')
+							stata(`"noisily display as text "convergence (""' + strofreal(iterations) + `" " iterations)" "')
 						}
 						best_lik = optimize_result_value(S)
 						best_opt = opt_method
@@ -920,7 +920,7 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 					best_opt = opt_method
 					tot_converged = 1
 					if (nolog != 0) {
-						stata(`"noisily display as text "convergence with likelihood improvement""')
+						stata(`"noisily display as text "convergence with likelihood improvement (""' + strofreal(iterations) + `" " iterations)" "')
 					}
 					best_retCode		= optimize_result_errortext(S)
 					best_params 		= optimize_result_params(S)'
@@ -935,7 +935,7 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 				if (limit == 1){
 					if (tot_converged==0){
 						if (nolog != 0) {
-							stata(`"noisily display as text "convergence""')
+							stata(`"noisily display as text "convergence (""' + strofreal(iterations) + `" " iterations)" "')
 						}
 						best_lik = optimize_result_value(S)
 						best_opt = opt_method
@@ -948,7 +948,7 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 						best_opt = opt_method
 						tot_converged = 1
 						if (nolog != 0) {
-							stata(`"noisily display as text "convergence with likelihood improvement""')
+							stata(`"noisily display as text "convergence with likelihood improvement (""' + strofreal(iterations) + `" " iterations)" "')
 						}
 						best_retCode		= optimize_result_errortext(S)
 						best_params 		= optimize_result_params(S)'
@@ -972,7 +972,7 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 						if (startoriginal == .){
 							if (optimize_result_value(S) > swopit_likelihood){
 								if (nolog != 0) {
-									stata(`"noisily display as text "convergence""')
+									stata(`"noisily display as text "convergence (""' + strofreal(iterations) + `" " iterations)" "')
 								}
 								best_lik = optimize_result_value(S)
 								best_opt = opt_method
@@ -988,7 +988,7 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 						}
 						else{
 							if (nolog != 0) {
-								stata(`"noisily display as text "convergence""')
+								stata(`"noisily display as text "convergence (""' + strofreal(iterations) + `" " iterations)" "')
 							}
 							best_lik = optimize_result_value(S)
 							best_opt = opt_method
@@ -1002,7 +1002,7 @@ class SWOPITModel scalar estimateswopitc(y, x1, x2, z,|guesses,s_change,param_li
 						best_opt = opt_method
 						tot_converged = 1
 						if (nolog != 0) {
-							stata(`"noisily display as text "convergence with likelihood improvement""')
+							stata(`"noisily display as text "convergence with likelihood improvement (""' + strofreal(iterations) + `" " iterations)" "')
 						}
 						best_retCode		= optimize_result_errortext(S)
 						best_params 		= optimize_result_params(S)'
@@ -1301,6 +1301,11 @@ class SWOPITModel scalar swopitmain(string scalar xynames, string scalar znames,
 		ready = 0
 		boot_initial = model.params'
 		for (booti = 1; booti <= 10 * boot; booti++){
+		    
+			if (nolog != 0) {
+				stata(`"noisily display as text "Bootstrap #""' + strofreal(booti))
+			}
+			
 			boot_indices = runiformint(n, 1, 1, n);
 			
 			y_iter =  y[boot_indices,]
@@ -1458,7 +1463,7 @@ function printerror(class SWOPITModel scalar model){
 		displayas("err")
 		printf("The command performed " + strofreal(guesses) + " random initializations and the estimation algorithm failed to converge.\n")
 		printf("Perhaps, there are too few data for such a complex model.\nIf you set a limit on the parameters, you might want to loosen it.\n")
-		printf("Try again, increase the number of random initializations in guesses() or provide your starting values.\n")
+		printf("Try again, increase the number of random initializations in guesses(), increase the number of iterations in maxiter() or provide your starting values.\n")
 		printf("Error code is " + strofreal(errorcode) + ": " + retCode + "\n")
 		printf("Convergence status is " + strofreal(convg) + "\n")
 		exit(1)
@@ -1883,9 +1888,12 @@ function SWOPITclassification(class SWOPITModel scalar model){
 }
 
 function SWOPITpredict(class SWOPITModel scalar model, string scalar newVarName, real scalar regime, scalar output, tabstat){
+    var_ind = 0
 	if (strlen(newVarName) == 0 && !regime) {
+	    var_ind = 1
 		newVarName = "swopit_pr"
 	} else if (strlen(newVarName) == 0 && regime) {
+	    var_ind = 1
 	    newVarName = "swopit_r"
 	}
 // this used to be the code, left here if we need to still change it
@@ -1959,8 +1967,11 @@ function SWOPITpredict(class SWOPITModel scalar model, string scalar newVarName,
 	}
 	
 	if (tabstat) {
-		stata("tabstat " + newVarName + "*, stats(co me sd v ma mi) columns(statistics) format(%9.4g)")
-
+	    if (var_ind == 0) {
+			stata("tabstat " + newVarName + "*, stats(co me sd v ma mi) columns(statistics) format(%9.4g)")
+		} else if (var_ind == 1) {
+		    stata("tabstat swopit_*, stats(co me sd v ma mi) columns(statistics) format(%9.4g)")
+		}
 	}
 
 
