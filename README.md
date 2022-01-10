@@ -22,8 +22,11 @@ The two different datasets used in the paper are available. To run this:
 3. Perform postestimation commands according to help file.
 
 ## Folder structure
-The folder structure is shown in the figure below.<br />
-`Community Contributed Software.zip`
+The folder structure is shown in the figure below the explanation of the folder structure.<br />
+`Community Contributed Software` contains the files as sent to Stata Journal.<br />
+`Paper_new/Model` contains all development code.<br />
+ `DefModel.ado`
+
 ```bash
 Swopit
 │   .DS_Store
