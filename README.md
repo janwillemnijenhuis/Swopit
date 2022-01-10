@@ -22,8 +22,7 @@ The two different datasets used in the paper are available. To run this:
 3. Perform postestimation commands according to help file.
 
 ## Folder structure
-The folder structure is shown in the figure below.
-
+The folder structure is shown in the figure below.<br />
 `Community Contributed Software.zip`
 ```bash
 Swopit
