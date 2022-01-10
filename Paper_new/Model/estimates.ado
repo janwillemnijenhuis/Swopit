@@ -1880,9 +1880,9 @@ function SWOPITclassification(class SWOPITModel scalar model){
 	print_matrix(result, rowname, colname,., ., ., 4, ., .)
 	displayas("txt")
 	printf("\n")
-	printf("Accuracy                 = %9.4f \n", model.accuracy)
-	printf("Brier score              = %9.4f \n", model.brier_score)
-	printf("Ranked probability score = %9.4f \n", model.ranked_probability_score)
+	printf("Accuracy                 = {bf:%9.4f} \n", model.accuracy)
+	printf("Brier score              = {bf:%9.4f} \n", model.brier_score)
+	printf("Ranked probability score = {bf:%9.4f} \n", model.ranked_probability_score)
 	printf("\nConfusion Matrix\n")
 	print_matrix(conf_mat, rowstripes, colstripes,., ., ., 0, rowtitle, coltitle)
 }

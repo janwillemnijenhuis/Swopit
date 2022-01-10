@@ -25,7 +25,26 @@ The two different datasets used in the paper are available. To run this:
 The folder structure is shown in the figure below the explanation of the folder structure.<br />
 `Community Contributed Software` contains the files as sent to Stata Journal.<br />
 `Paper_new/Model` contains all development code.<br />
-&emsp;`DefModel.ado`
+&emsp;`DefModel.ado` contains all model definitions.<br />
+&emsp;`estimates.ado` contains the main estimation routines and postestimation commands.<br />
+&emsp;`helpfunctest.ado` contains the auxiliary functions used in optimization.<br />
+&emsp;`swopit.ado` the Stata interface of the swopit command.<br />
+&emsp;`swopitprobabilities.ado` the Stata interface of the swopitprobabilities command.<br />
+&emsp;`swopitmargins.ado` the Stata interface of the swopitmargins command.<br />
+&emsp;`swopitclassification.ado` the Stata interface of the swopitclassification command.<br />
+&emsp;`swopitpredict.ado` the Stata interface of the swopitpredict command.<br />
+&emsp;`swopit.sthlp` swopit help file.<br />
+&emsp;`swopitpostestimation.sthlp` swopitpostestimation help file.<br />
+`Calibration files` contains files used in debugging and for determining simulation parameters. <br />
+&emsp;`application.do` do-file with different examples of the command.<br />
+&emsp;`calibration.do` do-file which performs the calibration of parameters used in simulation.<br />
+`Data files` contains data files on which the swopit command can be estimated. <br />
+&emsp;`fmm_health.dta` data on ordinal responses of a health survey. <br />
+&emsp;`policy_rate.dta` data on policy rate changes (used in the paper). <br />
+`Simulation files` contains the simulation files. <br />
+&emsp;`create_sets.py` creates the bash scripts used on the Lisa cluster for simulations. <br />
+&emsp;`merge_matamatrix.do` combines the resulting matrices to obtain simulation results. <br />
+&emsp;`runsim.do` runs simulations. <br />   
 
 ```bash
 Swopit
