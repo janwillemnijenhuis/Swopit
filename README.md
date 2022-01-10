@@ -25,7 +25,7 @@ The two different datasets used in the paper are available. To run this:
 The folder structure is shown in the figure below the explanation of the folder structure.<br />
 `Community Contributed Software` contains the files as sent to Stata Journal.<br />
 `Paper_new/Model` contains all development code.<br />
-emsp`DefModel.ado`
+&emsp;`DefModel.ado`
 
 ```bash
 Swopit
