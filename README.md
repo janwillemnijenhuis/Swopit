@@ -23,6 +23,7 @@ The two different datasets used in the paper are available. To run this:
 
 ## Folder structure
 The folder structure is shown in the figure below.
+
 `Community Contributed Software.zip`
 ```bash
 Swopit
