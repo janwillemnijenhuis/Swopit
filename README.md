@@ -50,7 +50,6 @@ The folder structure is shown in the figure below. We first give an explanation 
 
 ```bash
 Swopit
-│   .DS_Store
 │   Community Contributed Software.zip
 │   Estimation of two-regime switching ordered probit model.pdf
 │   README.md
@@ -73,10 +72,7 @@ Swopit
 │       swopitprobabilities.ado
 │
 └───Paper_new
-    │   .DS_Store
-    │
     └───Model
-        │   .DS_Store
         │   DefModel.ado
         │   estimates.ado
         │   fmm_health.dta
@@ -93,16 +89,7 @@ Swopit
         │
         ├───Calibration files
         │       application.do
-        │       appswop2.do
         │       calibration.do
-        │       calibration2.do
-        │       test.do
-        │       test_calibrswop.do
-        │
-        ├───Data Files
-        │       .DS_Store
-        │       fmm_health.dta
-        │       policy_rate.dta
         │
         └───Simulation files
                 create_sets.py
