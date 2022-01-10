@@ -21,8 +21,11 @@ The two different datasets used in the paper are available. To run this:
 2. In Stata run "swopit" in command window according to help file;
 3. Perform postestimation commands according to help file.
 
-##
+## Folder structure
+The folder structure is shown in the figure below.
+`Community Contributed Software.zip`
 ```bash
+Swopit
 │   .DS_Store
 │   Community Contributed Software.zip
 │   Estimation of two-regime switching ordered probit model.pdf
