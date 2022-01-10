@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.0.2  27dec2021}{...}
+{* *! version 0.1.0  10jan2022}{...}
 {title:Title}
 
 {pstd}{helpb swopit##swopit:swopit} {c -} Two-regime switching ordered probit regression{p_end}
@@ -38,17 +38,23 @@ By default, it is equal to all independent variables listed in {it:indepvars}.{p
 The default is guesses(5). 
 At each attempt, the following algorithms are used (NR, BHHH, DFP and BFGS) one after another until convergence is achieved or all four algorithms are employed. 
 The estimation output with the highest likelihood is reported. 
-If starting values are specified in initial() then the estimation attempts are stopped after the first converged one (if any). {p_end}
+If starting values are specified in initial() then the estimation attempts are stopped after the first converged one (if any).
+Further, in the case of endogenous switching, the swopit command obtains the starting values for the correlation coefficients by maximizing
+the likelihood functions over a grid search from -0.95 to 0.95 in increments of 0.05
+holding the other parameters fixed at their estimates in the exogenous switching
+case. At each attempt, the following optimization techniques are applied one after
+another until convergence is achieved or all four of them are used: NR, BHHH,
+DFP, and BFGS. The estimation output with the highest likelihood is reported. The default is guesses(5). {p_end}
 
-{synopt :{opt lim:it(scalar)}} specifies the limit for the maximum absolute value of each parameter in the ML estimation. 
-The default is limit(0), and no constraints are applied.
+{synopt :{opt lim:it(string numlist)}} specifies a space-delimited list of the limits for the maximum absolute
+value of each parameter in the following order: gamma, mu, beta1, alpha1, beta2, alpha2, rho1 and rho2.
+If only one value is specified, this limit applies to all parameters. By default, no
+constraints on the parameters values are applied.
 {p_end}
 
-{synopt :{opt paramlim:it(scalar)}} enables the user to specify a separate limit for each coefficient in a space-delimited list. This command will overwrite the previous
-option if they are both used. By default no constraints are applied.
-{p_end}
-
-{synopt :{opt log(string)}} verbose output of the {cmd:swopit} command. By default this is switched off and all output is surpressed. Error messages are shown regardless.{p_end}
+{synopt :{opt log}} shows the progress of the numerical optimization of the log likelihood: current
+estimation attempt, optimization method, and convergence status. By default, the
+log output is suppressed.{p_end}
 
 {synopt :{opt maxiter:(scalar)}} specifies the maximum number of iterations before the optimization algorithm quits and reports that the estimation of the model does not converge. 
 The default is maxiter(500).{p_end}
@@ -65,14 +71,18 @@ The default is nrtol(1e-5).{p_end}
 {synopt :{opt initial:(string asis)}} specifies a space-delimited list string of the starting values of the parameters in the following order: gamma, mu, beta1, alpha1, beta2, alpha2, rho1 and rho2. 
 The elements of alpha1 and alpha2 should be provided in the ascending order.{p_end}
 
-{synopt :{opt change:(scalar)}} specifies the interval for randomly selecting new starting values (SV) for the next estimation attempt if the user has specified the starting values in initial(). 
-The estimation attempts are stopped after the first converged one or until all attempts specified in guesses() are performed. 
-The SV for all coefficients with the exception of the correlation coefficients are adjusted for each estimation attempt according to the formula: {it:SV = SV + change * U(-abs(SV), abs(SV))}, 
-where U() represents a uniformly distributed random variable. 
-In the case of endogenous switching, the SV for the correlation coefficients 1 and 2 are determined by maximizing the likelihood function over a grid search from -0.95 to 0.95 in increments of 0.05 holding the other parameters fixed. 
-The default is change(0.5). 
-The option is ignored if the initial() option is not used. 
-However, it is always applied for the bootstrap.{p_end}
+{synopt :{opt change:(scalar)}} specifies the interval for randomly selecting new starting values (SV)
+for the next estimation attempt if the user has specified the starting values in
+initial(). The estimation is stopped if all attempts specified in guesses()
+are performed. The SV for all coefficients with the exception of the correlation
+coefficients are adjusted for each estimation attempt according to the formula:
+SV = SV + change * U(-|SV|, |SV|), where U() represents a uniformly distributed
+random variable. In the case of endogenous switching, the SV for the correlation
+coefficients rho1 and rho2 are determined by maximizing the likelihood function over a
+grid search from -0.95 to 0.95 in increments of 0.05 holding the other parameters
+fixed. The option is ignored if the initial() option is not used. However, it is
+always applied in the bootstrap estimations if bootstrap() option is used. The
+default is change(0.5).{p_end}
 
 {synopt :{opt boot:strap(scalar)}} specifies the number of bootstrap replications to be performed to estimate the standard errors. 
 Bootstrapping uses the initial values of estimated parameters as the starting ones. 
@@ -126,6 +136,11 @@ The default is bootiter(100).
 {synoptset 20 tabbed}{...}
 {p2col 5 20 24 2: Macros}{p_end}
 {synopt:{cmd:e(cmd)}}{cmd:swopit}{p_end}
+{synopt:{cmd:e(opt)}}optimization method{p_end}
+{synopt:{cmd:e(properties)}}{bf:b V}{p_end}
+{synopt:{cmd:e(vce)}}standard error method{p_end}
+{synopt:{cmd:e(switching)}}type of regime switching{p_end}
+{synopt:{cmd:e(vcetype)}}title to label standard errors{p_end}
 {synopt:{cmd:e(depvar)}}name of dependent variable{p_end}
 {synopt:{cmd:e(predict)}}program used to implement {cmd:predict}{p_end}
 
@@ -134,6 +149,7 @@ The default is bootiter(100).
 {synopt:{cmd:e(b)}}coefficient vector{p_end}
 {synopt:{cmd:e(V)}}variance-covariance matrix of the estimators{p_end}
 {synopt:{cmd:e(ll_obs)}}vector of observation-wise log-likelihood{p_end}
+{synopt:{cmd:e(boot)}}coefficient vectors in the bootstrap samples{p_end}
 
 {synoptset 20 tabbed}{...}
 {p2col 5 20 24 2: Functions}{p_end}
@@ -142,4 +158,4 @@ The default is bootiter(100).
 
 {title:References}
 
-{p 4 7}Huismans, J., J. W. Nijenhuis, and A. Sirchenko. 2021. A mixture of ordered probit models with endogenous assignment to two latent classes. {it:Manuscript.} 24 (1).{p_end}
+{p 4 7}Huismans, J., Nijenhuis, J.W., Sirchenko, A. 2021. A mixture of ordered probit models with endogenous assignment to two latent classes. {it:Manuscript.} 24 (1).{p_end}

@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.0.2  27dec2021}{...}
+{* *! version 0.1.0  10jan2022}{...}
 {title:Title}
 
 {pstd}
@@ -25,21 +25,28 @@ The following postestimation commands are available after {cmd:swopit}:
 {marker predict}{...}
 {title:Syntax for swopitpredict}
 {pstd}
-{cmd:swopitpredict} {varname} [,{opt name(string)} {opt regimes} {opt choice(string)} {opt tabstat}]
+{cmd:swopitpredict} {varname} [, {opt regimes} {opt choice(string)} {opt name(string)} {opt tabstat}]
 
 {synoptset 28 tabbed}{...}
 {synopthdr}
 {synoptline}
 
-{synopt :{cmd:name(string)}} set the name for the predicted outcomes or regimes. By default this is "swopit_pr" for probabilities of outcomes and "swopit_r" for probabilities of regimes.{p_end}
-
-{synopt :{cmd:regimes}} calculates the predicted probabilities of the latent classes (regimes) instead of the choice probabilities (by default).{p_end}
+{synopt :{opt regimes}} calculates the predicted probabilities of the latent classes (regimes) instead of the choice probabilities (by default).{p_end}
 
 {synopt :{opt output(string)}}specifies the different types of predictions. The possible options for {it:string} are: {it:choice} for reporting the predicted outcome (the choice with the largest predicted probability); {it:mean} for reporting the expected value of the dependent variable computed as a summation of i*Pr(y=i) across all choices i; and 
 {it:cum} for predicting the cumulative choice probabilities such as Pr(y<=0), Pr(y<=1), ... . 
-If {it:string} is not specified, the usual choice probabilities such as Pr(y=0), Pr(y=1), ... are predicted and saved into new variables with the {it:varname} prefix.{p_end}
+If {opt output()} is not specified, the usual choice probabilities such as Pr(y=0), Pr(y=1), ... are predicted.{p_end}
 
-{synopt :{cmd:tabstat}}inline option to use the {cmd:tabstat} command which computes the summary statistics of all computed outcomes or regimes. The number of observations, mean, standard deviation, variance, minimum and maximum value are given. If the user wants a different composition of which statistics to display, he is still able to run the {cmd:tabstat} command from the Stata Console.{p_end}
+{synopt :{opt name(varname)}} creates the variables named varname_*, where * is the label of the
+observed choice or latent class. varname can only consist of letters and underscores.
+If an invalid name is given an error message is displayed. If {opt name()} is not specified,
+either the variables named swopit_r_* are created if the regimes option is used,
+or the variables named swopit_pr_* are created if the {opt output()} option is used.{p_end}
+
+{synopt :{opt tabstat}} displays a compact table of summary statistics for the variables created by
+swopitpredict. If option {opt name(varname)} is used, the statistics are provided for
+all available variables varname_*. If {opt name()} is not specified, the statistics are
+provided for all available variables swopit_r_* and swopit_pr_*.{p_end}
 
 {synoptline}
 
@@ -86,9 +93,9 @@ It creates the variables named varname_i where i is the label of the observed ch
 
 {synopt :{opt at(string)}} specifies the values of the independent variables at which to estimate the probabilities. 
 By default, the probabilities are computed at the median values of the independent variables. 
-The syntax of this command is varname = value for each variable, separated by a blank space. varname is the name of the variable listed in indepvars. If an independent variable from indepvars is excluded from this option, the probabilities are estimated at the median value of this variable.{p_end}
+The syntax of this command is {it:varname = value} for each variable, separated by a blank space. varname is the name of the variable listed in indepvars. If an independent variable from indepvars is excluded from this option, the probabilities are estimated at the median value of this variable.{p_end}
 
-{synopt :{cmd:regimes}}calculates the predicted probabilities of the latent classes (regimes) instead of the choice probabilities (by default).{p_end}
+{synopt :{opt regimes}}calculates the predicted probabilities of the latent classes (regimes) instead of the choice probabilities (by default).{p_end}
 
 {synoptline}
 {p2colreset}{...}
@@ -136,9 +143,9 @@ The syntax of this command is varname = value for each variable, separated by a 
 {synoptline}
 
 {synopt :{opt at(string)}}specifies the values of the independent variables at which to estimate the marginal effects. 
-By default, the marginal effects are computed at the median values of the independent variables. The syntax of this command is varname = value for each variable, separated by a blank space. varname is the name of the variable listed in indepvars. If an independent variable from indepvars is excluded from this option, the marginal effects are estimated at the median value of this variable.{p_end}
+By default, the marginal effects are computed at the median values of the independent variables. The syntax of this command is {it: varname = value} for each variable, separated by a blank space. varname is the name of the variable listed in indepvars. If an independent variable from indepvars is excluded from this option, the marginal effects are estimated at the median value of this variable.{p_end}
 
-{synopt :{cmd:regimes}}calculates the predicted marginal effects of the latent classes (regimes) instead of the choice marginal effects (by default).{p_end}
+{synopt :{opt regimes}}calculates the predicted marginal effects of the latent classes (regimes) instead of the choice marginal effects (by default).{p_end}
 
 {synoptline}
 {p2colreset}{...}

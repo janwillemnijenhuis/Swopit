@@ -1,5 +1,5 @@
 // SPECIFY TO THE LOCATION OF YOUR FILES // 
-cd "C:\Users\janwi\OneDrive\Documents\PaperSwopit\Paper_new_2\Swopit\Paper_new\Model" 
+cd "PATH" 
 mata: mata clear
 
 // RUN FILES NEEDED FOR ESTIMATION // 
