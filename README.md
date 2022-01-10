@@ -20,3 +20,65 @@ The two different datasets used in the paper are available. To run this:
 1. Run fmm_health.dta/policy_rate.dta from command window;
 2. In Stata run "swopit" in command window according to help file;
 3. Perform postestimation commands according to help file.
+
+##
+```bash
+│   .DS_Store
+│   Community Contributed Software.zip
+│   Estimation of two-regime switching ordered probit model.pdf
+│   README.md
+│   readme.txt
+│
+├───Community Contributed Software
+│       application.do
+│       DefModel.ado
+│       estimates.ado
+│       fmm_health.dta
+│       helpfunctest.ado
+│       policy_rate.dta
+│       readme.txt
+│       swopit.ado
+│       swopit.sthlp
+│       swopitclassification.ado
+│       swopitmargins.ado
+│       swopitpostestimation.sthlp
+│       swopitpredict.ado
+│       swopitprobabilities.ado
+│
+└───Paper_new
+    │   .DS_Store
+    │
+    └───Model
+        │   .DS_Store
+        │   DefModel.ado
+        │   estimates.ado
+        │   fmm_health.dta
+        │   helpfunctest.ado
+        │   policy_rate.dta
+        │   sim_results.xlsx
+        │   swopit.ado
+        │   swopit.sthlp
+        │   swopitclassification.ado
+        │   swopitmargins.ado
+        │   swopitpostestimation.sthlp
+        │   swopitpredict.ado
+        │   swopitprobabilities.ado
+        │
+        ├───Calibration files
+        │       application.do
+        │       appswop2.do
+        │       calibration.do
+        │       calibration2.do
+        │       test.do
+        │       test_calibrswop.do
+        │
+        ├───Data Files
+        │       .DS_Store
+        │       fmm_health.dta
+        │       policy_rate.dta
+        │
+        └───Simulation files
+                create_sets.py
+                merge_matamatrix.do
+                runsim.do
+```
