@@ -38,6 +38,7 @@ The folder structure is shown in the figure below. We first give an explanation 
 &emsp;`fmm_health.dta` data on ordinal responses of a health survey. <br />
 &emsp;`policy_rate.dta` data on policy rate changes (used in the paper). <br />
 &emsp;`sim_results.xlsx` simulation results. <br />
+&emsp;`sim_results_bootstrap.xlsx` simulation results for bootstrap. <br />
 `Calibration files` contains files used in debugging and for determining simulation parameters. <br />
 &emsp;`application.do` do-file with different examples of the command.<br />
 &emsp;`calibration.do` do-file which performs the calibration of parameters used in simulation.<br />
