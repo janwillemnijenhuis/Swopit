@@ -79,6 +79,7 @@ Swopit
         │   helpfunctest.ado
         │   policy_rate.dta
         │   sim_results.xlsx
+        │   sim_results_bootstrap.xlsx
         │   swopit.ado
         │   swopit.sthlp
         │   swopitclassification.ado
