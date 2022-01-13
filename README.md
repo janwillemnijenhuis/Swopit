@@ -23,10 +23,15 @@ The two different datasets used in the paper are available. To run this:
 ## Folder structure
 The folder structure is shown in the figure below. We first give an explanation of the files.<br />
 `Community Contributed Software` contains the files as sent to Stata Journal.<br />
+`Estimation of two-regime switching ordered probit model - revision.pdf` the latest version of the paper, as submitted to Stata Journal <br />
 `Paper_new/Model` contains all development code.<br />
-&emsp;`DefModel.ado` contains all model definitions.<br />
+&emsp;&emsp;`DefModel.ado` contains all model definitions.<br />
+&emsp;`Empirical_example.do` the do-file with the empirical example from the paper <br />
 &emsp;`estimates.ado` contains the main estimation routines and postestimation commands.<br />
 &emsp;`helpfunctest.ado` contains the auxiliary functions used in optimization.<br />
+&emsp;`policy_rate.dta` data on policy rate changes (used in the paper). <br />
+&emsp;`sim_results.xlsx` simulation results. <br />
+&emsp;`sim_results_bootstrap.xlsx` simulation results for bootstrap. <br />
 &emsp;`swopit.ado` the Stata interface of the swopit command.<br />
 &emsp;`swopitprobabilities.ado` the Stata interface of the swopitprobabilities command.<br />
 &emsp;`swopitmargins.ado` the Stata interface of the swopitmargins command.<br />
@@ -34,10 +39,6 @@ The folder structure is shown in the figure below. We first give an explanation 
 &emsp;`swopitpredict.ado` the Stata interface of the swopitpredict command.<br />
 &emsp;`swopit.sthlp` swopit help file.<br />
 &emsp;`swopitpostestimation.sthlp` swopitpostestimation help file.<br />
-&emsp;`fmm_health.dta` data on ordinal responses of a health survey. <br />
-&emsp;`policy_rate.dta` data on policy rate changes (used in the paper). <br />
-&emsp;`sim_results.xlsx` simulation results. <br />
-&emsp;`sim_results_bootstrap.xlsx` simulation results for bootstrap. <br />
 `Calibration files` contains files used in debugging and for determining simulation parameters. <br />
 &emsp;`application.do` do-file with different examples of the command.<br />
 &emsp;`calibration.do` do-file which performs the calibration of parameters used in simulation.<br />
