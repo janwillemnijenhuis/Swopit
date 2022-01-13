@@ -1,6 +1,13 @@
 version 14
 
 mata:
+function printMsg(s, nolog) {
+	if (nolog != 0) {
+		displayas("txt")
+		printf(s + "\n")
+	}
+}
+
 function punishSort(x) {
 	// the function returns vector x, if it is sorted in ascending order
 	// otherwise, it returns modified x in increasing order with very small distances between swapped points
@@ -182,9 +189,7 @@ function mlswoptwo(params, x1, x2, z, q, ncat, | loop) {
 	kx2 	= cols(x2)
 	kz 	= cols(z)
 	n	= rows(x1)
-	
 	_swopit_params(params, kx1, kx2, kz, ncat, b1=., b2=., a1=., a2=., g=., mu=.)
-
 	// probs
 	zg	= z * g
 
@@ -589,7 +594,6 @@ function generalPredictWithSE(dgp, params, xzbar, ncat, outeq1, outeq2, regeq, V
 	xb1 = select(xzbar,outeq1)
 	xb2 = select(xzbar,outeq2)
 	z = select(xzbar,regeq)
-
 	generalPredictWrapper(params, xb1, xb2, z,dgp,ncat, loop, probs =.)
 	
 	nc = cols(probs)
@@ -1033,6 +1037,7 @@ void print_matrix(contents, rownames, colnames, | uline, lline, mline, digits, r
 		printf("%" + strofreal(rowname_width) + "s {c |} ", "")
 	}
 	for(j=1; j<=m; j++){
+		displayas("txt")
 		printf("%" + strofreal(colwidths[j]) + "s ", colnames[j])
 	}
 	printf("\n")
@@ -1041,15 +1046,18 @@ void print_matrix(contents, rownames, colnames, | uline, lline, mline, digits, r
 	}
 	// print the rest of the table
 	if (coltitle_rows==1){
+		displayas("txt")
 	    printf("%"+strofreal(rowname_width)+ "s {c |}\n",coltitle)
 	} else if (coltitle_rows>1){
 	    "A higher (>1) number of words for column title is not yet supported"
 	}
 	for(i=1; i<=n; i++) {
 		if (rowname_flag) {
+			displayas("txt")
 			printf("%" + strofreal(rowname_width)+ "s {c |} ", rownames[i])
 		}
 		for(j=1; j<=m; j++){
+			displayas("res")
 			printf("%" + strofreal(colwidths[j]) + "." + numberf + " ", contents[i, j])
 		}
 		printf("\n")

@@ -2,6 +2,11 @@ version 14
 mata
 class SWOPITModel {
 	string scalar model_class
+	string scalar opt_method
+	string scalar model_suptype
+	string scalar model_bootstrap
+	string scalar switching_type
+	
 	
 	// utility parameters
 	real vector beta
@@ -36,7 +41,8 @@ class SWOPITModel {
 	
 	// estimation options
 	real scalar robust
-	
+	real scalar guesses	
+
 	// main estimation results
 	real vector params
 	real matrix V
@@ -46,6 +52,7 @@ class SWOPITModel {
 	real vector se_rob
 	real vector t_rob
 	real vector pval
+	real matrix boot_params
 	
 	// probabilities
 	real matrix probabilities
