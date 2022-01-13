@@ -17,9 +17,8 @@ We have added a calibration file with precalibrated parameters. To run this:
 
 ## To use on real dataset:
 The two different datasets used in the paper are available. To run this:
-1. Run fmm_health.dta/policy_rate.dta from command window;
-2. In Stata run swopit with the desired options;
-3. Perform postestimation commands according to help file.
+1. Run policy_rate.dta from command window;
+2. Run Emperical_example.do from do-file editor.
 
 ## Folder structure
 The folder structure is shown in the figure below. We first give an explanation of the files.<br />
@@ -75,8 +74,8 @@ Swopit
 └───Paper_new
     └───Model
         │   DefModel.ado
+        │   Empirical_example.do
         │   estimates.ado
-        │   fmm_health.dta
         │   helpfunctest.ado
         │   policy_rate.dta
         │   sim_results.xlsx
