@@ -26,26 +26,26 @@ The folder structure is shown in the figure below. We first give an explanation 
 `Estimation of two-regime switching ordered probit model - revision.pdf` the latest version of the paper, as submitted to Stata Journal <br />
 `Paper_new/Model` contains all development code.<br />
 &emsp;&emsp;`DefModel.ado` contains all model definitions.<br />
-&emsp;`Empirical_example.do` the do-file with the empirical example from the paper <br />
-&emsp;`estimates.ado` contains the main estimation routines and postestimation commands.<br />
-&emsp;`helpfunctest.ado` contains the auxiliary functions used in optimization.<br />
-&emsp;`policy_rate.dta` data on policy rate changes (used in the paper). <br />
-&emsp;`sim_results.xlsx` simulation results. <br />
-&emsp;`sim_results_bootstrap.xlsx` simulation results for bootstrap. <br />
-&emsp;`swopit.ado` the Stata interface of the swopit command.<br />
-&emsp;`swopitprobabilities.ado` the Stata interface of the swopitprobabilities command.<br />
-&emsp;`swopitmargins.ado` the Stata interface of the swopitmargins command.<br />
-&emsp;`swopitclassification.ado` the Stata interface of the swopitclassification command.<br />
-&emsp;`swopitpredict.ado` the Stata interface of the swopitpredict command.<br />
-&emsp;`swopit.sthlp` swopit help file.<br />
-&emsp;`swopitpostestimation.sthlp` swopitpostestimation help file.<br />
-`Calibration files` contains files used in debugging and for determining simulation parameters. <br />
-&emsp;`application.do` do-file with different examples of the command.<br />
-&emsp;`calibration.do` do-file which performs the calibration of parameters used in simulation.<br />
-`Simulation files` contains the simulation files. <br />
-&emsp;`create_sets.py` creates the bash scripts used on the Lisa cluster for simulations. <br />
-&emsp;`merge_matamatrix.do` combines the resulting matrices to obtain simulation results. <br />
-&emsp;`runsim.do` runs simulations. <br />   
+&emsp;&emsp;`Empirical_example.do` the do-file with the empirical example from the paper <br />
+&emsp;&emsp;`estimates.ado` contains the main estimation routines and postestimation commands.<br />
+&emsp;&emsp;`helpfunctest.ado` contains the auxiliary functions used in optimization.<br />
+&emsp;&emsp;`policy_rate.dta` data on policy rate changes (used in the paper). <br />
+&emsp;&emsp;`sim_results.xlsx` simulation results. <br />
+&emsp;&emsp;`sim_results_bootstrap.xlsx` simulation results for bootstrap. <br />
+&emsp;&emsp;`swopit.ado` the Stata interface of the swopit command.<br />
+&emsp;&emsp;`swopitprobabilities.ado` the Stata interface of the swopitprobabilities command.<br />
+&emsp;&emsp;`swopitmargins.ado` the Stata interface of the swopitmargins command.<br />
+&emsp;&emsp;`swopitclassification.ado` the Stata interface of the swopitclassification command.<br />
+&emsp;&emsp;`swopitpredict.ado` the Stata interface of the swopitpredict command.<br />
+&emsp;&emsp;`swopit.sthlp` swopit help file.<br />
+&emsp;&emsp;`swopitpostestimation.sthlp` swopitpostestimation help file.<br />
+&emsp;`Calibration files` contains files used in debugging and for determining simulation parameters. <br />
+&emsp;&emsp;`application.do` do-file with different examples of the command.<br />
+&emsp;&emsp;`calibration.do` do-file which performs the calibration of parameters used in simulation.<br />
+&emsp;`Simulation files` contains the simulation files. <br />
+&emsp;&emsp;`create_sets.py` creates the bash scripts used on the Lisa cluster for simulations. <br />
+&emsp;&emsp;`merge_matamatrix.do` combines the resulting matrices to obtain simulation results. <br />
+&emsp;&emsp;`runsim.do` runs simulations. <br />   
 `README.md` this file. <br \>
 `readme.txt` the description of the paper, authors and copyright. <br />
 
