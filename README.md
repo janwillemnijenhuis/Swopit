@@ -52,6 +52,7 @@ The folder structure is shown in the figure below. We first give an explanation 
 Swopit
 │   Community Contributed Software.zip
 │   Estimation of two-regime switching ordered probit model.pdf
+|   Estimation of two-regime switching ordered probit model - revision.pdf
 │   README.md
 │   readme.txt
 │
