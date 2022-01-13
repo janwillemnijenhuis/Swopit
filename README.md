@@ -46,7 +46,7 @@ The folder structure is shown in the figure below. We first give an explanation 
 &emsp;&emsp;`create_sets.py` creates the bash scripts used on the Lisa cluster for simulations. <br />
 &emsp;&emsp;`merge_matamatrix.do` combines the resulting matrices to obtain simulation results. <br />
 &emsp;&emsp;`runsim.do` runs simulations. <br />   
-`README.md` this file. <br \>
+`README.md` this file. <br />
 `readme.txt` the description of the paper, authors and copyright. <br />
 
 ```bash
