@@ -18,7 +18,7 @@ We have added a calibration file with precalibrated parameters. To run this:
 ## To use on real dataset:
 The two different datasets used in the paper are available. To run this:
 1. Run policy_rate.dta from command window;
-2. Run Emperical_example.do from do-file editor.
+2. Run Empirical_example.do from do-file editor.
 
 ## Folder structure
 The folder structure is shown in the figure below. We first give an explanation of the files.<br />
