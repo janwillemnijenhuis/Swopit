@@ -5,7 +5,7 @@ Package name:  Article tag (Stata Press to add)
 
 DOI:  Digital object identifier (Stata Press to add)
 
-Title:  A mixture of ordered probit models with endogenous assignment to two latent classes
+Title:  A mixture of ordered probit models with endogenous switching between two latent classes
 
 Author 1 name:  Jochem Huismans
 Author 1 from:  Jochem L. Huismans, Amsterdam School of Economics, University of Amsterdam, Amsterdam, the Netherlands
