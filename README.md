@@ -50,17 +50,14 @@ The folder structure is shown in the figure below. We first give an explanation 
 
 ```bash
 Swopit
-│   Community Contributed Software.zip
-│   Estimation of two-regime switching ordered probit model.pdf
-|   Estimation of two-regime switching ordered probit model - revision.pdf
+│   Estimation of two-regime switching ordered probit model - revision.pdf
 │   README.md
 │   readme.txt
 │
 ├───Community Contributed Software
-│       application.do
 │       DefModel.ado
+│       Empirical_example.do
 │       estimates.ado
-│       fmm_health.dta
 │       helpfunctest.ado
 │       policy_rate.dta
 │       readme.txt
