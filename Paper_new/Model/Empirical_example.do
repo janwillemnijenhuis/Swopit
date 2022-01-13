@@ -37,15 +37,13 @@ swopitclassification
 
 set seed 3
 set more off
-swopit y house gdp bias spread, reg(house gdp) outone(bias spread) outtwo(bias spread) ///
-> boot(900) bootguesses(2) bootiter(100) change(0.25)
+swopit y house gdp bias spread, reg(house gdp) outone(bias spread) outtwo(bias spread) boot(900) bootguesses(2) bootiter(100) change(0.25)
 
 swopitprobabilities, at(house=1.5 gdp=8.9 bias=1 spread=-0.0633333)
 
 set seed 3
 set more off
-swopit y house gdp bias spread, reg(house gdp) outone(bias spread) outtwo(bias spread) endo ///
-> guesses(25)
+swopit y house gdp bias spread, reg(house gdp) outone(bias spread) outtwo(bias spread) endo guesses(25)
 
 // view help
 view swopit.sthlp
