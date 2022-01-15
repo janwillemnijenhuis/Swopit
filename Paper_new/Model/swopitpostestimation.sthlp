@@ -25,7 +25,7 @@ The following postestimation commands are available after {cmd:swopit}:
 {marker predict}{...}
 {title:Syntax for swopitpredict}
 {pstd}
-{cmd:swopitpredict} {varname} [, {opt regimes} {opt choice(string)} {opt name(string)} {opt tabstat}]
+{cmd:swopitpredict} {varname} [, {opt regimes} {opt output(string)} {opt name(string)} {opt tabstat}]
 
 {synoptset 28 tabbed}{...}
 {synopthdr}
@@ -65,10 +65,10 @@ It creates the variables named varname_i where i is the label of the observed ch
        . swopitpredict, name(pr_choice)
 
 {pstd}Predicted discrete choice (one with the largest probability){p_end}
-       . swopitpredict name(pr_choice) output(choice)
+       . swopitpredict, name(pr_choice) output(choice)
 
 {pstd}Expected value of dependent variable{p_end}
-       . swopitpredict name(pr_choice) output(mean)
+       . swopitpredict, name(pr_choice) output(mean)
 
 {pstd}Predicted cumulative probabilities of discrete choices{p_end}
        . swopitpredict, name(pr_choice) output(cum)
@@ -114,7 +114,7 @@ The syntax of this command is {it:varname = value} for each variable, separated 
        . swopitprobabilities 
 
 {pstd}Predicted probabilities of discrete choices at the specified values of independent variables{p_end}
-       . swopitprobabilities, at (pb=1, spread=0.426, houst=1.6, gdp=6.8)
+       . swopitprobabilities, at (pb=1 spread=0.426 houst=1.6 gdp=6.8)
 
 {pstd}Predicted probabilities of two regimes at the median values of independent variables{p_end}
        . swopitprobabilities, regimes
@@ -142,10 +142,9 @@ The syntax of this command is {it:varname = value} for each variable, separated 
 {p2coldent :Option}Description{p_end}
 {synoptline}
 
-{synopt :{opt at(string)}}specifies the values of the independent variables at which to estimate the marginal effects. 
-By default, the marginal effects are computed at the median values of the independent variables. The syntax of this command is {it: varname = value} for each variable, separated by a blank space. varname is the name of the variable listed in indepvars. If an independent variable from indepvars is excluded from this option, the marginal effects are estimated at the median value of this variable.{p_end}
+{synopt :{opt at(string)}}specifies the values of the independent variables to estimate the partial effects. By default, the partial effects are computed at the median values of the independent variables. The syntax of this command is varname = value for each variable, separated by a blank space. varname is the name of the variable listed in indepvars. If an independent variable from indepvars is not included, the partial effects are estimated at the median value of this variable.{p_end}
 
-{synopt :{opt regimes}}calculates the predicted marginal effects of the latent classes (regimes) instead of the choice marginal effects (by default).{p_end}
+{synopt :{opt regimes}}calculates the partial effects on the probabilities of the latent classes instead of the choice probabilities (by default)..{p_end}
 
 {synoptline}
 {p2colreset}{...}
@@ -164,9 +163,9 @@ By default, the marginal effects are computed at the median values of the indepe
        . swopitmargins
 
 {pstd}Marginal effects on choice probabilities at the specified values of independent variables{p_end}
-       . swopitmargins, at (pb=1, spread=0.426, houst=1.6, gdp=6.8)
+       . swopitmargins, at (pb=1 spread=0.426 houst=1.6 gdp=6.8)
 
-{pstd}Marginal effects on probabilities of three regimes at the median values of independent variables{p_end}
+{pstd}Marginal effects on the regimes at the median values of independent variables{p_end}
        . swopitmargins, regimes
 	   
 {pstd}
