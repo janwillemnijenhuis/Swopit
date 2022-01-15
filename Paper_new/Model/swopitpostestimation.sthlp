@@ -125,7 +125,7 @@ The syntax of this command is {it:varname = value} for each variable, separated 
 {synoptset 20 tabbed}{...}
 {p2col 5 15 19 2: Scalars}{p_end}
 {synopt:{cmd:r(at)}}vector with the values at which the probabilities are computed{p_end}
-{synopt:{cmd:r(me)}}vector with the probabilities{p_end}
+{synopt:{cmd:r(pr)}}vector with the probabilities{p_end}
 {synopt:{cmd:r(se)}}vector with the standard error of the probabilities{p_end}
 {synopt:{cmd:r(t)}}vector with the t-statistic of the computed probabilities{p_end}
 {synopt:{cmd:r(pval)}}p-value of the Chi-square test{p_end}
