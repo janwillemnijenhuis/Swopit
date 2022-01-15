@@ -959,6 +959,15 @@ function output_mesetp(me, se, rowstripes, colstripes) {
 	output_matrix("pval", pval, rowstripes, colstripes)
 }
 
+function output_prsetp(pr, se, rowstripes, colstripes) {
+	t = pr :/ se
+	pval = (1:-normal(abs(t))) :* 2
+	output_matrix("pr",     pr, rowstripes, colstripes)
+	output_matrix("se",     se, rowstripes, colstripes)
+	output_matrix("t",       t, rowstripes, colstripes)
+	output_matrix("pval", pval, rowstripes, colstripes)
+}
+
 void print_matrix(contents, rownames, colnames, | uline, lline, mline, digits, rowtitle, coltitle) {
 	// because Stata cannot display matrices with dots in colnames, we need our own printing function!
 	n = rows(contents)

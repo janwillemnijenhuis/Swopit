@@ -1771,9 +1771,9 @@ function SWOPITprobabilities(class SWOPITModel scalar model, string atVarlist, z
 	}
 	
 	rowstripes = " " // rowstripes made invisible
-	mese = generalPredictWithSE(model.model_class,model.params', xz_from, model.ncat, model.outeq1,model.outeq2,model.regeq,V, loop)
-	me = mese[1,]
-	se = mese[2,]
+	prse = generalPredictWithSE(model.model_class,model.params', xz_from, model.ncat, model.outeq1,model.outeq2,model.regeq,V, loop)
+	pr = prse[1,]
+	se = prse[2,]
 
 	if(model.model_bootstrap == "Bootstrap"){
  		
@@ -1805,7 +1805,7 @@ function SWOPITprobabilities(class SWOPITModel scalar model, string atVarlist, z
  	}
 
 
-	output_mesetp(me, se, rowstripes, colstripes)
+	output_prsetp(pr, se, rowstripes, colstripes)
 	
 	// now the printing part! 
 	displayas("txt")
@@ -1823,7 +1823,7 @@ function SWOPITprobabilities(class SWOPITModel scalar model, string atVarlist, z
 		displayas("txt")
 		printf("\nPredicted probabilities of different outcomes\n")
 	}
-	print_matrix(me, ., colstripes)
+	print_matrix(pr, ., colstripes)
 
 	if(model.model_bootstrap == "Bootstrap"){
 		displayas("txt")

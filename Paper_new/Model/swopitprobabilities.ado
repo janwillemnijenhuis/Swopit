@@ -4,7 +4,7 @@ program swopitprobabilities, rclass
 	syntax [, at(string asis) zeros regimes]
 	mata: SWOPITprobabilities(SWOPITMODEL, "`at'", "`zeros'" == "zeros", "`regimes'"=="regimes")
 	return matrix at at
-	return matrix me me
+	return matrix pr pr
 	return matrix se se
 	return matrix t t
 	return matrix pval pval
