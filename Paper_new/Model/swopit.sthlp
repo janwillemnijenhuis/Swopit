@@ -46,7 +46,7 @@ constraints on the parameters values are applied.
 estimation attempt, optimization method, and convergence status. By default, the
 log output is suppressed.{p_end}
 
-{synopt :{opt maxiter:(scalar)}} specifies the maximum number of iterations before the optimization algorithm quits and reports that the estimation of the model does not converge. 
+{synopt :{opt max:iter(scalar)}} specifies the maximum number of iterations before the optimization algorithm quits and reports that the estimation of the model does not converge. 
 The default is maxiter(500).{p_end}
 
 {synopt :{opt ptol:(scalar)}} specifies the tolerance for parameters. 
@@ -90,9 +90,6 @@ The default is bootiter(100).
 {pstd}See {help swopitpostestimation:swopit postestimation} for features available after estimation.{p_end}
 
 {title:Examples}
-
-{pstd}Setup{p_end}
-       . webuse rate_change
 
 {pstd}Fit a mixture of two ordered probit models with exogenous switching{p_end}
        . swopit rate_change spread pb houst gdp, reg(spread gdp) outone(spread pb) outtwo(houst gdp)
@@ -150,4 +147,4 @@ The default is bootiter(100).
 
 {title:References}
 
-{p 4 7}Huismans, J., Nijenhuis, J.W., Sirchenko, A. 2021. A mixture of ordered probit models with endogenous switching between two latent classes. {it:Manuscript.} 24 (1).{p_end}
+{p 4 7}Huismans, J., Nijenhuis, J.W., Sirchenko, A. 2022. A mixture of ordered probit models with endogenous switching between two latent classes. {it:Manuscript.}.{p_end}

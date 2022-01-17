@@ -25,7 +25,7 @@ The following postestimation commands are available after {cmd:swopit}:
 {marker predict}{...}
 {title:Syntax for swopitpredict}
 {pstd}
-{cmd:swopitpredict} {varname} [, {opt regimes} {opt output(string)} {opt name(string)} {opt tabstat}]
+{cmd:swopitpredict} [, {opt regimes} {opt output(string)} {opt name(varname)} {opt tabstat}]
 
 {synoptset 28 tabbed}{...}
 {synopthdr}
@@ -33,9 +33,7 @@ The following postestimation commands are available after {cmd:swopit}:
 
 {synopt :{opt regimes}} calculates the predicted probabilities of the latent classes (regimes) instead of the choice probabilities (by default).{p_end}
 
-{synopt :{opt output(string)}}specifies the different types of predictions. The possible options for {it:string} are: {it:choice} for reporting the predicted outcome (the choice with the largest predicted probability); {it:mean} for reporting the expected value of the dependent variable computed as a summation of i*Pr(y=i) across all choices i; and 
-{it:cum} for predicting the cumulative choice probabilities such as Pr(y<=0), Pr(y<=1), ... . 
-If {opt output()} is not specified, the usual choice probabilities such as Pr(y=0), Pr(y=1), ... are predicted.{p_end}
+{synopt :{opt output(string)}}specifies the different types of predictions. The possible options for {it:string} are: {it:choice} for reporting the predicted outcome (the choice or regime with the largest predicted probability); {it:mean} for reporting the expected value of the dependent variable computed as a summation of j * Pr(y = j) across all choices j = 1,2,...,J; and {it:cum} for predicting the cumulative choice probabilities such as Pr(y <= 1), Pr(y <= 2), ..., Pr(y <= J ). If {opt output()} is not specified, the usual choice probabilities such as Pr(y = 1), Pr(y = 2), ..., Pr(y = J) are predicted.{p_end}
 
 {synopt :{opt name(varname)}} creates the variables named varname_*, where * is the label of the
 observed choice or latent class. varname can only consist of letters and underscores.
@@ -58,7 +56,6 @@ It creates the variables named varname_i where i is the label of the observed ch
 {title:Examples for predict}
 
 {pstd}Setup{p_end}
-       . webuse rate_change
        . swopit rate_change spread pb houst gdp, reg(houst gdp) outone(spread gdp) outtwo(spread pb) endo
 
 {pstd}Predicted probabilities of discrete choices{p_end}
@@ -107,7 +104,6 @@ The syntax of this command is {it:varname = value} for each variable, separated 
 {title:Examples for swopitprobabilities}
 
 {pstd}Setup{p_end}
-       . webuse rate_change
        . swopit rate_change spread pb houst gdp, reg(houst gdp) outone(spread gdp) outtwo(spread pb) 
 
 {pstd}Predicted probabilities of discrete choices at the median values of independent variables{p_end}
@@ -124,11 +120,11 @@ The syntax of this command is {it:varname = value} for each variable, separated 
 
 {synoptset 20 tabbed}{...}
 {p2col 5 15 19 2: Scalars}{p_end}
-{synopt:{cmd:r(at)}}vector with the values at which the probabilities are computed{p_end}
-{synopt:{cmd:r(pr)}}vector with the probabilities{p_end}
-{synopt:{cmd:r(se)}}vector with the standard error of the probabilities{p_end}
-{synopt:{cmd:r(t)}}vector with the t-statistic of the computed probabilities{p_end}
-{synopt:{cmd:r(pval)}}p-value of the Chi-square test{p_end}
+{synopt:{cmd:r(at)}}vector of the covariates values, at which the probabilities are computed{p_end}
+{synopt:{cmd:r(pr)}}vector of the probabilities{p_end}
+{synopt:{cmd:r(se)}}vector of the standard errors of the probabilities{p_end}
+{synopt:{cmd:r(t)}}vector of the t-statistics of the probabilities{p_end}
+{synopt:{cmd:r(pval)}}vector of the p-values of the t-tests for the probabilities{p_end}
 
 {synoptline}
 
@@ -156,7 +152,6 @@ The syntax of this command is {it:varname = value} for each variable, separated 
 {title:Examples for swopitmargins}
 
 {pstd}Setup{p_end}
-       . webuse rate_change
        . swopit rate_change spread pb houst gdp, reg(houst gdp) outone(spread gdp) outtwo(spread pb) 
 
 {pstd}Marginal effects on choice probabilities at the median values of independent variables{p_end}
@@ -165,19 +160,19 @@ The syntax of this command is {it:varname = value} for each variable, separated 
 {pstd}Marginal effects on choice probabilities at the specified values of independent variables{p_end}
        . swopitmargins, at (pb=1 spread=0.426 houst=1.6 gdp=6.8)
 
-{pstd}Marginal effects on the regimes at the median values of independent variables{p_end}
+{pstd}Marginal effects on the regime probabilities at the median values of independent variables{p_end}
        . swopitmargins, regimes
 	   
 {pstd}
 {cmd:swopitmargins} stores the following in {cmd:r()}:
 
 {synoptset 20 tabbed}{...}
-{p2col 5 15 19 2: Scalars}{p_end}
-{synopt:{cmd:r(at)}}vector with the values at which the marginal effects are computed{p_end}
-{synopt:{cmd:r(me)}}vector with the marginal effects{p_end}
-{synopt:{cmd:r(se)}}vector with the standard error of the marginal effects{p_end}
-{synopt:{cmd:r(t)}}vector with the t-statistic of the computed marginal effects{p_end}
-{synopt:{cmd:r(pval)}}p-value of the Chi-square test{p_end}
+{p2col 5 15 19 2: Matrices}{p_end}
+{synopt:{cmd:r(at)}}vector of the covariates values, at which the marginal effects are computed{p_end}
+{synopt:{cmd:r(me)}}matrix of the marginal effects on the probabilities{p_end}
+{synopt:{cmd:r(se)}}matrix of the standard errors of the marginal effects on the probabilities{p_end}
+{synopt:{cmd:r(t)}}matrix of the t-statistics of the marginal effects on the probabilities{p_end}
+{synopt:{cmd:r(pval)}}matrix of the p-values of the t-tests for the marginal effects{p_end}
 
 {synoptline}
 
