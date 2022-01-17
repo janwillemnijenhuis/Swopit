@@ -22,11 +22,11 @@ The two different datasets used in the paper are available. To run this:
 
 ## Folder structure
 The folder structure is shown in the figure below. We first give an explanation of the files.<br />
-`Community Contributed Software` contains the files as sent to Stata Journal.<br />
-`Estimation of two-regime switching ordered probit model - revision.pdf` the latest version of the paper, as submitted to Stata Journal <br />
+`Swopit package` contains the files as sent to Stata Journal.<br />
+`A mixture of ordered probit models with endogenous switching between two latent classes model - revision.pdf` the latest version of the paper, as submitted to Stata Journal <br />
 `README.md` this file. <br />
 `readme.txt` the description of the paper, authors and copyright. <br />
-`Paper_new/Model` contains all development code.<br />
+`Development files/Model` contains all development code.<br />
 &emsp;&emsp;`DefModel.ado` contains all model definitions.<br />
 &emsp;&emsp;`Empirical_example.do` the do-file with the empirical example from the paper <br />
 &emsp;&emsp;`estimates.ado` contains the main estimation routines and postestimation commands.<br />
@@ -55,22 +55,20 @@ Swopit
 │   README.md
 │   readme.txt
 │
-├───Community Contributed Software
+├───Swopit package
 │       DefModel.ado
 │       Empirical_example.do
 │       estimates.ado
 │       helpfunctest.ado
 │       policy_rate.dta
 │       readme.txt
-│       swopit.ado
-│       swopit.sthlp
 │       swopitclassification.ado
 │       swopitmargins.ado
 │       swopitpostestimation.sthlp
 │       swopitpredict.ado
 │       swopitprobabilities.ado
 │
-└───Paper_new
+└───Development files
     └───Model
         │   DefModel.ado
         │   Empirical_example.do
