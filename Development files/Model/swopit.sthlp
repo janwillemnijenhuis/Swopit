@@ -8,7 +8,7 @@
 {title:Syntax}
 
 {marker nop}{...}
-{p 4 7} The following command fits a mixture of OP models with either exogenous or endogenous assignment to two latent classes (regimes) (Huismans, Nijenhuis and Sirchenko 2021).{p_end}
+{p 4 7} The following command fits a mixture of OP models with either exogenous or endogenous assignment to two latent classes (regimes) (Huismans, Nijenhuis and Sirchenko 2022).{p_end}
 
 {pstd}{cmd:swopit} {depvar} {it:indepvars} {ifin} {bind:[{cmd:,} {it:options}]}{p_end}
 
@@ -92,13 +92,10 @@ The default is bootiter(100).
 {title:Examples}
 
 {pstd}Fit a mixture of two ordered probit models with exogenous switching{p_end}
-       . swopit rate_change spread pb houst gdp, reg(spread gdp) outone(spread pb) outtwo(houst gdp)
-
-{pstd}Fit a mixture of two ordered probit models with exogenous switching{p_end}
        . swopit y house gdp bias spread, reg(house gdp) outone(bias spread) outtwo(bias spread)
 
 {pstd}Fit a mixture of two ordered probit models with endogenous switching{p_end}
-       . swopit rate_change spread pb houst gdp, reg(spread gdp) outone(spread pb) outtwo(houst gdp) endo
+       . swopit y house gdp bias spread, reg(house gdp) outone(bias spread) outtwo(bias spread) endo guesses(25)
 
 {pstd}Fit a mixture of two ordered probit models with exogenous switching and bootstrap st. errors{p_end}
        . swopit y house gdp bias spread, reg(house gdp) outone(bias spread) outtwo(bias spread) boot(900) bootguesses(2) bootiter(100) change(0.25)
