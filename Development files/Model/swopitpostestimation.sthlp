@@ -182,7 +182,6 @@ The syntax of this command is {it:varname = value} for each variable, separated 
 {pstd}
 {cmd:swopitclassification}
 
-
 {title:Description for swopitclassification}
 
 {p 4 7}{cmd:swopitclassification} This command constructs a confusion matrix (classification table) for the dependent variable. 
