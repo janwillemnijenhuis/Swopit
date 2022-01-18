@@ -95,7 +95,7 @@ The default is bootiter(100).
        . swopit rate_change spread pb houst gdp, reg(spread gdp) outone(spread pb) outtwo(houst gdp)
 
 {pstd}Fit a mixture of two ordered probit models with exogenous switching{p_end}
-       . swopit y house gdp bias spread, reg(house gdp) outone(bias spread) outtwo(bias spread) endo guesses(25)
+       . swopit y house gdp bias spread, reg(house gdp) outone(bias spread) outtwo(bias spread)
 
 {pstd}Fit a mixture of two ordered probit models with endogenous switching{p_end}
        . swopit rate_change spread pb houst gdp, reg(spread gdp) outone(spread pb) outtwo(houst gdp) endo
@@ -147,4 +147,4 @@ The default is bootiter(100).
 
 {title:References}
 
-{p 4 7}Huismans, J., Nijenhuis, J.W., Sirchenko, A. 2022. A mixture of ordered probit models with endogenous switching between two latent classes. {it:Manuscript.}.{p_end}
+{p 4 7}Huismans, J., Nijenhuis, J.W., Sirchenko, A. 2022. A mixture of ordered probit models with endogenous switching between two latent classes. {it:Manuscript}.{p_end}
