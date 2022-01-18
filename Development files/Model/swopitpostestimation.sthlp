@@ -56,7 +56,7 @@ It creates the variables named varname_i where i is the label of the observed ch
 {title:Examples for predict}
 
 {pstd}Setup{p_end}
-       . swopit rate_change spread pb houst gdp, reg(houst gdp) outone(spread gdp) outtwo(spread pb) endo
+       . swopit y house gdp bias spread, reg(house gdp) outone(bias spread) outtwo(bias spread)
 
 {pstd}Predicted probabilities of discrete choices{p_end}
        . swopitpredict, name(pr_choice)
@@ -104,7 +104,7 @@ The syntax of this command is {it:varname = value} for each variable, separated 
 {title:Examples for swopitprobabilities}
 
 {pstd}Setup{p_end}
-       . swopit rate_change spread pb houst gdp, reg(houst gdp) outone(spread gdp) outtwo(spread pb) 
+       . swopit y house gdp bias spread, reg(house gdp) outone(bias spread) outtwo(bias spread)
 
 {pstd}Predicted probabilities of discrete choices at the median values of independent variables{p_end}
        . swopitprobabilities 
@@ -152,7 +152,7 @@ The syntax of this command is {it:varname = value} for each variable, separated 
 {title:Examples for swopitmargins}
 
 {pstd}Setup{p_end}
-       . swopit rate_change spread pb houst gdp, reg(houst gdp) outone(spread gdp) outtwo(spread pb) 
+       . swopit y house gdp bias spread, reg(house gdp) outone(bias spread) outtwo(bias spread)
 
 {pstd}Marginal effects on choice probabilities at the median values of independent variables{p_end}
        . swopitmargins
@@ -192,8 +192,7 @@ The command also reports the accuracy (the percentage of correct predictions), t
 {title:Examples for swopitclassification}
 
 {pstd}Setup{p_end}
-       . webuse rate_change
-       . swopit rate_change spread pb houst gdp, reg(houst gdp) outone(spread gdp) outtwo(spread pb)
+       . swopit y house gdp bias spread, reg(house gdp) outone(bias spread) outtwo(bias spread)
 
 {pstd}Classification table and other measures of fit{p_end}
        . swopitclassification
