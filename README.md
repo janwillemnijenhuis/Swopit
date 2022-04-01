@@ -29,7 +29,7 @@ The folder structure is shown in the figure below. We first give an explanation 
 `Development files/Model` contains all development code.<br />
 &emsp;&emsp;`DefModel.ado` contains all model definitions.<br />
 &emsp;&emsp;`Empirical_example.do` the do-file with the empirical example from the paper <br />
-&emsp;&emsp;`estimates.ado` contains the main estimation routines and postestimation commands.<br />
+&emsp;&emsp;`swopitestimates.ado` contains the main estimation routines and postestimation commands.<br />
 &emsp;&emsp;`helpfunctest.ado` contains the auxiliary functions used in optimization.<br />
 &emsp;&emsp;`policy_rate.dta` data on policy rate changes (used in the paper). <br />
 &emsp;&emsp;`sim_results.xlsx` simulation results. <br />
@@ -58,7 +58,7 @@ Swopit
 ├───Swopit package
 │       DefModel.ado
 │       Empirical_example.do
-│       estimates.ado
+│       swopitestimates.ado
 │       helpfunctest.ado
 │       policy_rate.dta
 │       readme.txt
