@@ -1,3 +1,6 @@
+*! version 1.0.0 01apr2022
+*! contains all model definitions for the swopit command
+
 version 14
 mata
 class SWOPITModel {

@@ -1,4 +1,8 @@
-capture program drop swopit
+*! version 1.0.0 01apr2022
+*! contains the Stata interface of the swopit command
+*! the command fits a mixture of OP models with either exogenous 
+*! or endogenous switching between two latent classes (regimes)
+
 program swopit, eclass
 	version 14
 	syntax varlist(min=2) [if] [in] [, REGindepvars(varlist) OUTONEindepvars(varlist) OUTTWOindepvars(varlist) INITIAL(string asis) GUESSES(real 5) CHANGE(real 0.5) LIMit(string asis) MAXiter(real 500) PTOL(real 1e-6) VTOL(real 1e-7) NRTOL(real 1e-5) ENDOgenous BOOTstrap(real 0) BOOTGUESSES(real 3) BOOTITER(real 100) LOG]
@@ -9,7 +13,7 @@ program swopit, eclass
 
 	run helpfunctest.ado
 	run DefModel.ado
-	run estimates.ado
+	run swopitestimates.ado
 		
 	capture mata: SWOPITMODEL = swopitmain("`varlist'","`regindepvars'","`outoneindepvars'","`outtwoindepvars'", "`touse'", "`initial'", "`guesses'", "`change'", "`limit'", "`maxiter'", "`ptol'", "`vtol'", "`nrtol'", "`endogenous'" == "endogenous", "`bootstrap'", "`bootguesses'", "`bootiter'", "`log'" == "log")
 

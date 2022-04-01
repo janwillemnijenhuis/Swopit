@@ -1,5 +1,7 @@
-version 14
+*! version 1.0.0 01apr2022
+*! contains the auxiliary functions used in optimization for the swopit command
 
+version 14
 mata:
 function printMsg(s, nolog) {
 	if (nolog != 0) {
