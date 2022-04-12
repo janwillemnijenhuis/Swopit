@@ -12,7 +12,7 @@ program swopit, eclass
 	mata: mata clear
 
 	run helpfunctest.ado
-	run DefModel.ado
+	run defmodel.ado
 	run swopitestimates.ado
 		
 	capture mata: SWOPITMODEL = swopitmain("`varlist'","`regindepvars'","`outoneindepvars'","`outtwoindepvars'", "`touse'", "`initial'", "`guesses'", "`change'", "`limit'", "`maxiter'", "`ptol'", "`vtol'", "`nrtol'", "`endogenous'" == "endogenous", "`bootstrap'", "`bootguesses'", "`bootiter'", "`log'" == "log")
